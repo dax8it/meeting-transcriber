@@ -1,0 +1,9 @@
+.build/
+DerivedData/
+xcuserdata/
+*.xcuserstate
+*.xcscmblueprint
+meeting-transcriber.xcodeproj/project.xcworkspace/xcshareddata/
+**/*.gguf
+**/*.bin
+**/*.bundle

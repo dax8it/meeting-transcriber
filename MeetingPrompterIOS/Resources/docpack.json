@@ -1,0 +1,105 @@
+{
+  "version": "1.0.0",
+  "chunks": [
+    {
+      "id": "chunk-001",
+      "title": "Getting Started Guide",
+      "sectionPath": "Introduction > Getting Started",
+      "text": "Welcome to the Meeting Prompter app! This app helps you get real-time answers during meetings by using local AI models. To get started, simply tap and hold the microphone button to speak your question. The app will transcribe your speech, search through your documents, and provide an answer with sources.",
+      "metadata": {
+        "category": "guide",
+        "updated": "2026-01-10"
+      }
+    },
+    {
+      "id": "chunk-002",
+      "title": "Audio Recording",
+      "sectionPath": "Features > Audio Recording",
+      "text": "The app uses push-to-talk functionality for recording. Hold the microphone button to start recording and release to stop. The app captures audio from your device microphone at 16kHz sampling rate. Voice activity detection helps ensure clean recordings by filtering out silence.",
+      "metadata": {
+        "category": "feature",
+        "updated": "2026-01-10"
+      }
+    },
+    {
+      "id": "chunk-003",
+      "title": "Live Transcription",
+      "sectionPath": "Features > Transcription",
+      "text": "Live transcription runs while you record, showing a partial transcript with a live indicator. The transcription service uses the LFM2-Audio-1.5B model running entirely on your device. Partial transcriptions update every 1.5 seconds with a rate limit to prevent excessive inference.",
+      "metadata": {
+        "category": "feature",
+        "updated": "2026-01-10"
+      }
+    },
+    {
+      "id": "chunk-004",
+      "title": "Document Search",
+      "sectionPath": "Features > Retrieval",
+      "text": "When you ask a question, the app searches through your bundled documents using BM25 ranking on an SQLite FTS5 index. The search returns the top 3 most relevant document chunks. This retrieval happens entirely locally on your device.",
+      "metadata": {
+        "category": "feature",
+        "updated": "2026-01-10"
+      }
+    },
+    {
+      "id": "chunk-005",
+      "title": "Answer Generation",
+      "sectionPath": "Features > RAG",
+      "text": "The RAG pipeline combines retrieval, grounding, and generation. After retrieving relevant documents, a sentence selector extracts the best evidence sentences. The LFM2-1.2B-RAG model then generates an answer based only on this evidence, ensuring accurate and grounded responses.",
+      "metadata": {
+        "category": "feature",
+        "updated": "2026-01-10"
+      }
+    },
+    {
+      "id": "chunk-006",
+      "title": "Privacy",
+      "sectionPath": "Privacy > Data Handling",
+      "text": "The Meeting Prompter app is designed for privacy. All audio processing, transcription, search, and AI inference happen entirely on your device. No data is sent to external servers or cloud services. The app works offline, including in Airplane Mode after installation.",
+      "metadata": {
+        "category": "privacy",
+        "updated": "2026-01-10"
+      }
+    },
+    {
+      "id": "chunk-007",
+      "title": "Adding Documents",
+      "sectionPath": "Guide > Documents",
+      "text": "To add your own documents, create a JSON file named docpack.json and add it to your app bundle. Each document should be divided into chunks with titles, section paths, and text content. The app will index these chunks on first launch using SQLite FTS5 for fast search.",
+      "metadata": {
+        "category": "guide",
+        "updated": "2026-01-10"
+      }
+    },
+    {
+      "id": "chunk-008",
+      "title": "Performance Tips",
+      "sectionPath": "Guide > Performance",
+      "text": "For optimal performance, ensure your device has sufficient RAM. The AI models require memory to run efficiently. Close other apps when using Meeting Prompter for better performance. On older devices, transcription and answer generation may take longer.",
+      "metadata": {
+        "category": "guide",
+        "updated": "2026-01-10"
+      }
+    },
+    {
+      "id": "chunk-009",
+      "title": "Troubleshooting",
+      "sectionPath": "Support > Troubleshooting",
+      "text": "If the app fails to initialize, check that model bundles are included in the app bundle. For recording issues, ensure microphone permissions are granted. If answers seem incorrect, verify your document pack is properly formatted and indexed.",
+      "metadata": {
+        "category": "support",
+        "updated": "2026-01-10"
+      }
+    },
+    {
+      "id": "chunk-010",
+      "title": "Question Detection",
+      "sectionPath": "Features > Question Detection",
+      "text": "The app automatically detects questions using keyword and punctuation analysis. Common question words like what, when, where, who, why, how, can, should, and others trigger the RAG pipeline. The presence of question marks also activates question processing.",
+      "metadata": {
+        "category": "feature",
+        "updated": "2026-01-10"
+      }
+    }
+  ]
+}

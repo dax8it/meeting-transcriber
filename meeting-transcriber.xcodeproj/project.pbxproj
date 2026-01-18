@@ -6,33 +6,120 @@
 	objectVersion = 77;
 	objects = {
 
-/* Begin PBXFileReference section */
-		F3E4ACA92F1353B5004D18BD /* meeting-transcriber.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = "meeting-transcriber.app"; sourceTree = BUILT_PRODUCTS_DIR; };
-/* End PBXFileReference section */
+/* Begin PBXBuildFile section */
+		F30458BE2F1C71B600D55FE0 /* mmproj-LFM2.5-Audio-1.5B-Q4_0.gguf in Resources */ = {isa = PBXBuildFile; fileRef = F30458BB2F1C719100D55FE0 /* mmproj-LFM2.5-Audio-1.5B-Q4_0.gguf */; };
+		F30458BF2F1C71B600D55FE0 /* tokenizer-LFM2.5-Audio-1.5B-Q4_0.gguf in Resources */ = {isa = PBXBuildFile; fileRef = F30458BC2F1C719100D55FE0 /* tokenizer-LFM2.5-Audio-1.5B-Q4_0.gguf */; };
+		F3E4ACCF2F136364004D18BD /* LFM2.5-Audio-1.5B-Q4_0.gguf in Resources */ = {isa = PBXBuildFile; fileRef = F3E4ACC92F136364004D18BD /* LFM2.5-Audio-1.5B-Q4_0.gguf */; };
+		F3E4ACD02F136364004D18BD /* LFM2-1.2B-Extract-Q5_K_M.gguf in Resources */ = {isa = PBXBuildFile; fileRef = F3E4ACC72F136364004D18BD /* LFM2-1.2B-Extract-Q5_K_M.gguf */; };
+		F3E4ACD12F136364004D18BD /* Assets.xcassets in Resources */ = {isa = PBXBuildFile; fileRef = F3E4ACCB2F136364004D18BD /* Assets.xcassets */; };
+		F3E4ACD22F136364004D18BD /* LFM2-1.2B-RAG-Q5_K_M.gguf in Resources */ = {isa = PBXBuildFile; fileRef = F3E4ACC82F136364004D18BD /* LFM2-1.2B-RAG-Q5_K_M.gguf */; };
+		F3E4ACD42F136364004D18BD /* meeting_transcriberApp.swift in Sources */ = {isa = PBXBuildFile; fileRef = F3E4ACCD2F136364004D18BD /* meeting_transcriberApp.swift */; };
+		F3E4ACD52F136364004D18BD /* ContentView.swift in Sources */ = {isa = PBXBuildFile; fileRef = F3E4ACCC2F136364004D18BD /* ContentView.swift */; };
+		F3E4ACDC2F136BAB004D18BD /* LeapModelDownloader in Frameworks */ = {isa = PBXBuildFile; productRef = F3E4ACDB2F136BAB004D18BD /* LeapModelDownloader */; };
+		F3E4ACDE2F136BAB004D18BD /* LeapSDK in Frameworks */ = {isa = PBXBuildFile; productRef = F3E4ACDD2F136BAB004D18BD /* LeapSDK */; };
+		F3E4ACE12F136C09004D18BD /* GRDB in Frameworks */ = {isa = PBXBuildFile; productRef = F3E4ACE02F136C09004D18BD /* GRDB */; };
+		F3E4AD032F1374E8004D18BD /* AppState.swift in Sources */ = {isa = PBXBuildFile; fileRef = F3E4ACF42F1374E8004D18BD /* AppState.swift */; };
+		F3E4AD042F1374E8004D18BD /* AudioCaptureService.swift in Sources */ = {isa = PBXBuildFile; fileRef = F3E4ACEE2F1374E8004D18BD /* AudioCaptureService.swift */; };
+		F3E4AD052F1374E8004D18BD /* ASRService.swift in Sources */ = {isa = PBXBuildFile; fileRef = F3E4ACE92F1374E8004D18BD /* ASRService.swift */; };
+		F3E4AD062F1374E8004D18BD /* AnswerView.swift in Sources */ = {isa = PBXBuildFile; fileRef = F3E4ACFF2F1374E8004D18BD /* AnswerView.swift */; };
+		F3E4AD072F1374E8004D18BD /* SourcesView.swift in Sources */ = {isa = PBXBuildFile; fileRef = F3E4AD002F1374E8004D18BD /* SourcesView.swift */; };
+		F3E4AD082F1374E8004D18BD /* QuestionDetector.swift in Sources */ = {isa = PBXBuildFile; fileRef = F3E4ACF22F1374E8004D18BD /* QuestionDetector.swift */; };
+		F3E4AD092F1374E8004D18BD /* Logger.swift in Sources */ = {isa = PBXBuildFile; fileRef = F3E4ACFC2F1374E8004D18BD /* Logger.swift */; };
+		F3E4AD0A2F1374E8004D18BD /* VADGate.swift in Sources */ = {isa = PBXBuildFile; fileRef = F3E4ACF02F1374E8004D18BD /* VADGate.swift */; };
+		F3E4AD0B2F1374E8004D18BD /* RAGService.swift in Sources */ = {isa = PBXBuildFile; fileRef = F3E4ACEC2F1374E8004D18BD /* RAGService.swift */; };
+		F3E4AD0C2F1374E8004D18BD /* MainViewModel.swift in Sources */ = {isa = PBXBuildFile; fileRef = F3E4ACE62F1374E8004D18BD /* MainViewModel.swift */; };
+		F3E4AD0D2F1374E8004D18BD /* PushToTalkController.swift in Sources */ = {isa = PBXBuildFile; fileRef = F3E4ACEF2F1374E8004D18BD /* PushToTalkController.swift */; };
+		F3E4AD0E2F1374E8004D18BD /* SearchIndex.swift in Sources */ = {isa = PBXBuildFile; fileRef = F3E4ACFA2F1374E8004D18BD /* SearchIndex.swift */; };
+		F3E4AD0F2F1374E8004D18BD /* SentenceSelector.swift in Sources */ = {isa = PBXBuildFile; fileRef = F3E4ACF62F1374E8004D18BD /* SentenceSelector.swift */; };
+		F3E4AD102F1374E8004D18BD /* LeapModelManager.swift in Sources */ = {isa = PBXBuildFile; fileRef = F3E4ACEA2F1374E8004D18BD /* LeapModelManager.swift */; };
+		F3E4AD112F1374E8004D18BD /* DocPackLoader.swift in Sources */ = {isa = PBXBuildFile; fileRef = F3E4ACF82F1374E8004D18BD /* DocPackLoader.swift */; };
+		F3E4AD122F1374E8004D18BD /* ModelIDs.swift in Sources */ = {isa = PBXBuildFile; fileRef = F3E4ACEB2F1374E8004D18BD /* ModelIDs.swift */; };
+		F3E4AD132F1374E8004D18BD /* TranscriptView.swift in Sources */ = {isa = PBXBuildFile; fileRef = F3E4AD012F1374E8004D18BD /* TranscriptView.swift */; };
+		F3E4AD142F1374E8004D18BD /* TaskQueue.swift in Sources */ = {isa = PBXBuildFile; fileRef = F3E4ACFD2F1374E8004D18BD /* TaskQueue.swift */; };
+		F3E4AD152F1374E8004D18BD /* DocumentChunk.swift in Sources */ = {isa = PBXBuildFile; fileRef = F3E4ACF92F1374E8004D18BD /* DocumentChunk.swift */; };
+		F3E4AD162F138A10004D18BD /* Resources/docpack.json in Resources */ = {isa = PBXBuildFile; fileRef = F3E4AD172F138A10004D18BD /* Resources/docpack.json */; };
+/* End PBXBuildFile section */
 
-/* Begin PBXFileSystemSynchronizedRootGroup section */
-		F3E4ACAB2F1353B5004D18BD /* meeting-transcriber */ = {
-			isa = PBXFileSystemSynchronizedRootGroup;
-			path = "meeting-transcriber";
-			sourceTree = "<group>";
-		};
-/* End PBXFileSystemSynchronizedRootGroup section */
+/* Begin PBXFileReference section */
+		F30458BA2F1C719100D55FE0 /* LFM2.5-Audio-1.5B-Q4_0.gguf */ = {isa = PBXFileReference; lastKnownFileType = file; path = "LFM2.5-Audio-1.5B-Q4_0.gguf"; sourceTree = "<group>"; };
+		F30458BB2F1C719100D55FE0 /* mmproj-LFM2.5-Audio-1.5B-Q4_0.gguf */ = {isa = PBXFileReference; lastKnownFileType = file; path = "mmproj-LFM2.5-Audio-1.5B-Q4_0.gguf"; sourceTree = "<group>"; };
+		F30458BC2F1C719100D55FE0 /* tokenizer-LFM2.5-Audio-1.5B-Q4_0.gguf */ = {isa = PBXFileReference; lastKnownFileType = file; path = "tokenizer-LFM2.5-Audio-1.5B-Q4_0.gguf"; sourceTree = "<group>"; };
+		F3E4ACA92F1353B5004D18BD /* meeting-transcriber.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = "meeting-transcriber.app"; sourceTree = BUILT_PRODUCTS_DIR; };
+		F3E4ACC72F136364004D18BD /* LFM2-1.2B-Extract-Q5_K_M.gguf */ = {isa = PBXFileReference; lastKnownFileType = file; path = "LFM2-1.2B-Extract-Q5_K_M.gguf"; sourceTree = "<group>"; };
+		F3E4ACC82F136364004D18BD /* LFM2-1.2B-RAG-Q5_K_M.gguf */ = {isa = PBXFileReference; lastKnownFileType = file; path = "LFM2-1.2B-RAG-Q5_K_M.gguf"; sourceTree = "<group>"; };
+		F3E4ACC92F136364004D18BD /* LFM2.5-Audio-1.5B-Q4_0.gguf */ = {isa = PBXFileReference; lastKnownFileType = file; path = "LFM2.5-Audio-1.5B-Q4_0.gguf"; sourceTree = "<group>"; };
+		F3E4ACCB2F136364004D18BD /* Assets.xcassets */ = {isa = PBXFileReference; lastKnownFileType = folder.assetcatalog; path = Assets.xcassets; sourceTree = "<group>"; };
+		F3E4ACCC2F136364004D18BD /* ContentView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ContentView.swift; sourceTree = "<group>"; };
+		F3E4ACCD2F136364004D18BD /* meeting_transcriberApp.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = meeting_transcriberApp.swift; sourceTree = "<group>"; };
+		F3E4ACE62F1374E8004D18BD /* MainViewModel.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = MainViewModel.swift; sourceTree = "<group>"; };
+		F3E4ACE92F1374E8004D18BD /* ASRService.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ASRService.swift; sourceTree = "<group>"; };
+		F3E4ACEA2F1374E8004D18BD /* LeapModelManager.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = LeapModelManager.swift; sourceTree = "<group>"; };
+		F3E4ACEB2F1374E8004D18BD /* ModelIDs.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ModelIDs.swift; sourceTree = "<group>"; };
+		F3E4ACEC2F1374E8004D18BD /* RAGService.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = RAGService.swift; sourceTree = "<group>"; };
+		F3E4ACEE2F1374E8004D18BD /* AudioCaptureService.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AudioCaptureService.swift; sourceTree = "<group>"; };
+		F3E4ACEF2F1374E8004D18BD /* PushToTalkController.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = PushToTalkController.swift; sourceTree = "<group>"; };
+		F3E4ACF02F1374E8004D18BD /* VADGate.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = VADGate.swift; sourceTree = "<group>"; };
+		F3E4ACF22F1374E8004D18BD /* QuestionDetector.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = QuestionDetector.swift; sourceTree = "<group>"; };
+		F3E4ACF42F1374E8004D18BD /* AppState.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AppState.swift; sourceTree = "<group>"; };
+		F3E4ACF62F1374E8004D18BD /* SentenceSelector.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SentenceSelector.swift; sourceTree = "<group>"; };
+		F3E4ACF82F1374E8004D18BD /* DocPackLoader.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = DocPackLoader.swift; sourceTree = "<group>"; };
+		F3E4ACF92F1374E8004D18BD /* DocumentChunk.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = DocumentChunk.swift; sourceTree = "<group>"; };
+		F3E4ACFA2F1374E8004D18BD /* SearchIndex.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SearchIndex.swift; sourceTree = "<group>"; };
+		F3E4ACFC2F1374E8004D18BD /* Logger.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Logger.swift; sourceTree = "<group>"; };
+		F3E4ACFD2F1374E8004D18BD /* TaskQueue.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = TaskQueue.swift; sourceTree = "<group>"; };
+		F3E4ACFF2F1374E8004D18BD /* AnswerView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AnswerView.swift; sourceTree = "<group>"; };
+		F3E4AD002F1374E8004D18BD /* SourcesView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SourcesView.swift; sourceTree = "<group>"; };
+		F3E4AD012F1374E8004D18BD /* TranscriptView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = TranscriptView.swift; sourceTree = "<group>"; };
+		F3E4AD172F138A10004D18BD /* Resources/docpack.json */ = {isa = PBXFileReference; lastKnownFileType = text.json; path = Resources/docpack.json; sourceTree = "<group>"; };
+/* End PBXFileReference section */
 
 /* Begin PBXFrameworksBuildPhase section */
 		F3E4ACA62F1353B5004D18BD /* Frameworks */ = {
 			isa = PBXFrameworksBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
+				F3E4ACE12F136C09004D18BD /* GRDB in Frameworks */,
+				F3E4ACDC2F136BAB004D18BD /* LeapModelDownloader in Frameworks */,
+				F3E4ACDE2F136BAB004D18BD /* LeapSDK in Frameworks */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
 /* End PBXFrameworksBuildPhase section */
 
 /* Begin PBXGroup section */
+		F30458B82F1C6EA800D55FE0 /* text */ = {
+			isa = PBXGroup;
+			children = (
+				F3E4ACC72F136364004D18BD /* LFM2-1.2B-Extract-Q5_K_M.gguf */,
+				F3E4ACC82F136364004D18BD /* LFM2-1.2B-RAG-Q5_K_M.gguf */,
+			);
+			path = text;
+			sourceTree = "<group>";
+		};
+		F30458B92F1C6EB400D55FE0 /* audio */ = {
+			isa = PBXGroup;
+			children = (
+				F3E4ACC92F136364004D18BD /* LFM2.5-Audio-1.5B-Q4_0.gguf */,
+			);
+			path = audio;
+			sourceTree = "<group>";
+		};
+		F30458BD2F1C719100D55FE0 /* audio */ = {
+			isa = PBXGroup;
+			children = (
+				F30458BA2F1C719100D55FE0 /* LFM2.5-Audio-1.5B-Q4_0.gguf */,
+				F30458BB2F1C719100D55FE0 /* mmproj-LFM2.5-Audio-1.5B-Q4_0.gguf */,
+				F30458BC2F1C719100D55FE0 /* tokenizer-LFM2.5-Audio-1.5B-Q4_0.gguf */,
+			);
+			name = audio;
+			path = MeetingPrompterIOS/models/audio;
+			sourceTree = "<group>";
+		};
 		F3E4ACA02F1353B5004D18BD = {
 			isa = PBXGroup;
 			children = (
-				F3E4ACAB2F1353B5004D18BD /* meeting-transcriber */,
+				F30458BD2F1C719100D55FE0 /* audio */,
+				F3E4ACCE2F136364004D18BD /* MeetingPrompterIOS */,
 				F3E4ACAA2F1353B5004D18BD /* Products */,
 			);
 			sourceTree = "<group>";
@@ -43,6 +130,126 @@
 				F3E4ACA92F1353B5004D18BD /* meeting-transcriber.app */,
 			);
 			name = Products;
+			sourceTree = "<group>";
+		};
+		F3E4ACCA2F136364004D18BD /* models */ = {
+			isa = PBXGroup;
+			children = (
+				F30458B92F1C6EB400D55FE0 /* audio */,
+				F30458B82F1C6EA800D55FE0 /* text */,
+			);
+			path = models;
+			sourceTree = "<group>";
+		};
+		F3E4ACCE2F136364004D18BD /* MeetingPrompterIOS */ = {
+			isa = PBXGroup;
+			children = (
+				F3E4ACE82F1374E8004D18BD /* App */,
+				F3E4ACF52F1374E8004D18BD /* Core */,
+				F3E4ACF72F1374E8004D18BD /* Grounding */,
+				F3E4ACFB2F1374E8004D18BD /* Retrieval */,
+				F3E4ACFE2F1374E8004D18BD /* Utils */,
+				F3E4AD022F1374E8004D18BD /* Views */,
+				F3E4ACCA2F136364004D18BD /* models */,
+				F3E4AD172F138A10004D18BD /* Resources/docpack.json */,
+				F3E4ACCB2F136364004D18BD /* Assets.xcassets */,
+				F3E4ACCC2F136364004D18BD /* ContentView.swift */,
+				F3E4ACCD2F136364004D18BD /* meeting_transcriberApp.swift */,
+			);
+			path = MeetingPrompterIOS;
+			sourceTree = "<group>";
+		};
+		F3E4ACE72F1374E8004D18BD /* ViewModels */ = {
+			isa = PBXGroup;
+			children = (
+				F3E4ACE62F1374E8004D18BD /* MainViewModel.swift */,
+			);
+			path = ViewModels;
+			sourceTree = "<group>";
+		};
+		F3E4ACE82F1374E8004D18BD /* App */ = {
+			isa = PBXGroup;
+			children = (
+				F3E4ACE72F1374E8004D18BD /* ViewModels */,
+			);
+			path = App;
+			sourceTree = "<group>";
+		};
+		F3E4ACED2F1374E8004D18BD /* AI */ = {
+			isa = PBXGroup;
+			children = (
+				F3E4ACE92F1374E8004D18BD /* ASRService.swift */,
+				F3E4ACEA2F1374E8004D18BD /* LeapModelManager.swift */,
+				F3E4ACEB2F1374E8004D18BD /* ModelIDs.swift */,
+				F3E4ACEC2F1374E8004D18BD /* RAGService.swift */,
+			);
+			path = AI;
+			sourceTree = "<group>";
+		};
+		F3E4ACF12F1374E8004D18BD /* Audio */ = {
+			isa = PBXGroup;
+			children = (
+				F3E4ACEE2F1374E8004D18BD /* AudioCaptureService.swift */,
+				F3E4ACEF2F1374E8004D18BD /* PushToTalkController.swift */,
+				F3E4ACF02F1374E8004D18BD /* VADGate.swift */,
+			);
+			path = Audio;
+			sourceTree = "<group>";
+		};
+		F3E4ACF32F1374E8004D18BD /* RAG */ = {
+			isa = PBXGroup;
+			children = (
+				F3E4ACF22F1374E8004D18BD /* QuestionDetector.swift */,
+			);
+			path = RAG;
+			sourceTree = "<group>";
+		};
+		F3E4ACF52F1374E8004D18BD /* Core */ = {
+			isa = PBXGroup;
+			children = (
+				F3E4ACED2F1374E8004D18BD /* AI */,
+				F3E4ACF12F1374E8004D18BD /* Audio */,
+				F3E4ACF32F1374E8004D18BD /* RAG */,
+				F3E4ACF42F1374E8004D18BD /* AppState.swift */,
+			);
+			path = Core;
+			sourceTree = "<group>";
+		};
+		F3E4ACF72F1374E8004D18BD /* Grounding */ = {
+			isa = PBXGroup;
+			children = (
+				F3E4ACF62F1374E8004D18BD /* SentenceSelector.swift */,
+			);
+			path = Grounding;
+			sourceTree = "<group>";
+		};
+		F3E4ACFB2F1374E8004D18BD /* Retrieval */ = {
+			isa = PBXGroup;
+			children = (
+				F3E4ACF82F1374E8004D18BD /* DocPackLoader.swift */,
+				F3E4ACF92F1374E8004D18BD /* DocumentChunk.swift */,
+				F3E4ACFA2F1374E8004D18BD /* SearchIndex.swift */,
+			);
+			path = Retrieval;
+			sourceTree = "<group>";
+		};
+		F3E4ACFE2F1374E8004D18BD /* Utils */ = {
+			isa = PBXGroup;
+			children = (
+				F3E4ACFC2F1374E8004D18BD /* Logger.swift */,
+				F3E4ACFD2F1374E8004D18BD /* TaskQueue.swift */,
+			);
+			path = Utils;
+			sourceTree = "<group>";
+		};
+		F3E4AD022F1374E8004D18BD /* Views */ = {
+			isa = PBXGroup;
+			children = (
+				F3E4ACFF2F1374E8004D18BD /* AnswerView.swift */,
+				F3E4AD002F1374E8004D18BD /* SourcesView.swift */,
+				F3E4AD012F1374E8004D18BD /* TranscriptView.swift */,
+			);
+			path = Views;
 			sourceTree = "<group>";
 		};
 /* End PBXGroup section */
@@ -60,11 +267,11 @@
 			);
 			dependencies = (
 			);
-			fileSystemSynchronizedGroups = (
-				F3E4ACAB2F1353B5004D18BD /* meeting-transcriber */,
-			);
 			name = "meeting-transcriber";
 			packageProductDependencies = (
+				F3E4ACDB2F136BAB004D18BD /* LeapModelDownloader */,
+				F3E4ACDD2F136BAB004D18BD /* LeapSDK */,
+				F3E4ACE02F136C09004D18BD /* GRDB */,
 			);
 			productName = "meeting-transcriber";
 			productReference = F3E4ACA92F1353B5004D18BD /* meeting-transcriber.app */;
@@ -77,11 +284,11 @@
 			isa = PBXProject;
 			attributes = {
 				BuildIndependentTargetsInParallel = 1;
-				LastSwiftUpdateCheck = 2620;
+				LastSwiftUpdateCheck = 2610;
 				LastUpgradeCheck = 2620;
 				TargetAttributes = {
 					F3E4ACA82F1353B5004D18BD = {
-						CreatedOnToolsVersion = 26.2;
+						CreatedOnToolsVersion = 26.1;
 					};
 				};
 			};
@@ -94,6 +301,10 @@
 			);
 			mainGroup = F3E4ACA02F1353B5004D18BD;
 			minimizedProjectReferenceProxies = 1;
+			packageReferences = (
+				F3E4ACDA2F136BAB004D18BD /* XCRemoteSwiftPackageReference "leap-ios" */,
+				F3E4ACDF2F136C09004D18BD /* XCRemoteSwiftPackageReference "GRDB.swift" */,
+			);
 			preferredProjectObjectVersion = 77;
 			productRefGroup = F3E4ACAA2F1353B5004D18BD /* Products */;
 			projectDirPath = "";
@@ -109,6 +320,13 @@
 			isa = PBXResourcesBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
+				F30458BE2F1C71B600D55FE0 /* mmproj-LFM2.5-Audio-1.5B-Q4_0.gguf in Resources */,
+				F30458BF2F1C71B600D55FE0 /* tokenizer-LFM2.5-Audio-1.5B-Q4_0.gguf in Resources */,
+				F3E4ACCF2F136364004D18BD /* LFM2.5-Audio-1.5B-Q4_0.gguf in Resources */,
+				F3E4ACD02F136364004D18BD /* LFM2-1.2B-Extract-Q5_K_M.gguf in Resources */,
+				F3E4ACD12F136364004D18BD /* Assets.xcassets in Resources */,
+				F3E4ACD22F136364004D18BD /* LFM2-1.2B-RAG-Q5_K_M.gguf in Resources */,
+				F3E4AD162F138A10004D18BD /* Resources/docpack.json in Resources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -119,6 +337,27 @@
 			isa = PBXSourcesBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
+				F3E4AD032F1374E8004D18BD /* AppState.swift in Sources */,
+				F3E4AD042F1374E8004D18BD /* AudioCaptureService.swift in Sources */,
+				F3E4AD052F1374E8004D18BD /* ASRService.swift in Sources */,
+				F3E4AD062F1374E8004D18BD /* AnswerView.swift in Sources */,
+				F3E4AD072F1374E8004D18BD /* SourcesView.swift in Sources */,
+				F3E4AD082F1374E8004D18BD /* QuestionDetector.swift in Sources */,
+				F3E4AD092F1374E8004D18BD /* Logger.swift in Sources */,
+				F3E4AD0A2F1374E8004D18BD /* VADGate.swift in Sources */,
+				F3E4AD0B2F1374E8004D18BD /* RAGService.swift in Sources */,
+				F3E4AD0C2F1374E8004D18BD /* MainViewModel.swift in Sources */,
+				F3E4AD0D2F1374E8004D18BD /* PushToTalkController.swift in Sources */,
+				F3E4AD0E2F1374E8004D18BD /* SearchIndex.swift in Sources */,
+				F3E4AD0F2F1374E8004D18BD /* SentenceSelector.swift in Sources */,
+				F3E4AD102F1374E8004D18BD /* LeapModelManager.swift in Sources */,
+				F3E4AD112F1374E8004D18BD /* DocPackLoader.swift in Sources */,
+				F3E4AD122F1374E8004D18BD /* ModelIDs.swift in Sources */,
+				F3E4AD132F1374E8004D18BD /* TranscriptView.swift in Sources */,
+				F3E4AD142F1374E8004D18BD /* TaskQueue.swift in Sources */,
+				F3E4AD152F1374E8004D18BD /* DocumentChunk.swift in Sources */,
+				F3E4ACD42F136364004D18BD /* meeting_transcriberApp.swift in Sources */,
+				F3E4ACD52F136364004D18BD /* ContentView.swift in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -178,12 +417,13 @@
 				GCC_WARN_UNINITIALIZED_AUTOS = YES_AGGRESSIVE;
 				GCC_WARN_UNUSED_FUNCTION = YES;
 				GCC_WARN_UNUSED_VARIABLE = YES;
-				IPHONEOS_DEPLOYMENT_TARGET = 26.2;
+				IPHONEOS_DEPLOYMENT_TARGET = 26.1;
 				LOCALIZATION_PREFERS_STRING_CATALOGS = YES;
 				MTL_ENABLE_DEBUG_INFO = INCLUDE_SOURCE;
 				MTL_FAST_MATH = YES;
 				ONLY_ACTIVE_ARCH = YES;
 				SDKROOT = iphoneos;
+				STRING_CATALOG_GENERATE_SYMBOLS = YES;
 				SWIFT_ACTIVE_COMPILATION_CONDITIONS = "DEBUG $(inherited)";
 				SWIFT_OPTIMIZATION_LEVEL = "-Onone";
 			};
@@ -236,11 +476,12 @@
 				GCC_WARN_UNINITIALIZED_AUTOS = YES_AGGRESSIVE;
 				GCC_WARN_UNUSED_FUNCTION = YES;
 				GCC_WARN_UNUSED_VARIABLE = YES;
-				IPHONEOS_DEPLOYMENT_TARGET = 26.2;
+				IPHONEOS_DEPLOYMENT_TARGET = 26.1;
 				LOCALIZATION_PREFERS_STRING_CATALOGS = YES;
 				MTL_ENABLE_DEBUG_INFO = NO;
 				MTL_FAST_MATH = YES;
 				SDKROOT = iphoneos;
+				STRING_CATALOG_GENERATE_SYMBOLS = YES;
 				SWIFT_COMPILATION_MODE = wholemodule;
 				VALIDATE_PRODUCT = YES;
 			};
@@ -256,6 +497,8 @@
 				DEVELOPMENT_TEAM = WH7Z9N74X5;
 				ENABLE_PREVIEWS = YES;
 				GENERATE_INFOPLIST_FILE = YES;
+				INFOPLIST_KEY_CFBundleDisplayName = "Meet Puppet";
+				INFOPLIST_KEY_NSMicrophoneUsageDescription = "Meeting Prompter needs microphone access to record your questions for transcription.";
 				INFOPLIST_KEY_UIApplicationSceneManifest_Generation = YES;
 				INFOPLIST_KEY_UIApplicationSupportsIndirectInputEvents = YES;
 				INFOPLIST_KEY_UILaunchScreen_Generation = YES;
@@ -270,7 +513,7 @@
 				PRODUCT_NAME = "$(TARGET_NAME)";
 				STRING_CATALOG_GENERATE_SYMBOLS = YES;
 				SWIFT_APPROACHABLE_CONCURRENCY = YES;
-				SWIFT_DEFAULT_ACTOR_ISOLATION = MainActor;
+				SWIFT_DEFAULT_ACTOR_ISOLATION = nonisolated;
 				SWIFT_EMIT_LOC_STRINGS = YES;
 				SWIFT_UPCOMING_FEATURE_MEMBER_IMPORT_VISIBILITY = YES;
 				SWIFT_VERSION = 5.0;
@@ -288,6 +531,8 @@
 				DEVELOPMENT_TEAM = WH7Z9N74X5;
 				ENABLE_PREVIEWS = YES;
 				GENERATE_INFOPLIST_FILE = YES;
+				INFOPLIST_KEY_CFBundleDisplayName = "Meet Puppet";
+				INFOPLIST_KEY_NSMicrophoneUsageDescription = "Meeting Prompter needs microphone access to record your questions for transcription.";
 				INFOPLIST_KEY_UIApplicationSceneManifest_Generation = YES;
 				INFOPLIST_KEY_UIApplicationSupportsIndirectInputEvents = YES;
 				INFOPLIST_KEY_UILaunchScreen_Generation = YES;
@@ -302,7 +547,7 @@
 				PRODUCT_NAME = "$(TARGET_NAME)";
 				STRING_CATALOG_GENERATE_SYMBOLS = YES;
 				SWIFT_APPROACHABLE_CONCURRENCY = YES;
-				SWIFT_DEFAULT_ACTOR_ISOLATION = MainActor;
+				SWIFT_DEFAULT_ACTOR_ISOLATION = nonisolated;
 				SWIFT_EMIT_LOC_STRINGS = YES;
 				SWIFT_UPCOMING_FEATURE_MEMBER_IMPORT_VISIBILITY = YES;
 				SWIFT_VERSION = 5.0;
@@ -332,6 +577,43 @@
 			defaultConfigurationName = Release;
 		};
 /* End XCConfigurationList section */
+
+/* Begin XCRemoteSwiftPackageReference section */
+		F3E4ACDA2F136BAB004D18BD /* XCRemoteSwiftPackageReference "leap-ios" */ = {
+			isa = XCRemoteSwiftPackageReference;
+			repositoryURL = "https://github.com/Liquid4All/leap-ios.git";
+			requirement = {
+				branch = main;
+				kind = branch;
+			};
+		};
+		F3E4ACDF2F136C09004D18BD /* XCRemoteSwiftPackageReference "GRDB.swift" */ = {
+			isa = XCRemoteSwiftPackageReference;
+			repositoryURL = "https://github.com/groue/GRDB.swift.git";
+			requirement = {
+				branch = master;
+				kind = branch;
+			};
+		};
+/* End XCRemoteSwiftPackageReference section */
+
+/* Begin XCSwiftPackageProductDependency section */
+		F3E4ACDB2F136BAB004D18BD /* LeapModelDownloader */ = {
+			isa = XCSwiftPackageProductDependency;
+			package = F3E4ACDA2F136BAB004D18BD /* XCRemoteSwiftPackageReference "leap-ios" */;
+			productName = LeapModelDownloader;
+		};
+		F3E4ACDD2F136BAB004D18BD /* LeapSDK */ = {
+			isa = XCSwiftPackageProductDependency;
+			package = F3E4ACDA2F136BAB004D18BD /* XCRemoteSwiftPackageReference "leap-ios" */;
+			productName = LeapSDK;
+		};
+		F3E4ACE02F136C09004D18BD /* GRDB */ = {
+			isa = XCSwiftPackageProductDependency;
+			package = F3E4ACDF2F136C09004D18BD /* XCRemoteSwiftPackageReference "GRDB.swift" */;
+			productName = GRDB;
+		};
+/* End XCSwiftPackageProductDependency section */
 	};
 	rootObject = F3E4ACA12F1353B5004D18BD /* Project object */;
 }
