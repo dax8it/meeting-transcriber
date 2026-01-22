@@ -11,54 +11,12 @@ struct ContentView: View {
     @StateObject private var viewModel = MainViewModel.shared
     
     var body: some View {
-        VStack(spacing: 20) {
-            HeaderView()
-            
-            if viewModel.isInitializing {
-                ProgressView("Loading models...")
-                    .padding()
-            } else {
-                TranscriptView(viewModel: viewModel)
-
-                VStack(spacing: 8) {
-                    TextField("Ask a question about this meeting...", text: $viewModel.questionText)
-                        .textFieldStyle(.roundedBorder)
-                        .disabled(viewModel.appState.isRecording || viewModel.appState.isTranscribing)
-
-                    Button("Ask") {
-                        viewModel.askQuestion(viewModel.questionText)
-                    }
-                    .disabled(
-                        viewModel.appState.isRecording ||
-                        viewModel.appState.isTranscribing ||
-                        viewModel.questionText.trimmingCharacters(in: .whitespacesAndNewlines).isEmpty
-                    )
+        NavigationStack {
+            RecordView(viewModel: viewModel)
+                .navigationDestination(item: $viewModel.activeSession) { session in
+                    SessionView(session: session)
                 }
-
-                if !viewModel.answerText.isEmpty {
-                    AnswerView(answerText: viewModel.answerText)
-                }
-
-                Spacer()
-                
-                PushToTalkButton(
-                    isRecording: Binding(
-                        get: { viewModel.appState.isRecording },
-                        set: { _ in }
-                    ),
-                    onToggle: { isRecording in
-                        if isRecording {
-                            viewModel.startRecording()
-                        } else {
-                            viewModel.stopRecording()
-                        }
-                    }
-                )
-                
-                StatusIndicator(status: viewModel.statusText)
-            }
         }
-        .padding()
     }
 }
 

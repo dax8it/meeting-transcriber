@@ -33,6 +33,11 @@ actor ASRService {
             return ""
         }
     }
+
+    // MVP: used by LiveTranscriptionService for chunked transcription.
+    func transcribeChunk(samples: [Float]) async -> String {
+        await transcribe(samples: samples)
+    }
     
     func transcribePartial(samples: [Float]) async -> String {
         guard !samples.isEmpty else { return "" }

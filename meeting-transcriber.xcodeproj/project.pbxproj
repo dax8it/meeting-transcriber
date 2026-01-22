@@ -7,8 +7,20 @@
 	objects = {
 
 /* Begin PBXBuildFile section */
+		A0B1C2D3E4F5A6B7C8D9E0F2 /* models in Resources */ = {isa = PBXBuildFile; fileRef = A0B1C2D3E4F5A6B7C8D9E0F1 /* models */; };
+		19FDBB0FFCC5E1BFBACA400F /* MeetingSession.swift in Sources */ = {isa = PBXBuildFile; fileRef = A8A77661EEBBA5F56E644AD0 /* MeetingSession.swift */; };
+		75959A4C82C0EFE55EA47EFA /* FileStore.swift in Sources */ = {isa = PBXBuildFile; fileRef = A9273C4E3435F044B5F075FF /* FileStore.swift */; };
+		80DABCC0708A4E2C5EF194DD /* LFM2-2.6B-Transcript-Q4_K_M.gguf in Resources */ = {isa = PBXBuildFile; fileRef = 3420701A835E973E227E0A0A /* LFM2-2.6B-Transcript-Q4_K_M.gguf */; };
+		87FA4EE1B0D23D9BDE43954E /* SummarizationService.swift in Sources */ = {isa = PBXBuildFile; fileRef = 04C618A4AA8EE0B3F1B6C8DD /* SummarizationService.swift */; };
+		8E2530B614773D8B35BDE7B9 /* AudioFileRecorder.swift in Sources */ = {isa = PBXBuildFile; fileRef = 773052F8ECC9718BF14A1B29 /* AudioFileRecorder.swift */; };
+		A1BC3F44C8FAF969EE7C1641 /* SessionView.swift in Sources */ = {isa = PBXBuildFile; fileRef = A73CCF9381359872DAE35A55 /* SessionView.swift */; };
+		95CE375CC6FB4FB0562F3964 /* ShareSheet.swift in Sources */ = {isa = PBXBuildFile; fileRef = EEFB51CA4261AC0E8A0C7E5B /* ShareSheet.swift */; };
+		A20C37849C11588B6D4B4344 /* SessionViewModel.swift in Sources */ = {isa = PBXBuildFile; fileRef = E1BDBC98292B272B79D54F91 /* SessionViewModel.swift */; };
+		BB95FEBEC4D7378AE63FE7BA /* RecordView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 6BA19F0705B8E9640F5E78D4 /* RecordView.swift */; };
+		C0D6457B1EFC0EC72A9378CD /* LiveTranscriptionService.swift in Sources */ = {isa = PBXBuildFile; fileRef = 8FEBC2BEBF23959E4AB0F195 /* LiveTranscriptionService.swift */; };
 		F30458BE2F1C71B600D55FE0 /* mmproj-LFM2.5-Audio-1.5B-Q4_0.gguf in Resources */ = {isa = PBXBuildFile; fileRef = F30458BB2F1C719100D55FE0 /* mmproj-LFM2.5-Audio-1.5B-Q4_0.gguf */; };
 		F30458BF2F1C71B600D55FE0 /* tokenizer-LFM2.5-Audio-1.5B-Q4_0.gguf in Resources */ = {isa = PBXBuildFile; fileRef = F30458BC2F1C719100D55FE0 /* tokenizer-LFM2.5-Audio-1.5B-Q4_0.gguf */; };
+		F39D68732F228917000B5149 /* Q4_K_M.json in Resources */ = {isa = PBXBuildFile; fileRef = F39D68722F228917000B5149 /* Q4_K_M.json */; };
 		F3E4ACCF2F136364004D18BD /* LFM2.5-Audio-1.5B-Q4_0.gguf in Resources */ = {isa = PBXBuildFile; fileRef = F3E4ACC92F136364004D18BD /* LFM2.5-Audio-1.5B-Q4_0.gguf */; };
 		F3E4ACD02F136364004D18BD /* LFM2-1.2B-Extract-Q5_K_M.gguf in Resources */ = {isa = PBXBuildFile; fileRef = F3E4ACC72F136364004D18BD /* LFM2-1.2B-Extract-Q5_K_M.gguf */; };
 		F3E4ACD12F136364004D18BD /* Assets.xcassets in Resources */ = {isa = PBXBuildFile; fileRef = F3E4ACCB2F136364004D18BD /* Assets.xcassets */; };
@@ -41,9 +53,21 @@
 /* End PBXBuildFile section */
 
 /* Begin PBXFileReference section */
+		A0B1C2D3E4F5A6B7C8D9E0F1 /* models */ = {isa = PBXFileReference; lastKnownFileType = folder; path = models; sourceTree = "<group>"; };
+		04C618A4AA8EE0B3F1B6C8DD /* SummarizationService.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SummarizationService.swift; sourceTree = "<group>"; };
+		3420701A835E973E227E0A0A /* LFM2-2.6B-Transcript-Q4_K_M.gguf */ = {isa = PBXFileReference; lastKnownFileType = file; path = "LFM2-2.6B-Transcript-Q4_K_M.gguf"; sourceTree = "<group>"; };
+		6BA19F0705B8E9640F5E78D4 /* RecordView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = RecordView.swift; sourceTree = "<group>"; };
+		773052F8ECC9718BF14A1B29 /* AudioFileRecorder.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AudioFileRecorder.swift; sourceTree = "<group>"; };
+		8FEBC2BEBF23959E4AB0F195 /* LiveTranscriptionService.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = LiveTranscriptionService.swift; sourceTree = "<group>"; };
+		A73CCF9381359872DAE35A55 /* SessionView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SessionView.swift; sourceTree = "<group>"; };
+		A8A77661EEBBA5F56E644AD0 /* MeetingSession.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = MeetingSession.swift; sourceTree = "<group>"; };
+		A9273C4E3435F044B5F075FF /* FileStore.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = FileStore.swift; sourceTree = "<group>"; };
+		E1BDBC98292B272B79D54F91 /* SessionViewModel.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SessionViewModel.swift; sourceTree = "<group>"; };
+		EEFB51CA4261AC0E8A0C7E5B /* ShareSheet.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ShareSheet.swift; sourceTree = "<group>"; };
 		F30458BA2F1C719100D55FE0 /* LFM2.5-Audio-1.5B-Q4_0.gguf */ = {isa = PBXFileReference; lastKnownFileType = file; path = "LFM2.5-Audio-1.5B-Q4_0.gguf"; sourceTree = "<group>"; };
 		F30458BB2F1C719100D55FE0 /* mmproj-LFM2.5-Audio-1.5B-Q4_0.gguf */ = {isa = PBXFileReference; lastKnownFileType = file; path = "mmproj-LFM2.5-Audio-1.5B-Q4_0.gguf"; sourceTree = "<group>"; };
 		F30458BC2F1C719100D55FE0 /* tokenizer-LFM2.5-Audio-1.5B-Q4_0.gguf */ = {isa = PBXFileReference; lastKnownFileType = file; path = "tokenizer-LFM2.5-Audio-1.5B-Q4_0.gguf"; sourceTree = "<group>"; };
+		F39D68722F228917000B5149 /* Q4_K_M.json */ = {isa = PBXFileReference; lastKnownFileType = text.json; path = Q4_K_M.json; sourceTree = "<group>"; };
 		F3E4ACA92F1353B5004D18BD /* meeting-transcriber.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = "meeting-transcriber.app"; sourceTree = BUILT_PRODUCTS_DIR; };
 		F3E4ACC72F136364004D18BD /* LFM2-1.2B-Extract-Q5_K_M.gguf */ = {isa = PBXFileReference; lastKnownFileType = file; path = "LFM2-1.2B-Extract-Q5_K_M.gguf"; sourceTree = "<group>"; };
 		F3E4ACC82F136364004D18BD /* LFM2-1.2B-RAG-Q5_K_M.gguf */ = {isa = PBXFileReference; lastKnownFileType = file; path = "LFM2-1.2B-RAG-Q5_K_M.gguf"; sourceTree = "<group>"; };
@@ -87,10 +111,21 @@
 /* End PBXFrameworksBuildPhase section */
 
 /* Begin PBXGroup section */
+		6B4D3DCEF26084754333AF87 /* Storage */ = {
+			isa = PBXGroup;
+			children = (
+				A8A77661EEBBA5F56E644AD0 /* MeetingSession.swift */,
+				A9273C4E3435F044B5F075FF /* FileStore.swift */,
+			);
+			path = Storage;
+			sourceTree = "<group>";
+		};
 		F30458B82F1C6EA800D55FE0 /* text */ = {
 			isa = PBXGroup;
 			children = (
+				3420701A835E973E227E0A0A /* LFM2-2.6B-Transcript-Q4_K_M.gguf */,
 				F3E4ACC72F136364004D18BD /* LFM2-1.2B-Extract-Q5_K_M.gguf */,
+				F39D68722F228917000B5149 /* Q4_K_M.json */,
 				F3E4ACC82F136364004D18BD /* LFM2-1.2B-RAG-Q5_K_M.gguf */,
 			);
 			path = text;
@@ -118,7 +153,6 @@
 		F3E4ACA02F1353B5004D18BD = {
 			isa = PBXGroup;
 			children = (
-				F30458BD2F1C719100D55FE0 /* audio */,
 				F3E4ACCE2F136364004D18BD /* MeetingPrompterIOS */,
 				F3E4ACAA2F1353B5004D18BD /* Products */,
 			);
@@ -150,7 +184,7 @@
 				F3E4ACFB2F1374E8004D18BD /* Retrieval */,
 				F3E4ACFE2F1374E8004D18BD /* Utils */,
 				F3E4AD022F1374E8004D18BD /* Views */,
-				F3E4ACCA2F136364004D18BD /* models */,
+				A0B1C2D3E4F5A6B7C8D9E0F1 /* models */,
 				F3E4AD172F138A10004D18BD /* Resources/docpack.json */,
 				F3E4ACCB2F136364004D18BD /* Assets.xcassets */,
 				F3E4ACCC2F136364004D18BD /* ContentView.swift */,
@@ -163,6 +197,7 @@
 			isa = PBXGroup;
 			children = (
 				F3E4ACE62F1374E8004D18BD /* MainViewModel.swift */,
+				E1BDBC98292B272B79D54F91 /* SessionViewModel.swift */,
 			);
 			path = ViewModels;
 			sourceTree = "<group>";
@@ -179,6 +214,8 @@
 			isa = PBXGroup;
 			children = (
 				F3E4ACE92F1374E8004D18BD /* ASRService.swift */,
+				8FEBC2BEBF23959E4AB0F195 /* LiveTranscriptionService.swift */,
+				04C618A4AA8EE0B3F1B6C8DD /* SummarizationService.swift */,
 				F3E4ACEA2F1374E8004D18BD /* LeapModelManager.swift */,
 				F3E4ACEB2F1374E8004D18BD /* ModelIDs.swift */,
 				F3E4ACEC2F1374E8004D18BD /* RAGService.swift */,
@@ -190,6 +227,7 @@
 			isa = PBXGroup;
 			children = (
 				F3E4ACEE2F1374E8004D18BD /* AudioCaptureService.swift */,
+				773052F8ECC9718BF14A1B29 /* AudioFileRecorder.swift */,
 				F3E4ACEF2F1374E8004D18BD /* PushToTalkController.swift */,
 				F3E4ACF02F1374E8004D18BD /* VADGate.swift */,
 			);
@@ -210,6 +248,7 @@
 				F3E4ACED2F1374E8004D18BD /* AI */,
 				F3E4ACF12F1374E8004D18BD /* Audio */,
 				F3E4ACF32F1374E8004D18BD /* RAG */,
+				6B4D3DCEF26084754333AF87 /* Storage */,
 				F3E4ACF42F1374E8004D18BD /* AppState.swift */,
 			);
 			path = Core;
@@ -246,6 +285,9 @@
 			isa = PBXGroup;
 			children = (
 				F3E4ACFF2F1374E8004D18BD /* AnswerView.swift */,
+				6BA19F0705B8E9640F5E78D4 /* RecordView.swift */,
+				EEFB51CA4261AC0E8A0C7E5B /* ShareSheet.swift */,
+				A73CCF9381359872DAE35A55 /* SessionView.swift */,
 				F3E4AD002F1374E8004D18BD /* SourcesView.swift */,
 				F3E4AD012F1374E8004D18BD /* TranscriptView.swift */,
 			);
@@ -320,12 +362,8 @@
 			isa = PBXResourcesBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
-				F30458BE2F1C71B600D55FE0 /* mmproj-LFM2.5-Audio-1.5B-Q4_0.gguf in Resources */,
-				F30458BF2F1C71B600D55FE0 /* tokenizer-LFM2.5-Audio-1.5B-Q4_0.gguf in Resources */,
-				F3E4ACCF2F136364004D18BD /* LFM2.5-Audio-1.5B-Q4_0.gguf in Resources */,
-				F3E4ACD02F136364004D18BD /* LFM2-1.2B-Extract-Q5_K_M.gguf in Resources */,
+				A0B1C2D3E4F5A6B7C8D9E0F2 /* models in Resources */,
 				F3E4ACD12F136364004D18BD /* Assets.xcassets in Resources */,
-				F3E4ACD22F136364004D18BD /* LFM2-1.2B-RAG-Q5_K_M.gguf in Resources */,
 				F3E4AD162F138A10004D18BD /* Resources/docpack.json in Resources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
@@ -339,14 +377,23 @@
 			files = (
 				F3E4AD032F1374E8004D18BD /* AppState.swift in Sources */,
 				F3E4AD042F1374E8004D18BD /* AudioCaptureService.swift in Sources */,
+				8E2530B614773D8B35BDE7B9 /* AudioFileRecorder.swift in Sources */,
 				F3E4AD052F1374E8004D18BD /* ASRService.swift in Sources */,
+				C0D6457B1EFC0EC72A9378CD /* LiveTranscriptionService.swift in Sources */,
+				87FA4EE1B0D23D9BDE43954E /* SummarizationService.swift in Sources */,
 				F3E4AD062F1374E8004D18BD /* AnswerView.swift in Sources */,
+				BB95FEBEC4D7378AE63FE7BA /* RecordView.swift in Sources */,
+				95CE375CC6FB4FB0562F3964 /* ShareSheet.swift in Sources */,
+				A1BC3F44C8FAF969EE7C1641 /* SessionView.swift in Sources */,
 				F3E4AD072F1374E8004D18BD /* SourcesView.swift in Sources */,
 				F3E4AD082F1374E8004D18BD /* QuestionDetector.swift in Sources */,
+				A20C37849C11588B6D4B4344 /* SessionViewModel.swift in Sources */,
 				F3E4AD092F1374E8004D18BD /* Logger.swift in Sources */,
 				F3E4AD0A2F1374E8004D18BD /* VADGate.swift in Sources */,
 				F3E4AD0B2F1374E8004D18BD /* RAGService.swift in Sources */,
 				F3E4AD0C2F1374E8004D18BD /* MainViewModel.swift in Sources */,
+				19FDBB0FFCC5E1BFBACA400F /* MeetingSession.swift in Sources */,
+				75959A4C82C0EFE55EA47EFA /* FileStore.swift in Sources */,
 				F3E4AD0D2F1374E8004D18BD /* PushToTalkController.swift in Sources */,
 				F3E4AD0E2F1374E8004D18BD /* SearchIndex.swift in Sources */,
 				F3E4AD0F2F1374E8004D18BD /* SentenceSelector.swift in Sources */,

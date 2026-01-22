@@ -1,6 +1,6 @@
 import Foundation
 
-nonisolated struct DocumentChunk: Identifiable, Codable {
+nonisolated struct DocumentChunk: Identifiable, Codable, Sendable {
     let id: String
     let title: String
     let sectionPath: String
@@ -13,5 +13,22 @@ nonisolated struct DocumentChunk: Identifiable, Codable {
         self.sectionPath = sectionPath
         self.text = text
         self.metadata = metadata
+    }
+
+    var docTitle: String {
+        title
+    }
+
+    var docType: String {
+        metadata["doc_type"] ?? metadata["type"] ?? "unknown"
+    }
+
+    var meetingID: String? {
+        metadata["meeting_id"]
+    }
+
+    var chunkIndex: Int? {
+        guard let raw = metadata["chunk_index"] else { return nil }
+        return Int(raw)
     }
 }

@@ -6,14 +6,17 @@ actor LeapModelManager {
     
     private var asrModel: (any ModelRunner)?
     private var ragModel: (any ModelRunner)?
+    private var transcriptModel: (any ModelRunner)?
     
     // Track model kind to prevent accidental reuse
     private enum ModelKind {
         case asrAudio
         case ragText
+        case transcriptText
     }
     private var asrModelKind: ModelKind = .asrAudio
     private var ragModelKind: ModelKind = .ragText
+    private var transcriptModelKind: ModelKind = .transcriptText
     
     private init() {}
     
@@ -21,13 +24,13 @@ actor LeapModelManager {
         try await MainActor.run {
             if let subdirectory,
                let url = Bundle.main.url(forResource: modelName, withExtension: modelExtension, subdirectory: subdirectory) {
+                print("[LeapManager] Resolved \(modelName).\(modelExtension) at: \(url.path)")
                 return url
             }
 
             if let url = Bundle.main.url(forResource: modelName, withExtension: modelExtension) {
-                if let subdirectory {
-                    print("[LeapManager] Resource flattened: \(modelName).\(modelExtension) found in bundle root (expected subdir \(subdirectory))")
-                }
+                // Safety fallback: keep bundle-root resolution in case build settings flatten resources.
+                print("[LeapManager] Resolved \(modelName).\(modelExtension) at: \(url.path) (bundle root fallback)")
                 return url
             }
 
@@ -48,7 +51,9 @@ actor LeapModelManager {
         case .asrAudio:
             kindFolder = "audio"
         case .ragText:
-            kindFolder = "text"
+            kindFolder = "rag"
+        case .transcriptText:
+            kindFolder = "transcript"
         }
 
         let dir = base
@@ -241,6 +246,42 @@ actor LeapModelManager {
         print("[RAG] RAG model loaded successfully - engine=text mmproj=nil tokenizer=nil")
     }
 
+    func loadTranscriptModel() async throws {
+        guard transcriptModel == nil else { return }
+        print("[Summary] Loading Transcript model...")
+
+        let modelURL = try await modelURL(
+            modelName: ModelIDs.transcriptModelName,
+            modelExtension: ModelIDs.transcriptModelExtension,
+            subdirectory: "models/text",
+            notFoundMessage: "Transcript model .gguf file not found in models/text subdirectory"
+        )
+
+        if transcriptModelKind != .transcriptText {
+            throw ModelLoadError.modelNotLoaded("Transcript model kind mismatch")
+        }
+
+        let stageDir = try stagingDirectory(for: .transcriptText)
+        let stagedURL = try stageFileIfNeeded(from: modelURL, to: stageDir)
+        print("[Summary] Transcript staged URL: \(stagedURL.path)")
+
+        let options = LiquidInferenceEngineOptions(
+            bundlePath: stagedURL.path,
+            cacheOptions: nil,
+            cpuThreads: nil,
+            contextSize: nil,
+            nGpuLayers: nil,
+            mmProjPath: nil,
+            audioDecoderPath: nil,
+            chatTemplate: nil,
+            audioTokenizerPath: nil,
+            extras: nil
+        )
+
+        transcriptModel = try Leap.load(options: options)
+        print("[Summary] Transcript runner loaded")
+    }
+
     func getASRModel() async throws -> (any ModelRunner) {
         if let model = asrModel { 
             print("[LeapManager] getASRModel - returning cached ASR model, modelKind: asr")
@@ -267,6 +308,17 @@ actor LeapModelManager {
         return model
     }
 
+    func getTranscriptModel() async throws -> (any ModelRunner) {
+        if let model = transcriptModel {
+            return model
+        }
+        try await loadTranscriptModel()
+        guard let model = transcriptModel else {
+            throw ModelLoadError.modelNotLoaded("Transcript model not loaded")
+        }
+        return model
+    }
+
     func unloadASR() {
         print("[LeapManager] Unloading ASR model...")
         asrModel = nil
@@ -278,11 +330,18 @@ actor LeapModelManager {
         ragModel = nil
         print("[LeapManager] RAG model unloaded")
     }
+
+    func unloadTranscript() {
+        print("[LeapManager] Unloading Transcript model...")
+        transcriptModel = nil
+        print("[LeapManager] Transcript model unloaded")
+    }
     
     func unload() {
         print("[LeapManager] Unloading all models...")
         asrModel = nil
         ragModel = nil
+        transcriptModel = nil
         print("[LeapManager] All models unloaded")
     }
 }
