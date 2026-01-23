@@ -4,8 +4,8 @@ struct RecordView: View {
     @ObservedObject var viewModel: MainViewModel
 
     var body: some View {
-        VStack(spacing: 20) {
-            HeaderView()
+        VStack(spacing: 18) {
+            RecordingHeaderView()
 
             if viewModel.isInitializing {
                 ProgressView("Loading models...")
@@ -32,8 +32,9 @@ struct RecordView: View {
                 StatusIndicator(status: viewModel.statusText)
             }
         }
-        .padding()
-        .navigationTitle("Record")
+        .padding(20)
+        .background(AppTheme.background.ignoresSafeArea())
+        .navigationTitle("Transcribe")
         .navigationBarTitleDisplayMode(.inline)
     }
 }
