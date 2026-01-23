@@ -3,18 +3,42 @@ import SwiftUI
 struct HomeView: View {
     @ObservedObject var viewModel: MainViewModel
 
+    @AppStorage("hasAcceptedAIDisclosure") private var hasAcceptedAIDisclosure: Bool = false
+    @State private var isShowingAIDisclosure = false
+
     var body: some View {
         ScrollView {
             VStack(alignment: .leading, spacing: 18) {
-                VStack(alignment: .leading, spacing: 10) {
-                    Text("Meet Puppet")
-                        .font(.largeTitle)
-                        .fontWeight(.black)
-                        .foregroundColor(AppTheme.ink)
+                HStack(alignment: .firstTextBaseline) {
+                    VStack(alignment: .leading, spacing: 10) {
+                        Text("Meet Puppet")
+                            .font(.largeTitle)
+                            .fontWeight(.black)
+                            .foregroundColor(AppTheme.ink)
 
-                    Text("On-device transcription, summaries, and Q&A.")
-                        .font(.subheadline)
-                        .foregroundColor(AppTheme.mutedInk)
+                        Text("On-device transcription, summaries, and Q&A.")
+                            .font(.subheadline)
+                            .foregroundColor(AppTheme.mutedInk)
+                    }
+
+                    Spacer(minLength: 0)
+
+                    NavigationLink {
+                        SettingsView()
+                    } label: {
+                        Image(systemName: "gearshape")
+                            .font(.system(size: 16, weight: .semibold))
+                            .foregroundColor(AppTheme.ink)
+                            .frame(width: 36, height: 36)
+                            .background(AppTheme.surface)
+                            .clipShape(RoundedRectangle(cornerRadius: 12, style: .continuous))
+                            .overlay(
+                                RoundedRectangle(cornerRadius: 12, style: .continuous)
+                                    .stroke(Color.black.opacity(0.06), lineWidth: 1)
+                            )
+                    }
+                    .buttonStyle(.plain)
+                    .accessibilityLabel("Settings")
                 }
                 .padding(.top, 8)
 
@@ -59,6 +83,18 @@ struct HomeView: View {
         }
         .background(AppTheme.background.ignoresSafeArea())
         .toolbar(.hidden, for: .navigationBar)
+        .onAppear {
+            if !hasAcceptedAIDisclosure {
+                isShowingAIDisclosure = true
+            }
+        }
+        .sheet(isPresented: $isShowingAIDisclosure) {
+            AIDisclosureSheetView {
+                hasAcceptedAIDisclosure = true
+                isShowingAIDisclosure = false
+            }
+            .interactiveDismissDisabled(true)
+        }
     }
 }
 

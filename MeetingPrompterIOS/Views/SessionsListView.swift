@@ -14,6 +14,8 @@ struct SessionsListView: View {
     @State private var isLoading = true
     @State private var errorMessage: String? = nil
 
+    @State private var pendingDeleteSession: MeetingSession? = nil
+
     var body: some View {
         Group {
             if isLoading {
@@ -42,6 +44,25 @@ struct SessionsListView: View {
         .background(AppTheme.background.ignoresSafeArea())
         .task { await loadSessions() }
         .refreshable { await loadSessions() }
+        .confirmationDialog(
+            "Delete this meeting? This cannot be undone.",
+            isPresented: Binding(
+                get: { pendingDeleteSession != nil },
+                set: { newValue in
+                    if !newValue { pendingDeleteSession = nil }
+                }
+            ),
+            titleVisibility: .visible
+        ) {
+            Button("Delete", role: .destructive) {
+                guard let session = pendingDeleteSession else { return }
+                pendingDeleteSession = nil
+                performDelete(session)
+            }
+            Button("Cancel", role: .cancel) {
+                pendingDeleteSession = nil
+            }
+        }
     }
 
     @ViewBuilder
@@ -81,20 +102,18 @@ struct SessionsListView: View {
 
     private func delete(at offsets: IndexSet) {
         guard mode == .browse else { return }
-        let toDelete = offsets.compactMap { idx in
-            sessions.indices.contains(idx) ? sessions[idx] : nil
-        }
+        guard let first = offsets.first, sessions.indices.contains(first) else { return }
+        pendingDeleteSession = sessions[first]
+    }
 
-        sessions.remove(atOffsets: offsets)
+    private func performDelete(_ session: MeetingSession) {
+        sessions.removeAll { $0.id == session.id }
 
         Task {
-            for session in toDelete {
-                do {
-                    try await FileStore.shared.deleteSession(session)
-                } catch {
-                    await loadSessions()
-                    break
-                }
+            do {
+                try await FileStore.shared.deleteSession(session)
+            } catch {
+                await loadSessions()
             }
         }
     }

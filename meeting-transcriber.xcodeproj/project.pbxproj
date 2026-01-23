@@ -55,6 +55,12 @@
 		F3E4AD142F1374E8004D18BD /* TaskQueue.swift in Sources */ = {isa = PBXBuildFile; fileRef = F3E4ACFD2F1374E8004D18BD /* TaskQueue.swift */; };
 		F3E4AD152F1374E8004D18BD /* DocumentChunk.swift in Sources */ = {isa = PBXBuildFile; fileRef = F3E4ACF92F1374E8004D18BD /* DocumentChunk.swift */; };
 		F3E4AD162F138A10004D18BD /* Resources/docpack.json in Resources */ = {isa = PBXBuildFile; fileRef = F3E4AD172F138A10004D18BD /* Resources/docpack.json */; };
+		A11B22C33D44E55F6677889A /* Settings/SettingsView.swift in Sources */ = {isa = PBXBuildFile; fileRef = A11B22C33D44E55F66778899 /* Settings/SettingsView.swift */; };
+		B11B22C33D44E55F6677889A /* Settings/LegalDocumentView.swift in Sources */ = {isa = PBXBuildFile; fileRef = B11B22C33D44E55F66778899 /* Settings/LegalDocumentView.swift */; };
+		C11B22C33D44E55F6677889A /* Settings/AIDisclosureSheetView.swift in Sources */ = {isa = PBXBuildFile; fileRef = C11B22C33D44E55F66778899 /* Settings/AIDisclosureSheetView.swift */; };
+		D11B22C33D44E55F6677889A /* Resources/Legal/EULA.md in Resources */ = {isa = PBXBuildFile; fileRef = D11B22C33D44E55F66778899 /* Resources/Legal/EULA.md */; };
+		E11B22C33D44E55F6677889A /* Resources/Legal/PRIVACY.md in Resources */ = {isa = PBXBuildFile; fileRef = E11B22C33D44E55F66778899 /* Resources/Legal/PRIVACY.md */; };
+		F11B22C33D44E55F6677889A /* Resources/Legal/THIRD_PARTY_NOTICES.md in Resources */ = {isa = PBXBuildFile; fileRef = F11B22C33D44E55F66778899 /* Resources/Legal/THIRD_PARTY_NOTICES.md */; };
 /* End PBXBuildFile section */
 
 /* Begin PBXFileReference section */
@@ -105,6 +111,12 @@
 		F3E4AD002F1374E8004D18BD /* SourcesView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SourcesView.swift; sourceTree = "<group>"; };
 		F3E4AD012F1374E8004D18BD /* TranscriptView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = TranscriptView.swift; sourceTree = "<group>"; };
 		F3E4AD172F138A10004D18BD /* Resources/docpack.json */ = {isa = PBXFileReference; lastKnownFileType = text.json; path = Resources/docpack.json; sourceTree = "<group>"; };
+		A11B22C33D44E55F66778899 /* Settings/SettingsView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Settings/SettingsView.swift; sourceTree = "<group>"; };
+		B11B22C33D44E55F66778899 /* Settings/LegalDocumentView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Settings/LegalDocumentView.swift; sourceTree = "<group>"; };
+		C11B22C33D44E55F66778899 /* Settings/AIDisclosureSheetView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Settings/AIDisclosureSheetView.swift; sourceTree = "<group>"; };
+		D11B22C33D44E55F66778899 /* Resources/Legal/EULA.md */ = {isa = PBXFileReference; lastKnownFileType = net.daringfireball.markdown; path = Resources/Legal/EULA.md; sourceTree = "<group>"; };
+		E11B22C33D44E55F66778899 /* Resources/Legal/PRIVACY.md */ = {isa = PBXFileReference; lastKnownFileType = net.daringfireball.markdown; path = Resources/Legal/PRIVACY.md; sourceTree = "<group>"; };
+		F11B22C33D44E55F66778899 /* Resources/Legal/THIRD_PARTY_NOTICES.md */ = {isa = PBXFileReference; lastKnownFileType = net.daringfireball.markdown; path = Resources/Legal/THIRD_PARTY_NOTICES.md; sourceTree = "<group>"; };
 /* End PBXFileReference section */
 
 /* Begin PBXFrameworksBuildPhase section */
@@ -196,6 +208,9 @@
 				F3E4AD022F1374E8004D18BD /* Views */,
 				A0B1C2D3E4F5A6B7C8D9E0F1 /* models */,
 				F3E4AD172F138A10004D18BD /* Resources/docpack.json */,
+				D11B22C33D44E55F66778899 /* Resources/Legal/EULA.md */,
+				E11B22C33D44E55F66778899 /* Resources/Legal/PRIVACY.md */,
+				F11B22C33D44E55F66778899 /* Resources/Legal/THIRD_PARTY_NOTICES.md */,
 				F3E4ACCB2F136364004D18BD /* Assets.xcassets */,
 				F3E4ACCC2F136364004D18BD /* ContentView.swift */,
 				F3E4ACCD2F136364004D18BD /* meeting_transcriberApp.swift */,
@@ -297,6 +312,9 @@
 				E1F2A3B4C5D60718293A4B5D /* AppTheme.swift */,
 				F3E4ACFF2F1374E8004D18BD /* AnswerView.swift */,
 				B1C2D3E4F5A60718293A4B5D /* HomeView.swift */,
+				A11B22C33D44E55F66778899 /* Settings/SettingsView.swift */,
+				B11B22C33D44E55F66778899 /* Settings/LegalDocumentView.swift */,
+				C11B22C33D44E55F66778899 /* Settings/AIDisclosureSheetView.swift */,
 				D1E2F3A4B5C60718293A4B5D /* QandAEntryView.swift */,
 				F1A2B3C4D5E60718293A4B5D /* RecordingComponents.swift */,
 				6BA19F0705B8E9640F5E78D4 /* RecordView.swift */,
@@ -380,6 +398,9 @@
 				A0B1C2D3E4F5A6B7C8D9E0F2 /* models in Resources */,
 				F3E4ACD12F136364004D18BD /* Assets.xcassets in Resources */,
 				F3E4AD162F138A10004D18BD /* Resources/docpack.json in Resources */,
+				D11B22C33D44E55F6677889A /* Resources/Legal/EULA.md in Resources */,
+				E11B22C33D44E55F6677889A /* Resources/Legal/PRIVACY.md in Resources */,
+				F11B22C33D44E55F6677889A /* Resources/Legal/THIRD_PARTY_NOTICES.md in Resources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -399,6 +420,9 @@
 				F3E4AD062F1374E8004D18BD /* AnswerView.swift in Sources */,
 				B1C2D3E4F5A60718293A4B5E /* AppTheme.swift in Sources */,
 				C1D2E3F4A5B60718293A4B5E /* HomeView.swift in Sources */,
+				A11B22C33D44E55F6677889A /* Settings/SettingsView.swift in Sources */,
+				B11B22C33D44E55F6677889A /* Settings/LegalDocumentView.swift in Sources */,
+				C11B22C33D44E55F6677889A /* Settings/AIDisclosureSheetView.swift in Sources */,
 				D1E2F3A4B5C60718293A4B5E /* QandAEntryView.swift in Sources */,
 				BB95FEBEC4D7378AE63FE7BA /* RecordView.swift in Sources */,
 				F1A2B3C4D5E60718293A4B5E /* RecordingComponents.swift in Sources */,
