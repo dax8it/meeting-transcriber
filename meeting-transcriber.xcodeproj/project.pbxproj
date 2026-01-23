@@ -34,6 +34,11 @@
 		F3E4AD042F1374E8004D18BD /* AudioCaptureService.swift in Sources */ = {isa = PBXBuildFile; fileRef = F3E4ACEE2F1374E8004D18BD /* AudioCaptureService.swift */; };
 		F3E4AD052F1374E8004D18BD /* ASRService.swift in Sources */ = {isa = PBXBuildFile; fileRef = F3E4ACE92F1374E8004D18BD /* ASRService.swift */; };
 		F3E4AD062F1374E8004D18BD /* AnswerView.swift in Sources */ = {isa = PBXBuildFile; fileRef = F3E4ACFF2F1374E8004D18BD /* AnswerView.swift */; };
+		B1C2D3E4F5A60718293A4B5E /* AppTheme.swift in Sources */ = {isa = PBXBuildFile; fileRef = E1F2A3B4C5D60718293A4B5D /* AppTheme.swift */; };
+		C1D2E3F4A5B60718293A4B5E /* HomeView.swift in Sources */ = {isa = PBXBuildFile; fileRef = B1C2D3E4F5A60718293A4B5D /* HomeView.swift */; };
+		D1E2F3A4B5C60718293A4B5E /* QandAEntryView.swift in Sources */ = {isa = PBXBuildFile; fileRef = D1E2F3A4B5C60718293A4B5D /* QandAEntryView.swift */; };
+		E1F2A3B4C5D60718293A4B5E /* SessionsListView.swift in Sources */ = {isa = PBXBuildFile; fileRef = C1D2E3F4A5B60718293A4B5D /* SessionsListView.swift */; };
+		F1A2B3C4D5E60718293A4B5E /* RecordingComponents.swift in Sources */ = {isa = PBXBuildFile; fileRef = F1A2B3C4D5E60718293A4B5D /* RecordingComponents.swift */; };
 		F3E4AD072F1374E8004D18BD /* SourcesView.swift in Sources */ = {isa = PBXBuildFile; fileRef = F3E4AD002F1374E8004D18BD /* SourcesView.swift */; };
 		F3E4AD082F1374E8004D18BD /* QuestionDetector.swift in Sources */ = {isa = PBXBuildFile; fileRef = F3E4ACF22F1374E8004D18BD /* QuestionDetector.swift */; };
 		F3E4AD092F1374E8004D18BD /* Logger.swift in Sources */ = {isa = PBXBuildFile; fileRef = F3E4ACFC2F1374E8004D18BD /* Logger.swift */; };
@@ -92,6 +97,11 @@
 		F3E4ACFC2F1374E8004D18BD /* Logger.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Logger.swift; sourceTree = "<group>"; };
 		F3E4ACFD2F1374E8004D18BD /* TaskQueue.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = TaskQueue.swift; sourceTree = "<group>"; };
 		F3E4ACFF2F1374E8004D18BD /* AnswerView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AnswerView.swift; sourceTree = "<group>"; };
+		E1F2A3B4C5D60718293A4B5D /* AppTheme.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AppTheme.swift; sourceTree = "<group>"; };
+		B1C2D3E4F5A60718293A4B5D /* HomeView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = HomeView.swift; sourceTree = "<group>"; };
+		D1E2F3A4B5C60718293A4B5D /* QandAEntryView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = QandAEntryView.swift; sourceTree = "<group>"; };
+		C1D2E3F4A5B60718293A4B5D /* SessionsListView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SessionsListView.swift; sourceTree = "<group>"; };
+		F1A2B3C4D5E60718293A4B5D /* RecordingComponents.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = RecordingComponents.swift; sourceTree = "<group>"; };
 		F3E4AD002F1374E8004D18BD /* SourcesView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SourcesView.swift; sourceTree = "<group>"; };
 		F3E4AD012F1374E8004D18BD /* TranscriptView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = TranscriptView.swift; sourceTree = "<group>"; };
 		F3E4AD172F138A10004D18BD /* Resources/docpack.json */ = {isa = PBXFileReference; lastKnownFileType = text.json; path = Resources/docpack.json; sourceTree = "<group>"; };
@@ -284,8 +294,13 @@
 		F3E4AD022F1374E8004D18BD /* Views */ = {
 			isa = PBXGroup;
 			children = (
+				E1F2A3B4C5D60718293A4B5D /* AppTheme.swift */,
 				F3E4ACFF2F1374E8004D18BD /* AnswerView.swift */,
+				B1C2D3E4F5A60718293A4B5D /* HomeView.swift */,
+				D1E2F3A4B5C60718293A4B5D /* QandAEntryView.swift */,
+				F1A2B3C4D5E60718293A4B5D /* RecordingComponents.swift */,
 				6BA19F0705B8E9640F5E78D4 /* RecordView.swift */,
+				C1D2E3F4A5B60718293A4B5D /* SessionsListView.swift */,
 				EEFB51CA4261AC0E8A0C7E5B /* ShareSheet.swift */,
 				A73CCF9381359872DAE35A55 /* SessionView.swift */,
 				F3E4AD002F1374E8004D18BD /* SourcesView.swift */,
@@ -382,7 +397,12 @@
 				C0D6457B1EFC0EC72A9378CD /* LiveTranscriptionService.swift in Sources */,
 				87FA4EE1B0D23D9BDE43954E /* SummarizationService.swift in Sources */,
 				F3E4AD062F1374E8004D18BD /* AnswerView.swift in Sources */,
+				B1C2D3E4F5A60718293A4B5E /* AppTheme.swift in Sources */,
+				C1D2E3F4A5B60718293A4B5E /* HomeView.swift in Sources */,
+				D1E2F3A4B5C60718293A4B5E /* QandAEntryView.swift in Sources */,
 				BB95FEBEC4D7378AE63FE7BA /* RecordView.swift in Sources */,
+				F1A2B3C4D5E60718293A4B5E /* RecordingComponents.swift in Sources */,
+				E1F2A3B4C5D60718293A4B5E /* SessionsListView.swift in Sources */,
 				95CE375CC6FB4FB0562F3964 /* ShareSheet.swift in Sources */,
 				A1BC3F44C8FAF969EE7C1641 /* SessionView.swift in Sources */,
 				F3E4AD072F1374E8004D18BD /* SourcesView.swift in Sources */,

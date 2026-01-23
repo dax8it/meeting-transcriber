@@ -1,5 +1,4 @@
 import SwiftUI
-import UIKit
 
 struct SessionView: View {
     @StateObject private var viewModel: SessionViewModel
@@ -37,9 +36,13 @@ struct SessionView: View {
                         .font(.caption)
                     }
                 }
-                .padding()
-                .background(Color(uiColor: .systemGray6))
-                .cornerRadius(12)
+                .padding(16)
+                .background(AppTheme.surface)
+                .overlay(
+                    RoundedRectangle(cornerRadius: 16, style: .continuous)
+                        .stroke(Color.black.opacity(0.06), lineWidth: 1)
+                )
+                .clipShape(RoundedRectangle(cornerRadius: 16, style: .continuous))
 
                 VStack(alignment: .leading, spacing: 8) {
                     TextField("Ask a question about this meeting...", text: $viewModel.questionText)
@@ -50,7 +53,13 @@ struct SessionView: View {
                     }
                     .disabled(viewModel.questionText.trimmingCharacters(in: .whitespacesAndNewlines).isEmpty || viewModel.isBusy)
                 }
-                .padding(.horizontal)
+                .padding(16)
+                .background(AppTheme.surface)
+                .overlay(
+                    RoundedRectangle(cornerRadius: 16, style: .continuous)
+                        .stroke(Color.black.opacity(0.06), lineWidth: 1)
+                )
+                .clipShape(RoundedRectangle(cornerRadius: 16, style: .continuous))
 
                 if viewModel.isBusy {
                     ProgressView("Answering...")
@@ -65,8 +74,9 @@ struct SessionView: View {
                     SourcesView(sources: viewModel.sources)
                 }
             }
-            .padding(.vertical)
+            .padding(20)
         }
+        .background(AppTheme.background.ignoresSafeArea())
         .navigationTitle("Session")
         .navigationBarTitleDisplayMode(.inline)
         .task {

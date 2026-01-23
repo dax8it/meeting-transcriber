@@ -12,9 +12,12 @@ struct AnswerView: View {
                 .font(.body)
                 .frame(maxWidth: .infinity, alignment: .leading)
         }
-        .padding()
-        .background(Color.blue.opacity(0.1))
-        .cornerRadius(8)
-        .padding(.horizontal)
+        .padding(16)
+        .background(AppTheme.surfaceAlt)
+        .overlay(
+            RoundedRectangle(cornerRadius: 16, style: .continuous)
+                .stroke(Color.black.opacity(0.06), lineWidth: 1)
+        )
+        .clipShape(RoundedRectangle(cornerRadius: 16, style: .continuous))
     }
 }

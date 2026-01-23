@@ -24,11 +24,17 @@ struct TranscriptView: View {
                     .font(.body)
                     .foregroundColor(transcriptText.isEmpty ? .secondary : .primary)
                     .frame(maxWidth: .infinity, alignment: .leading)
+                    .textSelection(.enabled)
             }
             .frame(height: 150)
-            .background(Color(.systemGray6))
-            .cornerRadius(8)
+            .padding(12)
+            .background(AppTheme.surface)
+            .overlay(
+                RoundedRectangle(cornerRadius: 16, style: .continuous)
+                    .stroke(Color.black.opacity(0.06), lineWidth: 1)
+            )
+            .clipShape(RoundedRectangle(cornerRadius: 16, style: .continuous))
         }
-        .padding(.horizontal)
+        .padding(.horizontal, 0)
     }
 }
