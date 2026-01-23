@@ -32,7 +32,7 @@ actor SummarizationService {
             """
 
             let conversation = model.createConversation(systemPrompt: systemPrompt)
-            let userMessage = ChatMessage(role: .user, content: [.text(userPrompt)])
+            let userMessage = LeapSDK.ChatMessage(role: .user, content: [.text(userPrompt)])
 
             var response = ""
             for try await chunk in conversation.generateResponse(message: userMessage) {

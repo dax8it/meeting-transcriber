@@ -43,8 +43,20 @@ struct SessionView: View {
                         .stroke(Color.black.opacity(0.06), lineWidth: 1)
                 )
                 .clipShape(RoundedRectangle(cornerRadius: 16, style: .continuous))
-
+                
                 AINoticeBanner()
+
+                NavigationLink {
+                    ChatView(session: viewModel.session)
+                } label: {
+                    HomeActionCard(
+                        title: "Chat about this meeting",
+                        subtitle: "Ask follow-ups with citations",
+                        systemImage: "bubble.left.and.bubble.right.fill",
+                        tint: AppTheme.accent
+                    )
+                }
+                .buttonStyle(.plain)
 
                 VStack(alignment: .leading, spacing: 8) {
                     TextField("Ask a question about this meeting...", text: $viewModel.questionText)
