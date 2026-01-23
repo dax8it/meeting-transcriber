@@ -50,6 +50,7 @@ final class ChatViewModel: ObservableObject {
     private let searchIndex = SearchIndex.shared
     private let ragService = RAGService.shared
     private let audioCapture = AudioCaptureService.shared
+    private let asrService = ASRService.shared
 
     private let maxHistoryMessages = 10
     private let maxPersistedSources = 8
@@ -98,8 +99,26 @@ final class ChatViewModel: ObservableObject {
             lastVoiceSamples = samples
             await restoreAudioSessionIfNeeded()
 
-            print("[ChatVoice] captured samples=\(samples.count) (ASR wired next commit)")
+            guard !samples.isEmpty else {
+                print("[ChatVoice] empty buffer")
+                voiceState = .error("No speech detected")
+                return
+            }
+
+            let transcript = await asrService.transcribe(samples: samples)
+            let trimmed = transcript.trimmingCharacters(in: .whitespacesAndNewlines)
+            print("[ChatVoice] transcript len=\(trimmed.count)")
+
+            guard !trimmed.isEmpty else {
+                print("[ChatVoice] empty transcript")
+                voiceState = .error("No speech detected")
+                return
+            }
+
+            inputText = trimmed
             voiceState = .idle
+            print("[ChatVoice] auto-send")
+            send()
         }
     }
 
