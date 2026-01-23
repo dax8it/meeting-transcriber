@@ -2,6 +2,7 @@ import SwiftUI
 
 struct ChatView: View {
     @StateObject private var viewModel: ChatViewModel
+    @State private var speakRepliesPlaceholder: Bool = false
 
     init(session: MeetingSession) {
         _viewModel = StateObject(wrappedValue: ChatViewModel(session: session))
@@ -54,27 +55,59 @@ struct ChatView: View {
     }
 
     private var inputBar: some View {
-        HStack(spacing: 10) {
-            TextField("Message...", text: $viewModel.inputText, axis: .vertical)
-                .textFieldStyle(.roundedBorder)
-                .lineLimit(1...4)
-                .submitLabel(.send)
-                .disabled(viewModel.isBusy)
-                .onSubmit { viewModel.send() }
+        VStack(spacing: 10) {
+            HStack(alignment: .center, spacing: 10) {
+                TextField("Message...", text: $viewModel.inputText, axis: .vertical)
+                    .textFieldStyle(.roundedBorder)
+                    .lineLimit(1...4)
+                    .submitLabel(.send)
+                    .disabled(viewModel.isBusy)
+                    .onSubmit { viewModel.send() }
 
-            Button {
-                viewModel.send()
-            } label: {
-                Text("Send")
-                    .font(.headline)
-                    .foregroundColor(.white)
-                    .padding(.horizontal, 14)
-                    .padding(.vertical, 10)
-                    .background(AppTheme.actionGradient(tint: AppTheme.accent))
-                    .clipShape(RoundedRectangle(cornerRadius: 14, style: .continuous))
+                Button {
+                     // wired in follow-up commit
+                } label: {
+                    Image(systemName: "mic.fill")
+                        .font(.system(size: 18, weight: .semibold))
+                        .foregroundColor(AppTheme.ink)
+                        .frame(width: 40, height: 40)
+                        .background(AppTheme.surface)
+                        .clipShape(RoundedRectangle(cornerRadius: 14, style: .continuous))
+                        .overlay(
+                            RoundedRectangle(cornerRadius: 14, style: .continuous)
+                                .stroke(Color.black.opacity(0.08), lineWidth: 1)
+                        )
+                }
+                .buttonStyle(.plain)
+                .disabled(true)
+                .accessibilityLabel("Start recording")
+
+                Button {
+                    viewModel.send()
+                } label: {
+                    Text("Send")
+                        .font(.headline)
+                        .foregroundColor(.white)
+                        .padding(.horizontal, 14)
+                        .padding(.vertical, 10)
+                        .background(AppTheme.actionGradient(tint: AppTheme.accent))
+                        .clipShape(RoundedRectangle(cornerRadius: 14, style: .continuous))
+                }
+                .buttonStyle(.plain)
+                .disabled(viewModel.isBusy || viewModel.inputText.trimmingCharacters(in: .whitespacesAndNewlines).isEmpty)
             }
-            .buttonStyle(.plain)
-            .disabled(viewModel.isBusy || viewModel.inputText.trimmingCharacters(in: .whitespacesAndNewlines).isEmpty)
+
+            HStack(spacing: 10) {
+                Text("Voice: Idle")
+                    .font(.caption)
+                    .foregroundColor(AppTheme.mutedInk)
+
+                Spacer(minLength: 0)
+
+                Toggle("Speak replies (coming soon)", isOn: $speakRepliesPlaceholder)
+                    .font(.caption)
+                    .disabled(true)
+            }
         }
         .padding(.horizontal, 14)
         .padding(.vertical, 12)
