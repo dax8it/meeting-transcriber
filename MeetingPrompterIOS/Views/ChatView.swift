@@ -2,7 +2,6 @@ import SwiftUI
 
 struct ChatView: View {
     @StateObject private var viewModel: ChatViewModel
-    @State private var speakRepliesPlaceholder: Bool = false
 
     init(session: MeetingSession) {
         _viewModel = StateObject(wrappedValue: ChatViewModel(session: session))
@@ -65,22 +64,32 @@ struct ChatView: View {
                     .onSubmit { viewModel.send() }
 
                 Button {
-                     // wired in follow-up commit
+                    if viewModel.voiceState.isRecording {
+                        viewModel.stopRecordingAndTranscribe()
+                    } else {
+                        viewModel.startRecording()
+                    }
                 } label: {
-                    Image(systemName: "mic.fill")
-                        .font(.system(size: 18, weight: .semibold))
-                        .foregroundColor(AppTheme.ink)
-                        .frame(width: 40, height: 40)
-                        .background(AppTheme.surface)
-                        .clipShape(RoundedRectangle(cornerRadius: 14, style: .continuous))
-                        .overlay(
-                            RoundedRectangle(cornerRadius: 14, style: .continuous)
-                                .stroke(Color.black.opacity(0.08), lineWidth: 1)
-                        )
+                    Group {
+                        if viewModel.voiceState.isTranscribing {
+                            ProgressView()
+                        } else {
+                            Image(systemName: viewModel.voiceState.isRecording ? "stop.circle.fill" : "mic.fill")
+                                .font(.system(size: 18, weight: .semibold))
+                        }
+                    }
+                    .foregroundColor(AppTheme.ink)
+                    .frame(width: 40, height: 40)
+                    .background(AppTheme.surface)
+                    .clipShape(RoundedRectangle(cornerRadius: 14, style: .continuous))
+                    .overlay(
+                        RoundedRectangle(cornerRadius: 14, style: .continuous)
+                            .stroke(Color.black.opacity(0.08), lineWidth: 1)
+                    )
                 }
                 .buttonStyle(.plain)
-                .disabled(true)
-                .accessibilityLabel("Start recording")
+                .disabled(viewModel.isBusy || viewModel.voiceState.isTranscribing)
+                .accessibilityLabel(viewModel.voiceState.isRecording ? "Stop recording" : "Start recording")
 
                 Button {
                     viewModel.send()
@@ -98,13 +107,13 @@ struct ChatView: View {
             }
 
             HStack(spacing: 10) {
-                Text("Voice: Idle")
+                Text(voiceStatusText)
                     .font(.caption)
-                    .foregroundColor(AppTheme.mutedInk)
+                    .foregroundColor(voiceStatusColor)
 
                 Spacer(minLength: 0)
 
-                Toggle("Speak replies (coming soon)", isOn: $speakRepliesPlaceholder)
+                Toggle("Speak replies (coming soon)", isOn: $viewModel.speakRepliesEnabled)
                     .font(.caption)
                     .disabled(true)
             }
@@ -118,5 +127,31 @@ struct ChatView: View {
                 .frame(height: 1),
             alignment: .top
         )
+    }
+
+    private var voiceStatusText: String {
+        switch viewModel.voiceState {
+        case .idle:
+            return "Voice: Idle"
+        case .recording:
+            return "Voice: Recording"
+        case .transcribing:
+            return "Voice: Transcribing"
+        case .error(let message):
+            return "Voice error: \(message)"
+        }
+    }
+
+    private var voiceStatusColor: Color {
+        switch viewModel.voiceState {
+        case .idle:
+            return AppTheme.mutedInk
+        case .recording:
+            return AppTheme.ink
+        case .transcribing:
+            return AppTheme.mutedInk
+        case .error:
+            return .red
+        }
     }
 }

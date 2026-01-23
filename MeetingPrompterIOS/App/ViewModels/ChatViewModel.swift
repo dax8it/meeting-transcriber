@@ -1,12 +1,47 @@
+import AVFoundation
 import Foundation
 import Combine
 
 @MainActor
 final class ChatViewModel: ObservableObject {
+    enum VoiceState: Equatable {
+        case idle
+        case recording
+        case transcribing
+        case error(String)
+
+        var isRecording: Bool {
+            if case .recording = self { return true }
+            return false
+        }
+
+        var isTranscribing: Bool {
+            if case .transcribing = self { return true }
+            return false
+        }
+    }
+
+    enum ChatVoiceError: LocalizedError {
+        case microphonePermissionDenied
+        case recordingUnavailable
+
+        var errorDescription: String? {
+            switch self {
+            case .microphonePermissionDenied:
+                return "Microphone permission denied"
+            case .recordingUnavailable:
+                return "Unable to start recording"
+            }
+        }
+    }
+
     @Published var messages: [ChatMessage] = []
     @Published var inputText: String = ""
     @Published var isBusy: Bool = false
     @Published var errorMessage: String? = nil
+
+    @Published var voiceState: VoiceState = .idle
+    @Published var speakRepliesEnabled: Bool = false
 
     let session: MeetingSession
 
@@ -14,13 +49,63 @@ final class ChatViewModel: ObservableObject {
     private let fileStore = FileStore.shared
     private let searchIndex = SearchIndex.shared
     private let ragService = RAGService.shared
+    private let audioCapture = AudioCaptureService.shared
 
     private let maxHistoryMessages = 10
     private let maxPersistedSources = 8
 
+    private var lastVoiceSamples: [Float] = []
+    private var audioSessionSnapshot: (category: AVAudioSession.Category, mode: AVAudioSession.Mode, options: AVAudioSession.CategoryOptions)?
+
     init(session: MeetingSession) {
         self.session = session
         Task { await loadHistoryAndIndex() }
+    }
+
+    func startRecording() {
+        guard !isBusy else { return }
+        guard !voiceState.isRecording && !voiceState.isTranscribing else { return }
+
+        print("[ChatVoice] start")
+        voiceState = .recording
+
+        Task {
+            do {
+                try await ensureMicrophonePermission()
+                try await configureAudioSessionForRecordingIfNeeded()
+                await audioCapture.clearBuffer()
+                try await audioCapture.startCapture { _ in }
+            } catch {
+                print("[ChatVoice] start failed: \(error)")
+                voiceState = .error(error.localizedDescription)
+                await audioCapture.stopCapture()
+                await audioCapture.clearBuffer()
+                await restoreAudioSessionIfNeeded()
+            }
+        }
+    }
+
+    func stopRecordingAndTranscribe() {
+        guard voiceState.isRecording else { return }
+
+        print("[ChatVoice] stop → transcribing")
+        voiceState = .transcribing
+
+        Task {
+            await audioCapture.stopCapture()
+            let samples = await audioCapture.getFullBuffer()
+            await audioCapture.clearBuffer()
+            lastVoiceSamples = samples
+            await restoreAudioSessionIfNeeded()
+
+            print("[ChatVoice] captured samples=\(samples.count) (ASR wired next commit)")
+            voiceState = .idle
+        }
+    }
+
+    func speakIfEnabled(_ text: String) {
+        guard speakRepliesEnabled else { return }
+        print("[ChatVoice] speakReplies enabled but no TTS configured")
     }
 
     func send() {
@@ -107,6 +192,48 @@ final class ChatViewModel: ObservableObject {
     private func loadHistoryAndIndex() async {
         self.messages = await chatStore.loadMessages(for: session)
         try? await indexMeetingIfNeeded()
+    }
+
+    private func ensureMicrophonePermission() async throws {
+        let allowed: Bool = await withCheckedContinuation { (cont: CheckedContinuation<Bool, Never>) in
+            if #available(iOS 17.0, *) {
+                AVAudioApplication.requestRecordPermission { ok in
+                    cont.resume(returning: ok)
+                }
+            } else {
+                AVAudioSession.sharedInstance().requestRecordPermission { ok in
+                    cont.resume(returning: ok)
+                }
+            }
+        }
+
+        if !allowed {
+            throw ChatVoiceError.microphonePermissionDenied
+        }
+    }
+
+    private func configureAudioSessionForRecordingIfNeeded() async throws {
+        let session = AVAudioSession.sharedInstance()
+
+        if audioSessionSnapshot == nil {
+            audioSessionSnapshot = (session.category, session.mode, session.categoryOptions)
+        }
+
+        try session.setCategory(.playAndRecord, mode: .spokenAudio, options: [.defaultToSpeaker, .allowBluetoothHFP])
+        try session.setActive(true, options: [.notifyOthersOnDeactivation])
+    }
+
+    private func restoreAudioSessionIfNeeded() async {
+        guard let snapshot = audioSessionSnapshot else { return }
+        audioSessionSnapshot = nil
+
+        let session = AVAudioSession.sharedInstance()
+        do {
+            try session.setActive(false, options: [.notifyOthersOnDeactivation])
+            try session.setCategory(snapshot.category, mode: snapshot.mode, options: snapshot.options)
+        } catch {
+            print("[ChatVoice] restore audio session failed: \(error)")
+        }
     }
 
     private func indexMeetingIfNeeded() async throws {
