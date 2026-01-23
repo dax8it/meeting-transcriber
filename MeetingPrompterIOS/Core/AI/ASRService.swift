@@ -55,7 +55,7 @@ actor ASRService {
         print("[ASR] Creating conversation. Runner type: \(String(describing: type(of: model)))")
         print("[ASR] ASR model type: \(type(of: model))")
         let conversation = model.createConversation(systemPrompt: "Perform ASR.")
-        let userMessage = ChatMessage(
+        let userMessage = LeapSDK.ChatMessage(
             role: .user,
             content: [
                 ChatMessageContent.fromFloatSamples(audio, sampleRate: 16_000),

@@ -109,7 +109,7 @@ actor RAGService {
         """
         
         print("[RAG] User prompt length: \(userPrompt.count)")
-        let userMessage = ChatMessage(role: .user, content: [.text(userPrompt)])
+        let userMessage = LeapSDK.ChatMessage(role: .user, content: [.text(userPrompt)])
         var response = ""
 
         print("[RAG] Starting generation with RAG model...")
@@ -180,7 +180,7 @@ actor RAGService {
         - If not answerable, say "Not enough evidence in sources." and nothing else.
         """
         
-        let userMessage = ChatMessage(role: .user, content: [.text(userPrompt)])
+        let userMessage = LeapSDK.ChatMessage(role: .user, content: [.text(userPrompt)])
         var response = ""
 
         print("[RAG] Starting generation with current meeting evidence...")
