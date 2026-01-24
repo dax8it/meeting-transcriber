@@ -8,3 +8,4 @@ meeting-transcriber.xcodeproj/project.xcworkspace/xcshareddata/
 **/*.bin
 **/*.bundle
 build/
+build/
