@@ -13,12 +13,14 @@ enum AppTheme {
 
     static let cardRadius: CGFloat = 18
 
+    // Note: Tint opacity capped at 0.35 to maintain sufficient contrast for white text.
+    // Higher opacity values (like 0.70) caused white-on-white readability issues on lighter tints.
     static func actionGradient(tint: Color) -> LinearGradient {
         LinearGradient(
             colors: [
                 charcoal,
                 charcoal.opacity(0.92),
-                tint.opacity(0.70),
+                tint.opacity(0.35),
             ],
             startPoint: .topLeading,
             endPoint: .bottomTrailing
