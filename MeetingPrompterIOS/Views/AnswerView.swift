@@ -7,6 +7,7 @@ struct AnswerView: View {
         VStack(alignment: .leading, spacing: 8) {
             Text("Answer")
                 .font(.headline)
+                .foregroundColor(AppTheme.ink)
             
             Text(answerText)
                 .font(.body)

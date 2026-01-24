@@ -14,9 +14,11 @@ struct SessionView: View {
                 VStack(alignment: .leading, spacing: 8) {
                     Text("Summary")
                         .font(.headline)
+                        .foregroundColor(AppTheme.ink)
 
                     Text(viewModel.summaryText.isEmpty ? "Generating..." : viewModel.summaryText)
                         .font(.body)
+                        .foregroundColor(AppTheme.ink)
                         .frame(maxWidth: .infinity, alignment: .leading)
                         .textSelection(.enabled)
 
@@ -25,6 +27,7 @@ struct SessionView: View {
                             isShowingShare = true
                         } label: {
                             Label("Share Summary", systemImage: "square.and.arrow.up")
+                                .foregroundColor(AppTheme.ink)
                         }
                         .disabled(!viewModel.summaryReady || viewModel.shareURL == nil)
 
@@ -77,6 +80,7 @@ struct SessionView: View {
 
                 if viewModel.isBusy {
                     ProgressView("Answering...")
+                        .foregroundColor(AppTheme.ink)
                         .padding(.horizontal)
                 }
 
