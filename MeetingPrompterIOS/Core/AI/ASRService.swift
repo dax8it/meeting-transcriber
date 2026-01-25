@@ -36,7 +36,10 @@ actor ASRService {
 
     // MVP: used by LiveTranscriptionService for chunked transcription.
     func transcribeChunk(samples: [Float]) async -> String {
-        await transcribe(samples: samples)
+        print("[DEBUG ASRService] transcribeChunk: \(samples.count) samples")
+        let result = await transcribe(samples: samples)
+        print("[DEBUG ASRService] transcribeChunk result: '\(String(result.prefix(100)))'")
+        return result
     }
     
     func transcribePartial(samples: [Float]) async -> String {

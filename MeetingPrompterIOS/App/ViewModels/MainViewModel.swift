@@ -85,14 +85,18 @@ class MainViewModel: ObservableObject {
             await leapManager.unloadRAG()
 
             await liveTranscription.reset(onUpdate: { [weak self] text in
+                print("[DEBUG UI] transcriptLive updated: length=\(text.count), last50='\(String(text.prefix(50)).suffix(50))'")
                 self?.transcriptLive = text
             })
 
             do {
                 try await audioCapture.startCapture { [weak self] samples in
                     guard let self else { return }
+                    print("[DEBUG AudioCapture] Received \(samples.count) samples")
                     Task {
+                        print("[DEBUG AudioCapture] Calling liveTranscription.append with \(samples.count) samples")
                         await self.liveTranscription.append(samples: samples)
+                        print("[DEBUG AudioCapture] append completed")
                     }
                 }
             } catch {

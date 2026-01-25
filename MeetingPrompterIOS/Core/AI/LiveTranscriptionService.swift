@@ -23,6 +23,7 @@ actor LiveTranscriptionService {
         inFlight?.cancel()
         inFlight = nil
         self.onUpdate = onUpdate
+        print("[DEBUG LiveTranscription] reset called, onUpdate=\(onUpdate != nil)")
     }
 
     func setOnUpdate(_ onUpdate: (@MainActor @Sendable (String) -> Void)?) {
@@ -31,6 +32,7 @@ actor LiveTranscriptionService {
 
     func append(samples: [Float]) {
         guard !samples.isEmpty else { return }
+        print("[DEBUG LiveTranscription] append: \(samples.count) samples, buffer.count=\(buffer.count)")
 
         buffer.append(contentsOf: samples)
 
@@ -85,6 +87,7 @@ actor LiveTranscriptionService {
 
     private func handleChunkResult(_ chunkText: String) {
         let cleaned = chunkText.trimmingCharacters(in: .whitespacesAndNewlines)
+        print("[DEBUG ASR] handleChunkResult: cleaned.length=\(cleaned.count), text='\(cleaned)'")
         guard !cleaned.isEmpty else {
             inFlight = nil
             return
@@ -92,9 +95,11 @@ actor LiveTranscriptionService {
 
         transcript = mergeTranscript(previous: transcript, next: cleaned)
         inFlight = nil
+        print("[DEBUG ASR] merged transcript: length=\(transcript.count), last50='\(String(transcript.prefix(50)).suffix(50))'")
 
         if let onUpdate {
             let text = transcript
+            print("[DEBUG ASR] Calling onUpdate with \(text.count) chars")
             Task { @MainActor in
                 onUpdate(text)
             }
