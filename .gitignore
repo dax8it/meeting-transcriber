@@ -9,3 +9,6 @@ meeting-transcriber.xcodeproj/project.xcworkspace/xcshareddata/
 **/*.bundle
 build/
 build/
+
+*.xcodeproj/xcuserdata/
+*.xcworkspace/xcuserdata/
