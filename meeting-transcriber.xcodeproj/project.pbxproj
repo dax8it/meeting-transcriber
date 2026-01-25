@@ -30,7 +30,6 @@
 		F3E4ACD22F136364004D18BD /* LFM2-1.2B-RAG-Q5_K_M.gguf in Resources */ = {isa = PBXBuildFile; fileRef = F3E4ACC82F136364004D18BD /* LFM2-1.2B-RAG-Q5_K_M.gguf */; };
 		F3E4ACD42F136364004D18BD /* meeting_transcriberApp.swift in Sources */ = {isa = PBXBuildFile; fileRef = F3E4ACCD2F136364004D18BD /* meeting_transcriberApp.swift */; };
 		F3E4ACD52F136364004D18BD /* ContentView.swift in Sources */ = {isa = PBXBuildFile; fileRef = F3E4ACCC2F136364004D18BD /* ContentView.swift */; };
-		F3E4ACDC2F136BAB004D18BD /* LeapModelDownloader in Frameworks */ = {isa = PBXBuildFile; productRef = F3E4ACDB2F136BAB004D18BD /* LeapModelDownloader */; };
 		F3E4ACDE2F136BAB004D18BD /* LeapSDK in Frameworks */ = {isa = PBXBuildFile; productRef = F3E4ACDD2F136BAB004D18BD /* LeapSDK */; };
 		F3E4ACE12F136C09004D18BD /* GRDB in Frameworks */ = {isa = PBXBuildFile; productRef = F3E4ACE02F136C09004D18BD /* GRDB */; };
 		F3E4AD032F1374E8004D18BD /* AppState.swift in Sources */ = {isa = PBXBuildFile; fileRef = F3E4ACF42F1374E8004D18BD /* AppState.swift */; };
@@ -135,7 +134,6 @@
 			buildActionMask = 2147483647;
 			files = (
 				F3E4ACE12F136C09004D18BD /* GRDB in Frameworks */,
-				F3E4ACDC2F136BAB004D18BD /* LeapModelDownloader in Frameworks */,
 				F3E4ACDE2F136BAB004D18BD /* LeapSDK in Frameworks */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
@@ -359,7 +357,6 @@
 			);
 			name = "meeting-transcriber";
 			packageProductDependencies = (
-				F3E4ACDB2F136BAB004D18BD /* LeapModelDownloader */,
 				F3E4ACDD2F136BAB004D18BD /* LeapSDK */,
 				F3E4ACE02F136C09004D18BD /* GRDB */,
 			);
@@ -709,11 +706,6 @@
 /* End XCRemoteSwiftPackageReference section */
 
 /* Begin XCSwiftPackageProductDependency section */
-		F3E4ACDB2F136BAB004D18BD /* LeapModelDownloader */ = {
-			isa = XCSwiftPackageProductDependency;
-			package = F3E4ACDA2F136BAB004D18BD /* XCRemoteSwiftPackageReference "leap-ios" */;
-			productName = LeapModelDownloader;
-		};
 		F3E4ACDD2F136BAB004D18BD /* LeapSDK */ = {
 			isa = XCSwiftPackageProductDependency;
 			package = F3E4ACDA2F136BAB004D18BD /* XCRemoteSwiftPackageReference "leap-ios" */;
