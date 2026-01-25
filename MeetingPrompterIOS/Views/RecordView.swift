@@ -34,6 +34,7 @@ struct RecordView: View {
         }
         .padding(20)
         .background(AppTheme.background.ignoresSafeArea())
+        .tint(AppTheme.ink)
         .navigationTitle("Transcribe")
         .navigationBarTitleDisplayMode(.inline)
     }
