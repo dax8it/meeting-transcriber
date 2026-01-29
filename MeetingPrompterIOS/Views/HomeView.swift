@@ -5,6 +5,7 @@ struct HomeView: View {
 
     @AppStorage("hasAcceptedAIDisclosure") private var hasAcceptedAIDisclosure: Bool = false
     @State private var isShowingAIDisclosure = false
+    @State private var titleVisible = false
 
     @State private var recentSessions: [MeetingSession] = []
     @State private var isLoadingSessions = false
@@ -15,9 +16,9 @@ struct HomeView: View {
             VStack(alignment: .leading, spacing: 22) {
                 HStack(alignment: .top) {
                     VStack(alignment: .leading, spacing: 10) {
-                        Text("Meet Puppet")
-                            .font(.largeTitle)
-                            .fontWeight(.bold)
+                        Text("Puppet")
+                            .font(.system(size: 40, weight: .bold, design: .rounded))
+                            .tracking(-0.5)
                             .foregroundColor(AppTheme.ink)
 
                         Text("On-device transcription, summaries, and Q&A.")
@@ -41,6 +42,9 @@ struct HomeView: View {
                                 .stroke(AppTheme.hairline, lineWidth: 1)
                         )
                     }
+                    .opacity(titleVisible ? 1 : 0)
+                    .offset(y: titleVisible ? 0 : 6)
+                    .animation(.easeOut(duration: 0.35), value: titleVisible)
 
                     Spacer(minLength: 0)
 
@@ -145,6 +149,9 @@ struct HomeView: View {
         .onAppear {
             if !hasAcceptedAIDisclosure {
                 isShowingAIDisclosure = true
+            }
+            if !titleVisible {
+                titleVisible = true
             }
         }
         .task {
