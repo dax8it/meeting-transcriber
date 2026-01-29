@@ -12,7 +12,7 @@ struct SettingsView: View {
                         .font(.body)
                         .foregroundColor(AppTheme.ink)
 
-                    Divider().opacity(0.15)
+                    Divider().background(AppTheme.divider)
 
                     Button {
                         isShowingAIDisclosure = true
@@ -37,7 +37,7 @@ struct SettingsView: View {
                         settingsRow("End User License Agreement")
                     }
 
-                    Divider().opacity(0.15)
+                    Divider().background(AppTheme.divider)
 
                     NavigationLink {
                         LegalDocumentView(title: "Third-Party Notices", resourceName: "THIRD_PARTY_NOTICES", ext: "md")
@@ -45,7 +45,7 @@ struct SettingsView: View {
                         settingsRow("Third-Party Notices")
                     }
 
-                    Divider().opacity(0.15)
+                    Divider().background(AppTheme.divider)
 
                     NavigationLink {
                         LegalDocumentView(title: "Privacy", resourceName: "PRIVACY", ext: "md")
@@ -65,7 +65,7 @@ struct SettingsView: View {
                             .font(.subheadline)
                             .foregroundColor(AppTheme.mutedInk)
 
-                        Divider().opacity(0.15)
+                        Divider().background(AppTheme.divider)
 
                         Text("Uses Liquid AI LFM models under the LFM Open License v1.0.")
                             .font(.subheadline)
@@ -80,6 +80,8 @@ struct SettingsView: View {
         .background(AppTheme.background.ignoresSafeArea())
         .navigationTitle("Settings")
         .navigationBarTitleDisplayMode(.inline)
+        .toolbarBackground(AppTheme.background, for: .navigationBar)
+        .toolbarBackground(.visible, for: .navigationBar)
         .sheet(isPresented: $isShowingAIDisclosure) {
             AIDisclosureSheetView {
                 isShowingAIDisclosure = false
@@ -127,10 +129,10 @@ struct SettingsView: View {
         .background(AppTheme.surface)
         .overlay(
             RoundedRectangle(cornerRadius: 16, style: .continuous)
-                .stroke(Color.black.opacity(0.06), lineWidth: 1)
+                .stroke(AppTheme.hairline, lineWidth: 1)
         )
         .clipShape(RoundedRectangle(cornerRadius: 16, style: .continuous))
-        .shadow(color: Color.black.opacity(0.06), radius: 10, x: 0, y: 6)
+        .shadow(color: AppTheme.shadowSoft, radius: 10, x: 0, y: 6)
     }
 }
 

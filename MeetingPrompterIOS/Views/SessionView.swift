@@ -16,11 +16,15 @@ struct SessionView: View {
                         .font(.headline)
                         .foregroundColor(AppTheme.ink)
 
-                    Text(viewModel.summaryText.isEmpty ? "Generating..." : viewModel.summaryText)
-                        .font(.body)
-                        .foregroundColor(AppTheme.ink)
-                        .frame(maxWidth: .infinity, alignment: .leading)
-                        .textSelection(.enabled)
+                    if viewModel.summaryText.isEmpty {
+                        Text("Generating...")
+                            .font(.body)
+                            .foregroundColor(AppTheme.mutedInk)
+                            .frame(maxWidth: .infinity, alignment: .leading)
+                    } else {
+                        MarkdownRenderer(text: viewModel.summaryText)
+                            .foregroundColor(AppTheme.ink)
+                    }
 
                     HStack {
                         Button {
@@ -43,7 +47,7 @@ struct SessionView: View {
                 .background(AppTheme.surface)
                 .overlay(
                     RoundedRectangle(cornerRadius: 16, style: .continuous)
-                        .stroke(Color.black.opacity(0.06), lineWidth: 1)
+                        .stroke(AppTheme.hairline, lineWidth: 1)
                 )
                 .clipShape(RoundedRectangle(cornerRadius: 16, style: .continuous))
                 
@@ -74,7 +78,7 @@ struct SessionView: View {
                 .background(AppTheme.surface)
                 .overlay(
                     RoundedRectangle(cornerRadius: 16, style: .continuous)
-                        .stroke(Color.black.opacity(0.06), lineWidth: 1)
+                        .stroke(AppTheme.hairline, lineWidth: 1)
                 )
                 .clipShape(RoundedRectangle(cornerRadius: 16, style: .continuous))
 
@@ -97,6 +101,8 @@ struct SessionView: View {
         .background(AppTheme.background.ignoresSafeArea())
         .navigationTitle("Session")
         .navigationBarTitleDisplayMode(.inline)
+        .toolbarBackground(AppTheme.background, for: .navigationBar)
+        .toolbarBackground(.visible, for: .navigationBar)
         .task {
             await viewModel.reloadArtifacts()
         }

@@ -7,6 +7,7 @@ struct SourcesView: View {
         VStack(alignment: .leading, spacing: 8) {
             Text("Sources")
                 .font(.headline)
+                .foregroundColor(AppTheme.ink)
             
             VStack(alignment: .leading, spacing: 6) {
                 ForEach(Array(sources.enumerated()), id: \.element.id) { item in
@@ -21,16 +22,17 @@ struct SourcesView: View {
                             Text("[S\(idx + 1)] \(source.docTitle)/\(source.docType)")
                                 .font(.subheadline)
                                 .fontWeight(.semibold)
-                            
+                                .foregroundColor(AppTheme.ink)
+
                             Text(source.sectionPath)
                                 .font(.caption)
-                                .foregroundColor(.secondary)
+                                .foregroundColor(AppTheme.mutedInk)
 
                             if let meetingID = source.meetingID {
                                 let chunkIndex = source.chunkIndex.map(String.init) ?? "?"
                                 Text("meeting \(meetingID) • chunk \(chunkIndex)")
                                     .font(.caption2)
-                                    .foregroundColor(.secondary)
+                                    .foregroundColor(AppTheme.mutedInk)
                             }
                         }
                     }
@@ -42,7 +44,7 @@ struct SourcesView: View {
         .background(AppTheme.surfaceAlt)
         .overlay(
             RoundedRectangle(cornerRadius: 16, style: .continuous)
-                .stroke(Color.black.opacity(0.06), lineWidth: 1)
+                .stroke(AppTheme.hairline, lineWidth: 1)
         )
         .clipShape(RoundedRectangle(cornerRadius: 16, style: .continuous))
     }

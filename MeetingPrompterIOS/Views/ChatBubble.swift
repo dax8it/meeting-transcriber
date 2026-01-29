@@ -5,15 +5,21 @@ struct ChatBubble: View {
 
     var body: some View {
         VStack(alignment: message.role == .user ? .trailing : .leading, spacing: 6) {
-            Text(message.text)
-                .font(.body)
-                .foregroundColor(message.role == .user ? .white : AppTheme.ink)
-                .textSelection(.enabled)
-                .padding(.horizontal, 14)
-                .padding(.vertical, 12)
-                .background(bubbleBackground)
-                .clipShape(RoundedRectangle(cornerRadius: 16, style: .continuous))
-                .frame(maxWidth: .infinity, alignment: message.role == .user ? .trailing : .leading)
+            Group {
+                if message.role == .assistant {
+                    MarkdownRenderer(text: message.text)
+                } else {
+                    Text(message.text)
+                        .font(.body)
+                        .textSelection(.enabled)
+                }
+            }
+            .foregroundColor(message.role == .user ? .white : AppTheme.ink)
+            .padding(.horizontal, 14)
+            .padding(.vertical, 12)
+            .background(bubbleBackground)
+            .clipShape(RoundedRectangle(cornerRadius: 16, style: .continuous))
+            .frame(maxWidth: .infinity, alignment: message.role == .user ? .trailing : .leading)
 
             Text(timestampString(message.timestamp))
                 .font(.caption2)

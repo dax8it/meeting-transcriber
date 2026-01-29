@@ -17,6 +17,8 @@ struct ContentView: View {
                     SessionView(session: session)
                 }
         }
+        .tint(AppTheme.accent)
+        .preferredColorScheme(.dark)
     }
 }
 

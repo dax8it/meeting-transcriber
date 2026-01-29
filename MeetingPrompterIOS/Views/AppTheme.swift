@@ -1,26 +1,30 @@
 import SwiftUI
 
 enum AppTheme {
-    static let background = Color(red: 0.965, green: 0.965, blue: 0.985)
-    static let surface = Color.white
-    static let surfaceAlt = Color(red: 0.94, green: 0.94, blue: 0.965)
+    static let background = Color(red: 0.06, green: 0.07, blue: 0.09)
+    static let backgroundElevated = Color(red: 0.09, green: 0.10, blue: 0.13)
+    static let surface = Color(red: 0.12, green: 0.13, blue: 0.16)
+    static let surfaceAlt = Color(red: 0.16, green: 0.17, blue: 0.21)
 
-    static let ink = Color(red: 0.07, green: 0.08, blue: 0.10)
-    static let mutedInk = Color(red: 0.32, green: 0.34, blue: 0.38)
+    static let ink = Color(red: 0.94, green: 0.95, blue: 0.98)
+    static let mutedInk = Color(red: 0.63, green: 0.67, blue: 0.72)
 
-    static let accent = Color(red: 0.10, green: 0.33, blue: 0.64)
-    static let charcoal = Color(red: 0.10, green: 0.11, blue: 0.14)
+    static let accent = Color(red: 0.30, green: 0.69, blue: 0.72)
+    static let charcoal = Color(red: 0.08, green: 0.09, blue: 0.12)
+
+    static let hairline = Color.white.opacity(0.08)
+    static let divider = Color.white.opacity(0.12)
+    static let shadowSoft = Color.black.opacity(0.35)
+    static let shadowStrong = Color.black.opacity(0.55)
 
     static let cardRadius: CGFloat = 18
 
-    // Note: Tint opacity capped at 0.35 to maintain sufficient contrast for white text.
-    // Higher opacity values (like 0.70) caused white-on-white readability issues on lighter tints.
     static func actionGradient(tint: Color) -> LinearGradient {
         LinearGradient(
             colors: [
                 charcoal,
                 charcoal.opacity(0.92),
-                tint.opacity(0.35),
+                tint.opacity(0.28),
             ],
             startPoint: .topLeading,
             endPoint: .bottomTrailing
@@ -65,6 +69,10 @@ struct HomeActionCard: View {
         .padding(16)
         .background(AppTheme.actionGradient(tint: tint))
         .clipShape(RoundedRectangle(cornerRadius: AppTheme.cardRadius, style: .continuous))
-        .shadow(color: Color.black.opacity(0.12), radius: 14, x: 0, y: 8)
+        .overlay(
+            RoundedRectangle(cornerRadius: AppTheme.cardRadius, style: .continuous)
+                .stroke(AppTheme.hairline, lineWidth: 1)
+        )
+        .shadow(color: AppTheme.shadowSoft, radius: 14, x: 0, y: 8)
     }
 }

@@ -34,7 +34,7 @@ struct TranscriptView: View {
             .scrollContentBackground(.hidden)
             .overlay(
                 RoundedRectangle(cornerRadius: 16, style: .continuous)
-                    .stroke(Color.black.opacity(0.06), lineWidth: 1)
+                    .stroke(AppTheme.hairline, lineWidth: 1)
             )
             .clipShape(RoundedRectangle(cornerRadius: 16, style: .continuous))
         }

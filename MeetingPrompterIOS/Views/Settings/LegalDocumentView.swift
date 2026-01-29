@@ -16,10 +16,8 @@ struct LegalDocumentView: View {
                         .font(.body)
                         .foregroundColor(.red)
                 } else {
-                    Text(.init(text))
-                        .font(.body)
+                    MarkdownRenderer(text: text)
                         .foregroundColor(AppTheme.ink)
-                        .textSelection(.enabled)
                 }
             }
             .frame(maxWidth: .infinity, alignment: .leading)
@@ -28,6 +26,8 @@ struct LegalDocumentView: View {
         .background(AppTheme.background.ignoresSafeArea())
         .navigationTitle(title)
         .navigationBarTitleDisplayMode(.inline)
+        .toolbarBackground(AppTheme.background, for: .navigationBar)
+        .toolbarBackground(.visible, for: .navigationBar)
         .task { load() }
     }
 

@@ -18,6 +18,7 @@
 		A20C37849C11588B6D4B4344 /* SessionViewModel.swift in Sources */ = {isa = PBXBuildFile; fileRef = E1BDBC98292B272B79D54F91 /* SessionViewModel.swift */; };
 		B11B22C33D44E55F6677889A /* Settings/LegalDocumentView.swift in Sources */ = {isa = PBXBuildFile; fileRef = B11B22C33D44E55F66778899 /* Settings/LegalDocumentView.swift */; };
 		B1C2D3E4F5A60718293A4B5E /* AppTheme.swift in Sources */ = {isa = PBXBuildFile; fileRef = E1F2A3B4C5D60718293A4B5D /* AppTheme.swift */; };
+		A3D4E5F6B7C8D9E0F1A2B3C5 /* Markdown/MarkdownRenderer.swift in Sources */ = {isa = PBXBuildFile; fileRef = A3D4E5F6B7C8D9E0F1A2B3C4 /* Markdown/MarkdownRenderer.swift */; };
 		BB95FEBEC4D7378AE63FE7BA /* RecordView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 6BA19F0705B8E9640F5E78D4 /* RecordView.swift */; };
 		C0D6457B1EFC0EC72A9378CD /* LiveTranscriptionService.swift in Sources */ = {isa = PBXBuildFile; fileRef = 8FEBC2BEBF23959E4AB0F195 /* LiveTranscriptionService.swift */; };
 		C11B22C33D44E55F6677889A /* Settings/AIDisclosureSheetView.swift in Sources */ = {isa = PBXBuildFile; fileRef = C11B22C33D44E55F66778899 /* Settings/AIDisclosureSheetView.swift */; };
@@ -70,6 +71,7 @@
 		A73CCF9381359872DAE35A55 /* SessionView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SessionView.swift; sourceTree = "<group>"; };
 		A8A77661EEBBA5F56E644AD0 /* MeetingSession.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = MeetingSession.swift; sourceTree = "<group>"; };
 		A9273C4E3435F044B5F075FF /* FileStore.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = FileStore.swift; sourceTree = "<group>"; };
+		A3D4E5F6B7C8D9E0F1A2B3C4 /* Markdown/MarkdownRenderer.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Markdown/MarkdownRenderer.swift; sourceTree = "<group>"; };
 		B11B22C33D44E55F66778899 /* Settings/LegalDocumentView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Settings/LegalDocumentView.swift; sourceTree = "<group>"; };
 		B1C2D3E4F5A60718293A4B5D /* HomeView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = HomeView.swift; sourceTree = "<group>"; };
 		C11B22C33D44E55F66778899 /* Settings/AIDisclosureSheetView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Settings/AIDisclosureSheetView.swift; sourceTree = "<group>"; };
@@ -275,6 +277,7 @@
 			isa = PBXGroup;
 			children = (
 				E1F2A3B4C5D60718293A4B5D /* AppTheme.swift */,
+				A3D4E5F6B7C8D9E0F1A2B3C4 /* Markdown/MarkdownRenderer.swift */,
 				F3E4ACFF2F1374E8004D18BD /* AnswerView.swift */,
 				C7A1D2B3E4F5061728394A63 /* ChatView.swift */,
 				C7A1D2B3E4F5061728394A61 /* ChatBubble.swift */,
@@ -385,6 +388,7 @@
 				87FA4EE1B0D23D9BDE43954E /* SummarizationService.swift in Sources */,
 				F3E4AD062F1374E8004D18BD /* AnswerView.swift in Sources */,
 				B1C2D3E4F5A60718293A4B5E /* AppTheme.swift in Sources */,
+				A3D4E5F6B7C8D9E0F1A2B3C5 /* Markdown/MarkdownRenderer.swift in Sources */,
 				C1D2E3F4A5B60718293A4B5E /* HomeView.swift in Sources */,
 				A11B22C33D44E55F6677889A /* Settings/SettingsView.swift in Sources */,
 				B11B22C33D44E55F6677889A /* Settings/LegalDocumentView.swift in Sources */,

@@ -9,9 +9,8 @@ struct AnswerView: View {
                 .font(.headline)
                 .foregroundColor(AppTheme.ink)
             
-            Text(answerText)
-                .font(.body)
-                .frame(maxWidth: .infinity, alignment: .leading)
+            MarkdownRenderer(text: answerText)
+                .foregroundColor(AppTheme.ink)
 
             HStack {
                 Spacer(minLength: 0)
@@ -24,7 +23,7 @@ struct AnswerView: View {
         .background(AppTheme.surfaceAlt)
         .overlay(
             RoundedRectangle(cornerRadius: 16, style: .continuous)
-                .stroke(Color.black.opacity(0.06), lineWidth: 1)
+                .stroke(AppTheme.hairline, lineWidth: 1)
         )
         .clipShape(RoundedRectangle(cornerRadius: 16, style: .continuous))
     }

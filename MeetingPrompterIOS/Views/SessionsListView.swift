@@ -42,6 +42,8 @@ struct SessionsListView: View {
         .navigationTitle(titleOverride ?? (mode == .browse ? "Summaries" : "Pick a Session"))
         .navigationBarTitleDisplayMode(.inline)
         .background(AppTheme.background.ignoresSafeArea())
+        .toolbarBackground(AppTheme.background, for: .navigationBar)
+        .toolbarBackground(.visible, for: .navigationBar)
         .task { await loadSessions() }
         .refreshable { await loadSessions() }
         .confirmationDialog(
@@ -144,7 +146,11 @@ private struct SessionRow: View {
         .padding(16)
         .background(AppTheme.surface)
         .clipShape(RoundedRectangle(cornerRadius: 16, style: .continuous))
-        .shadow(color: Color.black.opacity(0.06), radius: 10, x: 0, y: 6)
+        .overlay(
+            RoundedRectangle(cornerRadius: 16, style: .continuous)
+                .stroke(AppTheme.hairline, lineWidth: 1)
+        )
+        .shadow(color: AppTheme.shadowSoft, radius: 10, x: 0, y: 6)
     }
 
     private var titleText: String {

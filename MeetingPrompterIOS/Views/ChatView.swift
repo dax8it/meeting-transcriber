@@ -51,6 +51,8 @@ struct ChatView: View {
         .background(AppTheme.background.ignoresSafeArea())
         .navigationTitle("Chat")
         .navigationBarTitleDisplayMode(.inline)
+        .toolbarBackground(AppTheme.background, for: .navigationBar)
+        .toolbarBackground(.visible, for: .navigationBar)
     }
 
     private var inputBar: some View {
@@ -84,7 +86,7 @@ struct ChatView: View {
                     .clipShape(RoundedRectangle(cornerRadius: 14, style: .continuous))
                     .overlay(
                         RoundedRectangle(cornerRadius: 14, style: .continuous)
-                            .stroke(Color.black.opacity(0.08), lineWidth: 1)
+                            .stroke(AppTheme.hairline, lineWidth: 1)
                     )
                 }
                 .buttonStyle(.plain)
@@ -123,7 +125,7 @@ struct ChatView: View {
         .background(AppTheme.surface)
         .overlay(
             Rectangle()
-                .fill(Color.black.opacity(0.06))
+                .fill(AppTheme.divider)
                 .frame(height: 1),
             alignment: .top
         )

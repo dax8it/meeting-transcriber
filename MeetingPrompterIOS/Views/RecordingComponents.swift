@@ -29,7 +29,7 @@ struct PushToTalkButton: View {
                 Circle()
                     .fill(isRecording ? Color.red : AppTheme.accent)
                     .frame(width: 104, height: 104)
-                    .shadow(color: Color.black.opacity(0.18), radius: 14, x: 0, y: 10)
+                    .shadow(color: AppTheme.shadowStrong, radius: 14, x: 0, y: 10)
                     .animation(.spring(response: 0.30, dampingFraction: 0.78), value: isRecording)
 
                 Image(systemName: isRecording ? "stop.fill" : "mic.fill")
