@@ -9,6 +9,41 @@ actor RAGService {
     private let sentenceSelector = SentenceSelector()
     
     private init() {}
+
+    private func buildSourcesBlock(chunks: [DocumentChunk], maxSources: Int) -> (block: String, used: [DocumentChunk]) {
+        guard !chunks.isEmpty else { return ("", []) }
+
+        let usedChunks = Array(chunks.prefix(maxSources))
+        let block = usedChunks.enumerated().map { idx, chunk in
+            let sid = "S\(idx + 1)"
+            let title = chunk.docTitle.trimmingCharacters(in: .whitespacesAndNewlines)
+            let docType = chunk.docType.trimmingCharacters(in: .whitespacesAndNewlines)
+            let meetingID = chunk.meetingID?.trimmingCharacters(in: .whitespacesAndNewlines)
+            let meetingLabel = "meeting_\((meetingID?.isEmpty == false) ? (meetingID ?? "unknown") : "unknown")"
+
+            let rawChunkIndex = chunk.chunkIndex ?? (idx + 1)
+            let chunkIndexLabel = String(format: "%02d", rawChunkIndex)
+            let section = chunk.sectionPath.trimmingCharacters(in: .whitespacesAndNewlines)
+            let text = chunk.text.trimmingCharacters(in: .whitespacesAndNewlines)
+
+            let titleLabel = title.isEmpty ? "Untitled" : title
+            let typeLabel = docType.isEmpty ? "unknown" : docType
+            let metaLine: String = {
+                if section.isEmpty {
+                    return "Meta: doc_type=\(typeLabel)"
+                }
+                return "Meta: doc_type=\(typeLabel); path=\(section)"
+            }()
+
+            return """
+            [\(sid) | \(titleLabel) | \(meetingLabel) | chunk \(chunkIndexLabel)]
+            \(metaLine)
+            \(text)
+            """.trimmingCharacters(in: .whitespacesAndNewlines)
+        }.joined(separator: "\n\n")
+
+        return (block, usedChunks)
+    }
     
     func generateAnswer(question: String) async throws -> RAGAnswer {
         print("[RAG] generateAnswer called with question: \(question)")
@@ -16,7 +51,7 @@ actor RAGService {
         print("[RAG] Searching for chunks...")
         let retrievedChunks: [DocumentChunk]
         do {
-            retrievedChunks = try await searchIndex.search(query: question, topK: 3)
+            retrievedChunks = try await searchIndex.search(query: question, topK: 8)
             print("[RAG] Found \(retrievedChunks.count) chunks")
         } catch {
             print("[RAG] Search failed: \(error)")
@@ -27,17 +62,12 @@ actor RAGService {
             print("[RAG] No chunks found, returning default answer")
             return RAGAnswer(
                 question: question,
-                answer: "I don't have information to answer that question based on the available documents.",
+                answer: "Not enough evidence in sources.",
                 sources: []
             )
         }
-        
-        print("[RAG] Selecting best sentences...")
-        let evidenceBlock = sentenceSelector.selectBestSentences(
-            question: question,
-            chunks: retrievedChunks,
-            maxSentences: 8
-        )
+
+        let sources = buildSourcesBlock(chunks: retrievedChunks, maxSources: 12)
         print("[RAG] Evidence block created, loading model...")
         
         let model: any ModelRunner
@@ -50,7 +80,7 @@ actor RAGService {
             throw error
         }
         
-        let systemPrompt = "You are a helpful assistant. Answer questions using only the provided evidence."
+        let systemPrompt = "Answer ONLY using SOURCES. Cite every sentence like [S1], [S2]. If not answerable, reply exactly: Not enough evidence in sources."
         
         // Debug logging
         let trimmedPrompt = systemPrompt.trimmingCharacters(in: .whitespacesAndNewlines)
@@ -66,16 +96,20 @@ actor RAGService {
         print("[RAG] If audio engine was loaded, we would see 'Invalid system prompt' by now")
         
         let userPrompt = """
-        Question: \(question)
-        
-        Evidence:
-        \(evidenceBlock)
-        
-        Provide a short, helpful answer. Then list 2-3 sources with their titles and section paths.
+        SOURCES:
+        \(sources.block)
+
+        QUESTION:
+        \(question)
+
+        Instructions:
+        - Answer ONLY using SOURCES.
+        - Cite every sentence like [S1], [S2].
+        - If not answerable, say "Not enough evidence in sources." and nothing else.
         """
         
         print("[RAG] User prompt length: \(userPrompt.count)")
-        let userMessage = ChatMessage(role: .user, content: [.text(userPrompt)])
+        let userMessage = LeapSDK.ChatMessage(role: .user, content: [.text(userPrompt)])
         var response = ""
 
         print("[RAG] Starting generation with RAG model...")
@@ -102,7 +136,7 @@ actor RAGService {
         return RAGAnswer(
             question: question,
             answer: response,
-            sources: retrievedChunks
+            sources: sources.used
         )
     }
     
@@ -115,12 +149,9 @@ actor RAGService {
             return (answer: "I don't have current meeting transcript to answer from.", sources: [])
         }
         
-        let evidenceBlock = sentenceSelector.selectBestSentences(
-            question: question,
-            chunks: chunks,
-            maxSentences: 8
-        )
-        print("[RAG] Evidence block created from current meeting, loading model...")
+        let sources = buildSourcesBlock(chunks: chunks, maxSources: 12)
+
+        print("[RAG] Sources block created from meeting chunks, loading model...")
         
         let model: any ModelRunner
         do {
@@ -131,21 +162,25 @@ actor RAGService {
             throw error
         }
         
-        let systemPrompt = "You are a helpful assistant. Answer questions using only provided evidence."
+        let systemPrompt = "Answer ONLY using SOURCES. Cite every sentence like [S1], [S2]. If not answerable, reply exactly: Not enough evidence in sources."
         
         print("[RAG] Creating conversation. Runner type: \(String(describing: type(of: model)))")
         let conversation = model.createConversation(systemPrompt: systemPrompt)
         
         let userPrompt = """
-        Question: \(question)
-        
-        Evidence:
-        \(evidenceBlock)
-        
-        Provide a short, helpful answer. Then list 2-3 sources with their titles and section paths.
+        SOURCES:
+        \(sources.block)
+
+        Question:
+        \(question)
+
+        Instructions:
+        - Answer ONLY using SOURCES.
+        - Cite every sentence like [S1], [S2].
+        - If not answerable, say "Not enough evidence in sources." and nothing else.
         """
         
-        let userMessage = ChatMessage(role: .user, content: [.text(userPrompt)])
+        let userMessage = LeapSDK.ChatMessage(role: .user, content: [.text(userPrompt)])
         var response = ""
 
         print("[RAG] Starting generation with current meeting evidence...")
@@ -169,6 +204,6 @@ actor RAGService {
 
         response = response.trimmingCharacters(in: CharacterSet.whitespacesAndNewlines)
         
-        return (answer: response, sources: chunks)
+        return (answer: response, sources: sources.used)
     }
 }

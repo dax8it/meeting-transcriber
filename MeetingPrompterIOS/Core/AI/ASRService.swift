@@ -33,6 +33,14 @@ actor ASRService {
             return ""
         }
     }
+
+    // MVP: used by LiveTranscriptionService for chunked transcription.
+    func transcribeChunk(samples: [Float]) async -> String {
+        print("[DEBUG ASRService] transcribeChunk: \(samples.count) samples")
+        let result = await transcribe(samples: samples)
+        print("[DEBUG ASRService] transcribeChunk result: '\(String(result.prefix(100)))'")
+        return result
+    }
     
     func transcribePartial(samples: [Float]) async -> String {
         guard !samples.isEmpty else { return "" }
@@ -50,7 +58,7 @@ actor ASRService {
         print("[ASR] Creating conversation. Runner type: \(String(describing: type(of: model)))")
         print("[ASR] ASR model type: \(type(of: model))")
         let conversation = model.createConversation(systemPrompt: "Perform ASR.")
-        let userMessage = ChatMessage(
+        let userMessage = LeapSDK.ChatMessage(
             role: .user,
             content: [
                 ChatMessageContent.fromFloatSamples(audio, sampleRate: 16_000),

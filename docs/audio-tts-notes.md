@@ -1,0 +1,7 @@
+- We found LeapSDK supports audio output via generate options:
+  - audio_samples_callback (+ user_data)
+- Audio output types include WAV, PCM f32 mono, PCM i16 mono, etc.
+- Engine options require:
+  - model_audio_decoder_path (vocoder)
+  - audio_tokenizer_path
+- Goal: speak assistant replies in Chat + read summary

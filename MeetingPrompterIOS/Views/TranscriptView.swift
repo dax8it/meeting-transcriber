@@ -8,6 +8,7 @@ struct TranscriptView: View {
             HStack {
                 Text("Transcript")
                     .font(.headline)
+                    .foregroundColor(AppTheme.ink)
                 
                 if !viewModel.transcriptLive.isEmpty {
                     Text("(live)")
@@ -22,13 +23,22 @@ struct TranscriptView: View {
                 let transcriptText = !viewModel.transcriptLive.isEmpty ? viewModel.transcriptLive : viewModel.transcriptFinal
                 Text(transcriptText.isEmpty ? "No transcript yet..." : transcriptText)
                     .font(.body)
-                    .foregroundColor(transcriptText.isEmpty ? .secondary : .primary)
+                    .foregroundColor(transcriptText.isEmpty ? AppTheme.mutedInk : AppTheme.ink)
                     .frame(maxWidth: .infinity, alignment: .leading)
+                    .textSelection(.enabled)
+                    .padding(12)
+                    .frame(maxWidth: .infinity, alignment: .leading)
+                    .background(AppTheme.surface)
             }
             .frame(height: 150)
-            .background(Color(.systemGray6))
-            .cornerRadius(8)
+            .scrollContentBackground(.hidden)
+            .overlay(
+                RoundedRectangle(cornerRadius: 16, style: .continuous)
+                    .stroke(AppTheme.hairline, lineWidth: 1)
+            )
+            .clipShape(RoundedRectangle(cornerRadius: 16, style: .continuous))
         }
-        .padding(.horizontal)
+        .padding(.horizontal, 0)
+        .background(AppTheme.background)
     }
 }
