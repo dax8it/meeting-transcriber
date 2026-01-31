@@ -21,7 +21,7 @@ struct HomeView: View {
                             .tracking(-0.5)
                             .foregroundColor(AppTheme.ink)
 
-                        Text("On-device transcription, summaries, and Q&A.")
+                        Text("Private. Secure. Local AI: On-device transcription, summaries, and Q&A. No internet required.")
                             .font(.subheadline)
                             .foregroundColor(AppTheme.mutedInk)
 

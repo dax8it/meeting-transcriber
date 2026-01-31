@@ -35,10 +35,8 @@ Expected folder in repo (and ideally in bundle):
 - `MeetingPrompterIOS/models/text/`
 
 Required files:
-- `MeetingPrompterIOS/models/text/LFM2-1.2B-RAG-Q5_K_M.gguf`
+- `MeetingPrompterIOS/models/text/LFM2-1.2B-RAG-Q5_K_M.gguf` (or thinking later)
 
-Optional but commonly present:
-- `MeetingPrompterIOS/models/text/LFM2-1.2B-Extract-Q5_K_M.gguf`
 
 ## 3) iOS Resource Flattening (Important)
 
