@@ -16,9 +16,9 @@
 		A11B22C33D44E55F6677889A /* Settings/SettingsView.swift in Sources */ = {isa = PBXBuildFile; fileRef = A11B22C33D44E55F66778899 /* Settings/SettingsView.swift */; };
 		A1BC3F44C8FAF969EE7C1641 /* SessionView.swift in Sources */ = {isa = PBXBuildFile; fileRef = A73CCF9381359872DAE35A55 /* SessionView.swift */; };
 		A20C37849C11588B6D4B4344 /* SessionViewModel.swift in Sources */ = {isa = PBXBuildFile; fileRef = E1BDBC98292B272B79D54F91 /* SessionViewModel.swift */; };
+		A3D4E5F6B7C8D9E0F1A2B3C5 /* Markdown/MarkdownRenderer.swift in Sources */ = {isa = PBXBuildFile; fileRef = A3D4E5F6B7C8D9E0F1A2B3C4 /* Markdown/MarkdownRenderer.swift */; };
 		B11B22C33D44E55F6677889A /* Settings/LegalDocumentView.swift in Sources */ = {isa = PBXBuildFile; fileRef = B11B22C33D44E55F66778899 /* Settings/LegalDocumentView.swift */; };
 		B1C2D3E4F5A60718293A4B5E /* AppTheme.swift in Sources */ = {isa = PBXBuildFile; fileRef = E1F2A3B4C5D60718293A4B5D /* AppTheme.swift */; };
-		A3D4E5F6B7C8D9E0F1A2B3C5 /* Markdown/MarkdownRenderer.swift in Sources */ = {isa = PBXBuildFile; fileRef = A3D4E5F6B7C8D9E0F1A2B3C4 /* Markdown/MarkdownRenderer.swift */; };
 		BB95FEBEC4D7378AE63FE7BA /* RecordView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 6BA19F0705B8E9640F5E78D4 /* RecordView.swift */; };
 		C0D6457B1EFC0EC72A9378CD /* LiveTranscriptionService.swift in Sources */ = {isa = PBXBuildFile; fileRef = 8FEBC2BEBF23959E4AB0F195 /* LiveTranscriptionService.swift */; };
 		C11B22C33D44E55F6677889A /* Settings/AIDisclosureSheetView.swift in Sources */ = {isa = PBXBuildFile; fileRef = C11B22C33D44E55F66778899 /* Settings/AIDisclosureSheetView.swift */; };
@@ -34,7 +34,8 @@
 		E1F2A3B4C5D60718293A4B5E /* SessionsListView.swift in Sources */ = {isa = PBXBuildFile; fileRef = C1D2E3F4A5B60718293A4B5D /* SessionsListView.swift */; };
 		F11B22C33D44E55F6677889A /* Resources/Legal/THIRD_PARTY_NOTICES.md in Resources */ = {isa = PBXBuildFile; fileRef = F11B22C33D44E55F66778899 /* Resources/Legal/THIRD_PARTY_NOTICES.md */; };
 		F1A2B3C4D5E60718293A4B5E /* RecordingComponents.swift in Sources */ = {isa = PBXBuildFile; fileRef = F1A2B3C4D5E60718293A4B5D /* RecordingComponents.swift */; };
-		F3CCB34E2F25E6B000FF3738 /* LeapSDK in Frameworks */ = {isa = PBXBuildFile; productRef = F3CCB34D2F25E6B000FF3738 /* LeapSDK */; };
+		F3DA1E2B2F2F312700636ED8 /* LeapModelDownloader in Frameworks */ = {isa = PBXBuildFile; productRef = F3DA1E2A2F2F312700636ED8 /* LeapModelDownloader */; };
+		F3DA1E2D2F2F312700636ED8 /* LeapSDK in Frameworks */ = {isa = PBXBuildFile; productRef = F3DA1E2C2F2F312700636ED8 /* LeapSDK */; };
 		F3E4ACD12F136364004D18BD /* Assets.xcassets in Resources */ = {isa = PBXBuildFile; fileRef = F3E4ACCB2F136364004D18BD /* Assets.xcassets */; };
 		F3E4ACD42F136364004D18BD /* meeting_transcriberApp.swift in Sources */ = {isa = PBXBuildFile; fileRef = F3E4ACCD2F136364004D18BD /* meeting_transcriberApp.swift */; };
 		F3E4ACD52F136364004D18BD /* ContentView.swift in Sources */ = {isa = PBXBuildFile; fileRef = F3E4ACCC2F136364004D18BD /* ContentView.swift */; };
@@ -68,10 +69,10 @@
 		8FEBC2BEBF23959E4AB0F195 /* LiveTranscriptionService.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = LiveTranscriptionService.swift; sourceTree = "<group>"; };
 		A0B1C2D3E4F5A6B7C8D9E0F1 /* models */ = {isa = PBXFileReference; lastKnownFileType = folder; path = models; sourceTree = "<group>"; };
 		A11B22C33D44E55F66778899 /* Settings/SettingsView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Settings/SettingsView.swift; sourceTree = "<group>"; };
+		A3D4E5F6B7C8D9E0F1A2B3C4 /* Markdown/MarkdownRenderer.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Markdown/MarkdownRenderer.swift; sourceTree = "<group>"; };
 		A73CCF9381359872DAE35A55 /* SessionView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SessionView.swift; sourceTree = "<group>"; };
 		A8A77661EEBBA5F56E644AD0 /* MeetingSession.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = MeetingSession.swift; sourceTree = "<group>"; };
 		A9273C4E3435F044B5F075FF /* FileStore.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = FileStore.swift; sourceTree = "<group>"; };
-		A3D4E5F6B7C8D9E0F1A2B3C4 /* Markdown/MarkdownRenderer.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Markdown/MarkdownRenderer.swift; sourceTree = "<group>"; };
 		B11B22C33D44E55F66778899 /* Settings/LegalDocumentView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Settings/LegalDocumentView.swift; sourceTree = "<group>"; };
 		B1C2D3E4F5A60718293A4B5D /* HomeView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = HomeView.swift; sourceTree = "<group>"; };
 		C11B22C33D44E55F66778899 /* Settings/AIDisclosureSheetView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Settings/AIDisclosureSheetView.swift; sourceTree = "<group>"; };
@@ -120,8 +121,9 @@
 			isa = PBXFrameworksBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
+				F3DA1E2D2F2F312700636ED8 /* LeapSDK in Frameworks */,
 				F3E4ACE12F136C09004D18BD /* GRDB in Frameworks */,
-				F3CCB34E2F25E6B000FF3738 /* LeapSDK in Frameworks */,
+				F3DA1E2B2F2F312700636ED8 /* LeapModelDownloader in Frameworks */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -315,7 +317,8 @@
 			name = "meeting-transcriber";
 			packageProductDependencies = (
 				F3E4ACE02F136C09004D18BD /* GRDB */,
-				F3CCB34D2F25E6B000FF3738 /* LeapSDK */,
+				F3DA1E2A2F2F312700636ED8 /* LeapModelDownloader */,
+				F3DA1E2C2F2F312700636ED8 /* LeapSDK */,
 			);
 			productName = "meeting-transcriber";
 			productReference = F3E4ACA92F1353B5004D18BD /* meeting-transcriber.app */;
@@ -347,7 +350,7 @@
 			minimizedProjectReferenceProxies = 1;
 			packageReferences = (
 				F3E4ACDF2F136C09004D18BD /* XCRemoteSwiftPackageReference "GRDB.swift" */,
-				F3CCB3492F25E64C00FF3738 /* XCLocalSwiftPackageReference "../../ios_models/leap-ios-main" */,
+				F3DA1E292F2F312700636ED8 /* XCLocalSwiftPackageReference "../../ios_models/leap-ios-meet-puppet" */,
 			);
 			preferredProjectObjectVersion = 77;
 			productRefGroup = F3E4ACAA2F1353B5004D18BD /* Products */;
@@ -645,9 +648,9 @@
 /* End XCConfigurationList section */
 
 /* Begin XCLocalSwiftPackageReference section */
-		F3CCB3492F25E64C00FF3738 /* XCLocalSwiftPackageReference "../../ios_models/leap-ios-main" */ = {
+		F3DA1E292F2F312700636ED8 /* XCLocalSwiftPackageReference "../../ios_models/leap-ios-meet-puppet" */ = {
 			isa = XCLocalSwiftPackageReference;
-			relativePath = "../../ios_models/leap-ios-main";
+			relativePath = "../../ios_models/leap-ios-meet-puppet";
 		};
 /* End XCLocalSwiftPackageReference section */
 
@@ -663,9 +666,12 @@
 /* End XCRemoteSwiftPackageReference section */
 
 /* Begin XCSwiftPackageProductDependency section */
-		F3CCB34D2F25E6B000FF3738 /* LeapSDK */ = {
+		F3DA1E2A2F2F312700636ED8 /* LeapModelDownloader */ = {
 			isa = XCSwiftPackageProductDependency;
-			package = F3CCB3492F25E64C00FF3738 /* XCLocalSwiftPackageReference "../../ios_models/leap-ios-main" */;
+			productName = LeapModelDownloader;
+		};
+		F3DA1E2C2F2F312700636ED8 /* LeapSDK */ = {
+			isa = XCSwiftPackageProductDependency;
 			productName = LeapSDK;
 		};
 		F3E4ACE02F136C09004D18BD /* GRDB */ = {

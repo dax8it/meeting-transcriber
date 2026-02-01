@@ -117,14 +117,9 @@ actor RAGService {
             switch messageResponse {
             case .chunk(let delta):
                 response += delta
-            case .complete(let completion):
-                let completedText = completion.message.content.compactMap { item in
-                    if case .text(let value) = item { return value }
-                    return nil
-                }.joined()
-
-                if !completedText.isEmpty {
-                    response = completedText
+            case .complete(let (text, _)):
+                if !text.isEmpty {
+                    response = text
                 }
             default:
                 break
@@ -188,14 +183,9 @@ actor RAGService {
             switch messageResponse {
             case .chunk(let delta):
                 response += delta
-            case .complete(let completion):
-                let completedText = completion.message.content.compactMap { item in
-                    if case .text(let value) = item { return value }
-                    return nil
-                }.joined()
-
-                if !completedText.isEmpty {
-                    response = completedText
+            case .complete(let (text, _)):
+                if !text.isEmpty {
+                    response = text
                 }
             default:
                 break

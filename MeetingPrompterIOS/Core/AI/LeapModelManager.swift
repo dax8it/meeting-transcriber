@@ -4,7 +4,7 @@ import LeapSDK
 actor LeapModelManager {
     static let shared = LeapModelManager()
     
-    private var asrModel: (any ModelRunner)?
+    private var asrEngine: LiquidInferenceEngine?
     private var ragModel: (any ModelRunner)?
     private var transcriptModel: (any ModelRunner)?
     
@@ -176,21 +176,17 @@ actor LeapModelManager {
 
         print("[ASR] Loading staged ASR model from: \(stagedASRURL.path)")
 
-        // NOTE: ASR should not use a chat template; allow LeapSDK defaults.
+        // LeapSDK v0.6.x: LiquidInferenceEngineOptions only has bundlePath, cacheOptions, cpuThreads, contextSize, nGpuLayers, mmProjPath
         let options = LiquidInferenceEngineOptions(
             bundlePath: stagedASRURL.path,
             cacheOptions: nil,
             cpuThreads: nil,
             contextSize: nil,
             nGpuLayers: nil,
-            mmProjPath: stagedMMProjPath,
-            audioDecoderPath: stagedDecoderPath,
-            chatTemplate: nil,
-            audioTokenizerPath: stagedTokenizerURL.path,
-            extras: nil
+            mmProjPath: stagedMMProjPath
         )
 
-        asrModel = try Leap.load(options: options)
+        asrEngine = try LiquidInferenceEngine(options: options)
         print("[ASR] ASR runner loaded")
     }
 
@@ -226,11 +222,7 @@ actor LeapModelManager {
             cpuThreads: nil,
             contextSize: nil,
             nGpuLayers: nil,
-            mmProjPath: nil,
-            audioDecoderPath: nil,
-            chatTemplate: nil,
-            audioTokenizerPath: nil,
-            extras: nil
+            mmProjPath: nil
         )
         
         print("[RAG] Loading RAG model from models/text subdirectory...")
@@ -238,9 +230,6 @@ actor LeapModelManager {
         print("[RAG] RAG model path: \(ragURL.path)")
         print("[RAG] RAG options - bundlePath: \(ragOptions.bundlePath)")
         print("[RAG] RAG options - mmProjPath: nil")
-        print("[RAG] RAG options - audioTokenizerPath: nil")
-        print("[RAG] RAG options - audioDecoderPath: nil")
-        print("[RAG] RAG options - extras: nil")
         
         ragModel = try Leap.load(options: ragOptions)
         print("[RAG] RAG model loaded successfully - engine=text mmproj=nil tokenizer=nil")
@@ -271,28 +260,24 @@ actor LeapModelManager {
             cpuThreads: nil,
             contextSize: nil,
             nGpuLayers: nil,
-            mmProjPath: nil,
-            audioDecoderPath: nil,
-            chatTemplate: nil,
-            audioTokenizerPath: nil,
-            extras: nil
+            mmProjPath: nil
         )
 
         transcriptModel = try Leap.load(options: options)
         print("[Summary] Transcript runner loaded")
     }
 
-    func getASRModel() async throws -> (any ModelRunner) {
-        if let model = asrModel { 
-            print("[LeapManager] getASRModel - returning cached ASR model, modelKind: asr")
-            return model 
+    func getASREngine() async throws -> LiquidInferenceEngine {
+        if let engine = asrEngine {
+            print("[LeapManager] getASREngine - returning cached ASR engine")
+            return engine
         }
         try await loadASRModel()
-        guard let model = asrModel else {
-            throw ModelLoadError.modelNotLoaded("ASR model not loaded")
+        guard let engine = asrEngine else {
+            throw ModelLoadError.modelNotLoaded("ASR engine not loaded")
         }
-        print("[LeapManager] getASRModel - returning newly loaded ASR model, modelKind: asr")
-        return model
+        print("[LeapManager] getASREngine - returning newly loaded ASR engine")
+        return engine
     }
 
     func getRAGModel() async throws -> (any ModelRunner) {
@@ -320,9 +305,9 @@ actor LeapModelManager {
     }
 
     func unloadASR() {
-        print("[LeapManager] Unloading ASR model...")
-        asrModel = nil
-        print("[LeapManager] ASR model unloaded")
+        print("[LeapManager] Unloading ASR engine...")
+        asrEngine = nil
+        print("[LeapManager] ASR engine unloaded")
     }
 
     func unloadRAG() {
@@ -339,7 +324,7 @@ actor LeapModelManager {
     
     func unload() {
         print("[LeapManager] Unloading all models...")
-        asrModel = nil
+        asrEngine = nil
         ragModel = nil
         transcriptModel = nil
         print("[LeapManager] All models unloaded")
