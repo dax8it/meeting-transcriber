@@ -61,14 +61,40 @@ actor LiveTranscriptionService {
         }
     }
 
+    func stop() {
+        // Minimal stop behavior: cancel any in-flight ASR work but keep buffered audio
+        // so finalize() can still flush remaining samples.
+        inFlight?.cancel()
+        // Do NOT clear buffer or transcript here.
+    }
+
     func finalize() async -> String {
-        // Wait for any in-flight chunk.
+        let timeoutNanoseconds: UInt64 = 5_000_000_000
+
+        // Wait for any in-flight chunk, but never hang forever.
         if let task = inFlight {
-            _ = await task.result
+            let completed = await withTaskGroup(of: Bool.self) { group -> Bool in
+                group.addTask {
+                    _ = await task.result
+                    return true
+                }
+                group.addTask {
+                    try? await Task.sleep(nanoseconds: timeoutNanoseconds)
+                    return false
+                }
+                let first = await group.next() ?? false
+                group.cancelAll()
+                return first
+            }
+
+            if !completed {
+                print("[LiveTranscription] finalize timeout waiting for in-flight ASR; returning best-effort transcript")
+                task.cancel()
+            }
             inFlight = nil
         }
 
-        // Flush remaining audio (best-effort).
+        // Flush remaining audio (best-effort), also bounded so Stop can't hang.
         let remaining = buffer
         buffer.removeAll(keepingCapacity: true)
 
@@ -79,9 +105,27 @@ actor LiveTranscriptionService {
 
         let maxSize = Int(chunkSeconds * Double(sampleRate))
         let chunk = remaining.count > maxSize ? Array(remaining.suffix(maxSize)) : remaining
-        let chunkText = await asrService.transcribeChunk(samples: chunk)
-        handleChunkResult(chunkText)
 
+        let maybeChunkText: String? = await withTaskGroup(of: String?.self) { group -> String? in
+            group.addTask {
+                let t = await self.asrService.transcribeChunk(samples: chunk)
+                return t
+            }
+            group.addTask {
+                try? await Task.sleep(nanoseconds: timeoutNanoseconds)
+                return nil
+            }
+            let first = await group.next() ?? nil
+            group.cancelAll()
+            return first
+        }
+
+        guard let chunkText = maybeChunkText else {
+            print("[LiveTranscription] finalize timeout transcribing remaining buffer; returning best-effort transcript")
+            return trimmedTranscript
+        }
+
+        handleChunkResult(chunkText)
         return transcript.trimmingCharacters(in: .whitespacesAndNewlines)
     }
 
