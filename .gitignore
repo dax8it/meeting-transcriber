@@ -12,3 +12,8 @@ build/
 
 *.xcodeproj/xcuserdata/
 *.xcworkspace/xcuserdata/
+.claude/
+findings.md
+progress.md
+task_plan.md
+docs/codex3-brief-meeting-transcriber-voice-qa.md
