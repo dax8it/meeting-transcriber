@@ -41,6 +41,7 @@
 		F3E4ACE12F136C09004D18BD /* GRDB in Frameworks */ = {isa = PBXBuildFile; productRef = F3E4ACE02F136C09004D18BD /* GRDB */; };
 		F3E4AD032F1374E8004D18BD /* AppState.swift in Sources */ = {isa = PBXBuildFile; fileRef = F3E4ACF42F1374E8004D18BD /* AppState.swift */; };
 		F3E4AD042F1374E8004D18BD /* AudioCaptureService.swift in Sources */ = {isa = PBXBuildFile; fileRef = F3E4ACEE2F1374E8004D18BD /* AudioCaptureService.swift */; };
+		F4A1B2C32F200001004D18BD /* TTSService.swift in Sources */ = {isa = PBXBuildFile; fileRef = F4A1B2C42F200001004D18BD /* TTSService.swift */; };
 		F3E4AD052F1374E8004D18BD /* ASRService.swift in Sources */ = {isa = PBXBuildFile; fileRef = F3E4ACE92F1374E8004D18BD /* ASRService.swift */; };
 		F3E4AD062F1374E8004D18BD /* AnswerView.swift in Sources */ = {isa = PBXBuildFile; fileRef = F3E4ACFF2F1374E8004D18BD /* AnswerView.swift */; };
 		F3E4AD072F1374E8004D18BD /* SourcesView.swift in Sources */ = {isa = PBXBuildFile; fileRef = F3E4AD002F1374E8004D18BD /* SourcesView.swift */; };
@@ -99,6 +100,7 @@
 		F3E4ACEB2F1374E8004D18BD /* ModelIDs.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ModelIDs.swift; sourceTree = "<group>"; };
 		F3E4ACEC2F1374E8004D18BD /* RAGService.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = RAGService.swift; sourceTree = "<group>"; };
 		F3E4ACEE2F1374E8004D18BD /* AudioCaptureService.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AudioCaptureService.swift; sourceTree = "<group>"; };
+		F4A1B2C42F200001004D18BD /* TTSService.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = TTSService.swift; sourceTree = "<group>"; };
 		F3E4ACEF2F1374E8004D18BD /* PushToTalkController.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = PushToTalkController.swift; sourceTree = "<group>"; };
 		F3E4ACF02F1374E8004D18BD /* VADGate.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = VADGate.swift; sourceTree = "<group>"; };
 		F3E4ACF22F1374E8004D18BD /* QuestionDetector.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = QuestionDetector.swift; sourceTree = "<group>"; };
@@ -221,6 +223,7 @@
 				F3E4ACEE2F1374E8004D18BD /* AudioCaptureService.swift */,
 				773052F8ECC9718BF14A1B29 /* AudioFileRecorder.swift */,
 				F3E4ACEF2F1374E8004D18BD /* PushToTalkController.swift */,
+				F4A1B2C42F200001004D18BD /* TTSService.swift */,
 				F3E4ACF02F1374E8004D18BD /* VADGate.swift */,
 			);
 			path = Audio;
@@ -383,6 +386,7 @@
 				F3E4AD032F1374E8004D18BD /* AppState.swift in Sources */,
 				F3E4AD042F1374E8004D18BD /* AudioCaptureService.swift in Sources */,
 				8E2530B614773D8B35BDE7B9 /* AudioFileRecorder.swift in Sources */,
+				F4A1B2C32F200001004D18BD /* TTSService.swift in Sources */,
 				F3E4AD052F1374E8004D18BD /* ASRService.swift in Sources */,
 				C0D6457B1EFC0EC72A9378CD /* LiveTranscriptionService.swift in Sources */,
 				87FA4EE1B0D23D9BDE43954E /* SummarizationService.swift in Sources */,

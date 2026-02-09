@@ -6,12 +6,14 @@ import Combine
 final class ChatViewModel: ObservableObject {
     enum VoiceState: Equatable {
         case idle
-        case recording
+        case listening
         case transcribing
+        case thinking
+        case speaking
         case error(String)
 
-        var isRecording: Bool {
-            if case .recording = self { return true }
+        var isListening: Bool {
+            if case .listening = self { return true }
             return false
         }
 
@@ -51,6 +53,7 @@ final class ChatViewModel: ObservableObject {
     private let ragService = RAGService.shared
     private let audioCapture = AudioCaptureService.shared
     private let asrService = ASRService.shared
+    private let ttsService = TTSService.shared
 
     private let maxHistoryMessages = 10
     private let maxPersistedSources = 8
@@ -63,12 +66,16 @@ final class ChatViewModel: ObservableObject {
         Task { await loadHistoryAndIndex() }
     }
 
-    func startRecording() {
+    func startRecording(isMeetingRecording: Bool = false) {
         guard !isBusy else { return }
-        guard !voiceState.isRecording && !voiceState.isTranscribing else { return }
+        guard !voiceState.isListening && !voiceState.isTranscribing else { return }
+        guard !isMeetingRecording else {
+            voiceState = .error("Voice Q&A unavailable while recording")
+            return
+        }
 
         print("[ChatVoice] start")
-        voiceState = .recording
+        voiceState = .listening
 
         Task {
             do {
@@ -87,7 +94,7 @@ final class ChatViewModel: ObservableObject {
     }
 
     func stopRecordingAndTranscribe() {
-        guard voiceState.isRecording else { return }
+        guard voiceState.isListening else { return }
 
         print("[ChatVoice] stop → transcribing")
         voiceState = .transcribing
@@ -116,20 +123,18 @@ final class ChatViewModel: ObservableObject {
             }
 
             inputText = trimmed
-            voiceState = .idle
             print("[ChatVoice] auto-send")
             send()
         }
     }
 
-    func speakIfEnabled(_ text: String) {
-        guard speakRepliesEnabled else { return }
-        print("[ChatVoice] speakReplies enabled but no TTS configured")
-    }
-
     func send() {
         let q = inputText.trimmingCharacters(in: .whitespacesAndNewlines)
         guard !q.isEmpty, !isBusy else { return }
+        let voiceOriginated = voiceState.isTranscribing
+        if voiceOriginated {
+            voiceState = .thinking
+        }
 
         print("[Chat] send len=\(q.count)")
 
@@ -164,14 +169,19 @@ final class ChatViewModel: ObservableObject {
                 print("[Chat] retrieved=\(retrieved.count), merged=\(mergedChunks.count)")
 
                 guard !mergedChunks.isEmpty else {
+                    let fallbackAnswer = "Not enough evidence in sources."
                     let assistant = ChatMessage(
                         role: .assistant,
-                        text: "Not enough evidence in sources.",
+                        text: fallbackAnswer,
                         sources: nil,
                         sessionID: session.id
                     )
                     self.messages.append(assistant)
                     try? await chatStore.saveMessages(self.messages, for: self.session)
+                    await self.speakAssistantAnswerIfNeeded(fallbackAnswer)
+                    if voiceOriginated {
+                        self.voiceState = .idle
+                    }
                     print("[Chat] saved=\(self.messages.count)")
                     return
                 }
@@ -195,12 +205,19 @@ final class ChatViewModel: ObservableObject {
                     sessionID: session.id
                 )
                 self.messages.append(assistant)
+                await self.speakAssistantAnswerIfNeeded(result.answer)
+                if voiceOriginated {
+                    self.voiceState = .idle
+                }
 
                 let afterAssistantSnapshot = self.messages
                 try await self.chatStore.saveMessages(afterAssistantSnapshot, for: self.session)
                 print("[Chat] saved=\(afterAssistantSnapshot.count)")
             } catch {
                 self.errorMessage = error.localizedDescription
+                if voiceOriginated {
+                    self.voiceState = .error(error.localizedDescription)
+                }
                 print("[Chat] send failed: \(error)")
             }
         }
@@ -228,6 +245,16 @@ final class ChatViewModel: ObservableObject {
 
         if !allowed {
             throw ChatVoiceError.microphonePermissionDenied
+        }
+    }
+
+    private func speakAssistantAnswerIfNeeded(_ text: String) async {
+        let trimmed = text.trimmingCharacters(in: .whitespacesAndNewlines)
+        guard speakRepliesEnabled, !trimmed.isEmpty else { return }
+        voiceState = .speaking
+        await ttsService.speak(trimmed)
+        if case .speaking = voiceState {
+            voiceState = .idle
         }
     }
 

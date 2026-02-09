@@ -2,6 +2,7 @@ import SwiftUI
 
 struct SettingsView: View {
     @State private var isShowingAIDisclosure = false
+    @AppStorage("voiceQAEnabled") private var voiceQAEnabled: Bool = false
 
     var body: some View {
         ScrollView {
@@ -27,6 +28,17 @@ struct SettingsView: View {
                         }
                     }
                     .buttonStyle(.plain)
+                }
+
+                sectionHeader("Experimental")
+                card {
+                    Toggle("Voice Q&A (Push-to-Talk)", isOn: $voiceQAEnabled)
+                        .font(.body)
+                        .tint(AppTheme.accent)
+
+                    Text("Enable hold-to-talk voice questions in meeting chat.")
+                        .font(.caption)
+                        .foregroundColor(AppTheme.mutedInk)
                 }
 
                 sectionHeader("Legal")
