@@ -11,6 +11,7 @@ struct ChatMessage: Identifiable, Codable, Sendable {
     var text: String
     var timestamp: Date
     var sources: [DocumentChunk]?
+    var ttsAudioRelativePath: String?
     var sessionID: String
 
     init(
@@ -19,6 +20,7 @@ struct ChatMessage: Identifiable, Codable, Sendable {
         text: String,
         timestamp: Date = Date(),
         sources: [DocumentChunk]? = nil,
+        ttsAudioRelativePath: String? = nil,
         sessionID: String
     ) {
         self.id = id
@@ -26,6 +28,7 @@ struct ChatMessage: Identifiable, Codable, Sendable {
         self.text = text
         self.timestamp = timestamp
         self.sources = sources
+        self.ttsAudioRelativePath = ttsAudioRelativePath
         self.sessionID = sessionID
     }
 }

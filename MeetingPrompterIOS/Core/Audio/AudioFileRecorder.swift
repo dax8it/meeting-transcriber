@@ -28,7 +28,7 @@ actor AudioFileRecorder {
 
         let session = AVAudioSession.sharedInstance()
         try session.setCategory(.playAndRecord, mode: .spokenAudio, options: [.defaultToSpeaker, .allowBluetoothHFP])
-        try session.setActive(true, options: [.notifyOthersOnDeactivation])
+        try session.setActive(true)
 
         let settings: [String: Any] = [
             AVFormatIDKey: kAudioFormatMPEG4AAC,
@@ -51,6 +51,17 @@ actor AudioFileRecorder {
     func stopRecording() {
         recorder?.stop()
         recorder = nil
+    }
+
+    func pauseRecording() {
+        recorder?.pause()
+    }
+
+    func resumeRecording() {
+        guard let recorder else { return }
+        if !recorder.isRecording {
+            recorder.record()
+        }
     }
 
     func currentURL() -> URL? {

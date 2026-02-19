@@ -1,5 +1,13 @@
 # Meeting Prompter iOS
 
+> **Status (2026-02-19):** Current stable baseline is the in-repo on-device voice pipeline (ASR + RAG + summary + Leap model TTS + WAV share).
+>
+> Source-of-truth for active model IDs and load options is code, not historical docs:
+> - `MeetingPrompterIOS/Core/AI/ModelIDs.swift`
+> - `MeetingPrompterIOS/Core/AI/LeapModelManager.swift`
+>
+> Recommendation while stable: avoid broad architecture migrations; apply only minimal, scoped fixes for user-visible regressions.
+
 An iOS app that provides real-time meeting assistance with local AI processing. The app uses push-to-talk audio capture, live transcription, and hybrid RAG (Retrieval-Augmented Generation) to answer questions based on local documents - all completely offline.
 
 ## Features

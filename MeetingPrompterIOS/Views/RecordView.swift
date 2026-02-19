@@ -13,13 +13,12 @@ struct RecordView: View {
             } else {
                 TranscriptView(viewModel: viewModel)
 
-                Spacer()
-
                 PushToTalkButton(
                     isRecording: Binding(
-                        get: { viewModel.appState.isRecording },
+                        get: { viewModel.appState.isRecording || viewModel.appState.isCountdown || viewModel.appState.isPaused },
                         set: { _ in }
                     ),
+                    countdownValue: viewModel.preRecordingCountdown,
                     onToggle: { isRecording in
                         if isRecording {
                             viewModel.startRecording()
@@ -29,7 +28,29 @@ struct RecordView: View {
                     }
                 )
 
+                if viewModel.appState.isRecording || viewModel.appState.isPaused {
+                    Button {
+                        if viewModel.appState.isPaused {
+                            viewModel.resumeRecording()
+                        } else {
+                            viewModel.pauseRecording()
+                        }
+                    } label: {
+                        Label(
+                            viewModel.appState.isPaused ? "Resume" : "Pause",
+                            systemImage: viewModel.appState.isPaused ? "play.fill" : "pause.fill"
+                        )
+                        .font(.subheadline.weight(.semibold))
+                        .frame(maxWidth: .infinity)
+                        .padding(.vertical, 10)
+                    }
+                    .buttonStyle(.bordered)
+                    .tint(viewModel.appState.isPaused ? AppTheme.accent : .orange)
+                    .accessibilityHint("Temporarily pause or resume transcript capture")
+                }
+
                 StatusIndicator(status: viewModel.statusText)
+                Spacer(minLength: 0)
             }
         }
         .padding(20)

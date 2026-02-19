@@ -21,16 +21,29 @@ final class ChatViewModel: ObservableObject {
             if case .transcribing = self { return true }
             return false
         }
+
+        var isSpeaking: Bool {
+            if case .speaking = self { return true }
+            return false
+        }
+
+        var isThinking: Bool {
+            if case .thinking = self { return true }
+            return false
+        }
     }
 
     enum ChatVoiceError: LocalizedError {
         case microphonePermissionDenied
+        case asrModelUnavailable
         case recordingUnavailable
 
         var errorDescription: String? {
             switch self {
             case .microphonePermissionDenied:
                 return "Microphone permission denied"
+            case .asrModelUnavailable:
+                return "ASR model unavailable"
             case .recordingUnavailable:
                 return "Unable to start recording"
             }
@@ -53,7 +66,7 @@ final class ChatViewModel: ObservableObject {
     private let ragService = RAGService.shared
     private let audioCapture = AudioCaptureService.shared
     private let asrService = ASRService.shared
-    private let ttsService = TTSService.shared
+    private let ttsService = ModelTTSService.shared
 
     private let maxHistoryMessages = 10
     private let maxPersistedSources = 8
@@ -80,6 +93,10 @@ final class ChatViewModel: ObservableObject {
         Task {
             do {
                 try await ensureMicrophonePermission()
+                let speechReady = await asrService.prepareForTranscription()
+                guard speechReady else {
+                    throw ChatVoiceError.asrModelUnavailable
+                }
                 try await configureAudioSessionForRecordingIfNeeded()
                 await audioCapture.clearBuffer()
                 try await audioCapture.startCapture { _ in }
@@ -130,7 +147,7 @@ final class ChatViewModel: ObservableObject {
 
     func send() {
         let q = inputText.trimmingCharacters(in: .whitespacesAndNewlines)
-        guard !q.isEmpty, !isBusy else { return }
+        guard !q.isEmpty, !isBusy, !voiceState.isSpeaking else { return }
         let voiceOriginated = voiceState.isTranscribing
         if voiceOriginated {
             voiceState = .thinking
@@ -178,8 +195,8 @@ final class ChatViewModel: ObservableObject {
                     )
                     self.messages.append(assistant)
                     try? await chatStore.saveMessages(self.messages, for: self.session)
-                    await self.speakAssistantAnswerIfNeeded(fallbackAnswer)
-                    if voiceOriginated {
+                    self.speakAssistantAnswerIfNeeded(fallbackAnswer, messageID: assistant.id)
+                    if voiceOriginated, !self.speakRepliesEnabled {
                         self.voiceState = .idle
                     }
                     print("[Chat] saved=\(self.messages.count)")
@@ -205,8 +222,8 @@ final class ChatViewModel: ObservableObject {
                     sessionID: session.id
                 )
                 self.messages.append(assistant)
-                await self.speakAssistantAnswerIfNeeded(result.answer)
-                if voiceOriginated {
+                self.speakAssistantAnswerIfNeeded(result.answer, messageID: assistant.id)
+                if voiceOriginated, !self.speakRepliesEnabled {
                     self.voiceState = .idle
                 }
 
@@ -248,14 +265,71 @@ final class ChatViewModel: ObservableObject {
         }
     }
 
-    private func speakAssistantAnswerIfNeeded(_ text: String) async {
+    private func speakAssistantAnswerIfNeeded(_ text: String, messageID: String) {
         let trimmed = text.trimmingCharacters(in: .whitespacesAndNewlines)
         guard speakRepliesEnabled, !trimmed.isEmpty else { return }
         voiceState = .speaking
-        await ttsService.speak(trimmed)
-        if case .speaking = voiceState {
-            voiceState = .idle
+
+        let exportURL = makeTTSExportURL(for: messageID)
+        Task { [weak self] in
+            guard let self else { return }
+            let speakResult = await self.ttsService.speak(
+                trimmed,
+                preferModel: true,
+                exportWAVTo: exportURL,
+                allowAppleFallback: false
+            )
+
+            if let exportedURL = speakResult.exportedWAVURL {
+                await self.persistTTSAudioExport(url: exportedURL, forMessageID: messageID)
+            }
+
+            await MainActor.run {
+                switch speakResult.source {
+                case .modelFailed:
+                    let errorMessage = speakResult.errorDescription ?? "Voice response unavailable"
+                    self.errorMessage = "Voice response unavailable: \(errorMessage)"
+                    self.voiceState = .error("Voice response unavailable")
+                case .appleFallback:
+                    self.errorMessage = "Model voice unavailable; fallback voice was used."
+                    self.voiceState = .idle
+                case .modelAudio, .skipped:
+                    if case .speaking = self.voiceState {
+                        self.voiceState = .idle
+                    }
+                }
+            }
         }
+    }
+
+    func audioShareURL(for message: ChatMessage) -> URL? {
+        guard message.role == .assistant else { return nil }
+        guard let relativePath = message.ttsAudioRelativePath, !relativePath.isEmpty else { return nil }
+
+        let absoluteURL = session.folderURL.appendingPathComponent(relativePath, isDirectory: false)
+        guard FileManager.default.fileExists(atPath: absoluteURL.path) else { return nil }
+        return absoluteURL
+    }
+
+    private func makeTTSExportURL(for messageID: String) -> URL {
+        session.folderURL
+            .appendingPathComponent("voice_replies", isDirectory: true)
+            .appendingPathComponent("\(messageID).wav", isDirectory: false)
+    }
+
+    private func persistTTSAudioExport(url: URL, forMessageID messageID: String) async {
+        guard let index = messages.firstIndex(where: { $0.id == messageID }) else { return }
+
+        let basePath = session.folderURL.path
+        let relativePath: String
+        if url.path.hasPrefix(basePath + "/") {
+            relativePath = String(url.path.dropFirst(basePath.count + 1))
+        } else {
+            relativePath = "voice_replies/\(url.lastPathComponent)"
+        }
+
+        messages[index].ttsAudioRelativePath = relativePath
+        try? await chatStore.saveMessages(messages, for: session)
     }
 
     private func configureAudioSessionForRecordingIfNeeded() async throws {
@@ -266,7 +340,7 @@ final class ChatViewModel: ObservableObject {
         }
 
         try session.setCategory(.playAndRecord, mode: .spokenAudio, options: [.defaultToSpeaker, .allowBluetoothHFP])
-        try session.setActive(true, options: [.notifyOthersOnDeactivation])
+        try session.setActive(true)
     }
 
     private func restoreAudioSessionIfNeeded() async {
@@ -302,7 +376,7 @@ final class ChatViewModel: ObservableObject {
     }
 
     private func buildComposedPrompt(currentQuestion: String) -> String {
-        let system = "Answer using ONLY the provided meeting excerpts. Cite sources like [S1]. If the excerpts do not contain the answer, say: Not enough evidence in sources."
+        let system = "Answer using ONLY the provided meeting excerpts. Keep the response conversational and concise unless the user asks for detail. Add citations only when helpful. If the excerpts do not contain the answer, say: Not enough evidence in sources."
 
         let historyMessages = Array(messages.dropLast().suffix(maxHistoryMessages))
         let historyBlock = historyMessages.map { msg in

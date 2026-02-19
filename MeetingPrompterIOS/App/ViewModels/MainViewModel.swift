@@ -8,12 +8,92 @@ class MainViewModel: ObservableObject {
 
     enum State {
         case idle
+        case countdown
         case recording
+        case paused
         case transcribing
         case searching
         case answering
         case done
         case error(Error)
+    }
+
+    func pauseRecording() {
+        guard case .recording = appState else { return }
+
+        stopRecordingTimer()
+        appState = .paused
+
+        Task {
+            await audioCapture.stopCapture()
+            await liveTranscription.pause()
+            await audioFileRecorder.pauseRecording()
+        }
+    }
+
+    func resumeRecording() {
+        guard case .paused = appState else { return }
+
+        appState = .recording
+        let resumedStart = Date().addingTimeInterval(-Double(recordingElapsedSeconds))
+        startRecordingTimer(startedAt: resumedStart)
+
+        Task {
+            await liveTranscription.resume()
+            await audioFileRecorder.resumeRecording()
+
+            do {
+                try await audioCapture.startCapture { [weak self] samples in
+                    guard let self else { return }
+                    Task {
+                        await self.liveTranscription.append(samples: samples)
+                    }
+                }
+            } catch {
+                await MainActor.run {
+                    self.stopRecordingTimer()
+                    self.appState = .error(error)
+                }
+            }
+        }
+    }
+
+    private func startRecordingTimer(startedAt: Date) {
+        recordingTimerTask?.cancel()
+        recordingTimerTask = Task { [weak self] in
+            guard let self else { return }
+
+            while !Task.isCancelled {
+                let elapsed = Int(Date().timeIntervalSince(startedAt).rounded(.down))
+                await MainActor.run {
+                    self.recordingElapsedSeconds = max(0, elapsed)
+                }
+
+                do {
+                    try await Task.sleep(nanoseconds: 1_000_000_000)
+                } catch {
+                    return
+                }
+            }
+        }
+    }
+
+    private func stopRecordingTimer() {
+        recordingTimerTask?.cancel()
+        recordingTimerTask = nil
+    }
+
+    private func cancelRecordingCountdown() {
+        countdownTask?.cancel()
+        countdownTask = nil
+        preRecordingCountdown = nil
+    }
+
+    var recordingElapsedDisplay: String {
+        let seconds = max(0, recordingElapsedSeconds)
+        let minutes = seconds / 60
+        let remainder = seconds % 60
+        return String(format: "%02d:%02d", minutes, remainder)
     }
 
     @Published var appState: State = .idle
@@ -24,6 +104,8 @@ class MainViewModel: ObservableObject {
     @Published var questionText: String = ""
     @Published var isInitializing = false
     @Published var activeSession: MeetingSession? = nil
+    @Published var preRecordingCountdown: Int? = nil
+    @Published var recordingElapsedSeconds: Int = 0
 
     private let leapManager = LeapModelManager.shared
     private let ragService = RAGService.shared
@@ -38,6 +120,8 @@ class MainViewModel: ObservableObject {
 
     private var tempAudioURL: URL?
     private var recordingStartDate: Date?
+    private var countdownTask: Task<Void, Never>?
+    private var recordingTimerTask: Task<Void, Never>?
 
     private init() {}
     
@@ -63,62 +147,111 @@ class MainViewModel: ObservableObject {
     func startRecording() {
         guard case .idle = appState else { return }
 
-        appState = .recording
+        appState = .countdown
         activeSession = nil
         transcriptLive = ""
         transcriptFinal = ""
         answerText = ""
         sources = []
+        recordingElapsedSeconds = 0
+        preRecordingCountdown = 3
 
-        Task {
-            let startedAt = Date()
-            do {
-                let tmpURL = try makeTempAudioURL(createdAt: startedAt)
-                self.tempAudioURL = tmpURL
-                self.recordingStartDate = startedAt
-                try await audioFileRecorder.startRecording(to: tmpURL)
-            } catch {
-                await MainActor.run { self.appState = .error(error) }
-                return
-            }
+        countdownTask?.cancel()
+        countdownTask = Task { [weak self] in
+            guard let self else { return }
 
-            await leapManager.unloadRAG()
-
-            await liveTranscription.reset(onUpdate: { [weak self] text in
-                print("[DEBUG UI] transcriptLive updated: length=\(text.count), last50='\(String(text.prefix(50)).suffix(50))'")
-                self?.transcriptLive = text
-            })
-
-            do {
-                try await audioCapture.startCapture { [weak self] samples in
-                    guard let self else { return }
-                    print("[DEBUG AudioCapture] Received \(samples.count) samples")
-                    Task {
-                        print("[DEBUG AudioCapture] Calling liveTranscription.append with \(samples.count) samples")
-                        await self.liveTranscription.append(samples: samples)
-                        print("[DEBUG AudioCapture] append completed")
-                    }
+            for remaining in stride(from: 3, through: 1, by: -1) {
+                await MainActor.run {
+                    self.preRecordingCountdown = remaining
                 }
-            } catch {
-                await audioFileRecorder.stopRecording()
-                await MainActor.run { self.appState = .error(error) }
+
+                do {
+                    try await Task.sleep(nanoseconds: 1_000_000_000)
+                } catch {
+                    return
+                }
             }
+
+            await MainActor.run {
+                self.preRecordingCountdown = nil
+            }
+
+            await self.beginRecordingSession()
+        }
+    }
+
+    private func beginRecordingSession() async {
+        guard case .countdown = appState else { return }
+
+        countdownTask = nil
+        appState = .recording
+
+        let speechReady = await ASRService.shared.prepareForTranscription()
+        guard speechReady else {
+            appState = .error(ASRError.modelNotLoaded)
+            return
+        }
+
+        let startedAt = Date()
+        do {
+            let tmpURL = try makeTempAudioURL(createdAt: startedAt)
+            self.tempAudioURL = tmpURL
+            self.recordingStartDate = startedAt
+            self.recordingElapsedSeconds = 0
+            try await audioFileRecorder.startRecording(to: tmpURL)
+            startRecordingTimer(startedAt: startedAt)
+        } catch {
+            self.appState = .error(error)
+            return
+        }
+
+        await leapManager.unloadRAG()
+
+        await liveTranscription.reset(onUpdate: { [weak self] text in
+            print("[DEBUG UI] transcriptLive updated: length=\(text.count), last50='\(String(text.prefix(50)).suffix(50))'")
+            self?.transcriptLive = text
+        })
+
+        do {
+            try await audioCapture.startCapture { [weak self] samples in
+                guard let self else { return }
+                print("[DEBUG AudioCapture] Received \(samples.count) samples")
+                Task {
+                    print("[DEBUG AudioCapture] Calling liveTranscription.append with \(samples.count) samples")
+                    await self.liveTranscription.append(samples: samples)
+                    print("[DEBUG AudioCapture] append completed")
+                }
+            }
+        } catch {
+            stopRecordingTimer()
+            await audioFileRecorder.stopRecording()
+            appState = .error(error)
         }
     }
 
     // MVP Option 1: stopRecording ALWAYS stores "current meeting" transcript, never triggers RAG.
     func stopRecording() {
-        guard case .recording = appState else {
+        if case .countdown = appState {
+            cancelRecordingCountdown()
+            appState = .idle
+            return
+        }
+
+        let wasPaused = appState.isPaused
+        guard appState.isRecording || wasPaused else {
             print("[MainViewModel] stopRecording called but not recording, ignoring")
             return
         }
 
+        stopRecordingTimer()
         appState = .transcribing
 
         Task {
             await taskQueue.cancelCurrent()
 
-            await audioCapture.stopCapture()
+            if !wasPaused {
+                await audioCapture.stopCapture()
+            }
             let fullTranscript = await liveTranscription.finalize()
 
             await audioFileRecorder.stopRecording()
@@ -153,9 +286,7 @@ class MainViewModel: ObservableObject {
                     print("[MainViewModel] Failed to index meeting (initial): \(error)")
                 }
 
-                if let startedAt = recordingStartDate {
-                    session.durationSeconds = Date().timeIntervalSince(startedAt)
-                }
+                session.durationSeconds = Double(recordingElapsedSeconds)
 
                 if let tmpURL = tempAudioURL, FileManager.default.fileExists(atPath: tmpURL.path) {
                     try await fileStore.moveItem(from: tmpURL, to: session.audioURL)
@@ -309,7 +440,11 @@ class MainViewModel: ObservableObject {
     }
 
     func reset() {
+        cancelRecordingCountdown()
+        stopRecordingTimer()
         appState = .idle
+        preRecordingCountdown = nil
+        recordingElapsedSeconds = 0
         transcriptLive = ""
         transcriptFinal = ""
         answerText = ""
@@ -321,8 +456,15 @@ class MainViewModel: ObservableObject {
         switch appState {
         case .idle:
             return "Ready"
+        case .countdown:
+            if let countdown = preRecordingCountdown {
+                return "Starting in \(countdown)..."
+            }
+            return "Preparing to record..."
         case .recording:
             return "Recording..."
+        case .paused:
+            return "Paused"
         case .transcribing:
             return "Transcribing..."
         case .searching:
@@ -345,6 +487,16 @@ extension MainViewModel.State {
 
     var isRecording: Bool {
         if case .recording = self { return true }
+        return false
+    }
+
+    var isPaused: Bool {
+        if case .paused = self { return true }
+        return false
+    }
+
+    var isCountdown: Bool {
+        if case .countdown = self { return true }
         return false
     }
 

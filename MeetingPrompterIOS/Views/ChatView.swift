@@ -3,8 +3,7 @@ import SwiftUI
 struct ChatView: View {
     @StateObject private var viewModel: ChatViewModel
     @ObservedObject private var mainViewModel = MainViewModel.shared
-    @AppStorage("voiceQAEnabled") private var voiceQAEnabled: Bool = false
-    @AppStorage("speakAnswersEnabled") private var speakAnswersEnabled: Bool = false
+    @AppStorage("speakAnswersEnabled") private var speakAnswersEnabled: Bool = true
     @State private var isHoldingPTT = false
     @State private var pttAutoStopTask: Task<Void, Never>? = nil
 
@@ -18,7 +17,10 @@ struct ChatView: View {
                 ScrollView {
                     LazyVStack(alignment: .leading, spacing: 14) {
                         ForEach(viewModel.messages) { message in
-                            ChatBubble(message: message)
+                            ChatBubble(
+                                message: message,
+                                audioShareURL: viewModel.audioShareURL(for: message)
+                            )
                                 .id(message.id)
                         }
                     }
@@ -80,9 +82,7 @@ struct ChatView: View {
                     .disabled(viewModel.isBusy)
                     .onSubmit { viewModel.send() }
 
-                if voiceQAEnabled {
-                    pttButton
-                }
+                pttButton
 
                 Button {
                     viewModel.send()
@@ -108,7 +108,6 @@ struct ChatView: View {
 
                 Toggle("Speak answers", isOn: $speakAnswersEnabled)
                     .font(.caption)
-                    .disabled(!voiceQAEnabled)
             }
         }
         .padding(.horizontal, 14)
@@ -123,9 +122,6 @@ struct ChatView: View {
     }
 
     private var voiceStatusText: String {
-        if !voiceQAEnabled {
-            return "Voice Q&A: Off"
-        }
         if mainViewModel.appState.isRecording {
             return "Voice Q&A unavailable while recording"
         }
@@ -147,7 +143,7 @@ struct ChatView: View {
     }
 
     private var voiceStatusColor: Color {
-        if !voiceQAEnabled || mainViewModel.appState.isRecording {
+        if mainViewModel.appState.isRecording {
             return AppTheme.mutedInk
         }
 
@@ -165,7 +161,11 @@ struct ChatView: View {
 
     private var pttButton: some View {
         let meetingRecordingActive = mainViewModel.appState.isRecording
-        let disabled = viewModel.isBusy || viewModel.voiceState.isTranscribing || meetingRecordingActive
+        let disabled = viewModel.isBusy
+            || viewModel.voiceState.isTranscribing
+            || viewModel.voiceState.isThinking
+            || viewModel.voiceState.isSpeaking
+            || meetingRecordingActive
 
         return Button(action: {}) {
             Group {
@@ -173,21 +173,26 @@ struct ChatView: View {
                     ProgressView()
                 } else {
                     Image(systemName: viewModel.voiceState.isListening ? "waveform.circle.fill" : "mic.fill")
-                        .font(.system(size: 18, weight: .semibold))
+                        .font(.system(size: 20, weight: .bold))
                 }
             }
-            .foregroundColor(AppTheme.ink)
-            .frame(width: 40, height: 40)
-            .background(AppTheme.surface)
+            .foregroundColor(.white)
+            .frame(width: 52, height: 52)
+            .background(
+                viewModel.voiceState.isListening
+                    ? Color.red
+                    : AppTheme.accent
+            )
             .clipShape(RoundedRectangle(cornerRadius: 14, style: .continuous))
             .overlay(
                 RoundedRectangle(cornerRadius: 14, style: .continuous)
-                    .stroke(AppTheme.hairline, lineWidth: 1)
+                    .stroke((viewModel.voiceState.isListening ? Color.red : AppTheme.accent).opacity(0.4), lineWidth: 1.5)
             )
         }
         .buttonStyle(.plain)
         .disabled(disabled)
         .accessibilityLabel("Push to talk")
+        .accessibilityHint("Press and hold to record a voice question")
         .simultaneousGesture(
             DragGesture(minimumDistance: 0)
                 .onChanged { _ in
