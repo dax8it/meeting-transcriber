@@ -54,3 +54,58 @@ class QuestionDetector {
         return min(score, 1.0)
     }
 }
+
+struct QueryIntent {
+    private static let citationKeywords = [
+        "source",
+        "sources",
+        "citation",
+        "citations",
+        "cite",
+        "reference",
+        "references",
+        "evidence",
+        "where does it say",
+        "where in the document",
+        "which document",
+        "show sources",
+        "provide sources"
+    ]
+
+    private static let summaryReadbackPhrases = [
+        "read back everything",
+        "read back summary",
+        "read back the summary",
+        "read back",
+        "read the summary",
+        "read summary",
+        "play summary",
+        "play the summary",
+        "read it back",
+        "play it back",
+        "speak summary",
+        "speak the summary"
+    ]
+
+    static func citationsRequested(_ text: String) -> Bool {
+        let lowercased = text.lowercased()
+        return citationKeywords.contains(where: { lowercased.contains($0) })
+    }
+
+    static func summaryReadbackRequested(_ text: String) -> Bool {
+        let lowercased = text.lowercased()
+        return summaryReadbackPhrases.contains(where: { lowercased.contains($0) })
+    }
+
+    static func stripCitationMarkers(_ text: String) -> String {
+        let patterns = ["\\[S\\d+\\]", "\\[\\d+\\]"]
+        var output = text
+        for pattern in patterns {
+            output = output.replacingOccurrences(of: pattern, with: "", options: .regularExpression)
+        }
+        while output.contains("  ") {
+            output = output.replacingOccurrences(of: "  ", with: " ")
+        }
+        return output.trimmingCharacters(in: .whitespacesAndNewlines)
+    }
+}

@@ -3,13 +3,24 @@ import LeapSDK
 
 actor ASRService {
     static let shared = ASRService()
-    
+
     private let leapManager = LeapModelManager.shared
+
     private var lastTranscriptionTime: Date?
     private let minTranscriptionInterval: TimeInterval = 1.0
-    
+
     private init() {}
-    
+
+    func prepareForTranscription() async -> Bool {
+        do {
+            _ = try await leapManager.getASRModel()
+            return true
+        } catch {
+            print("[ASR] prepare failed: \(error)")
+            return false
+        }
+    }
+
     func transcribe(samples: [Float]) async -> String {
         guard !samples.isEmpty else {
             print("[ASR] Empty samples, returning empty string")
@@ -18,16 +29,9 @@ actor ASRService {
 
         print("[ASR] Transcribing \(samples.count) samples...")
         do {
-            print("[ASR] Loading ASR model...")
             let model = try await leapManager.getASRModel()
-            print("[ASR] Model loaded. runnerType=\(String(describing: type(of: model)))")
-            
-            let result = try await performASRTranscription(
-                model: model,
-                audio: samples
-            )
-            
-            return result.trimmingCharacters(in: CharacterSet.whitespacesAndNewlines)
+            let result = try await performASRTranscription(model: model, audio: samples)
+            return result.trimmingCharacters(in: .whitespacesAndNewlines)
         } catch {
             print("ASR error: \(error)")
             return ""
@@ -53,10 +57,8 @@ actor ASRService {
         lastTranscriptionTime = Date()
         return await transcribe(samples: samples)
     }
-    
+
     private func performASRTranscription(model: any ModelRunner, audio: [Float]) async throws -> String {
-        print("[ASR] Creating conversation. Runner type: \(String(describing: type(of: model)))")
-        print("[ASR] ASR model type: \(type(of: model))")
         let conversation = model.createConversation(systemPrompt: "Perform ASR.")
         let userMessage = LeapSDK.ChatMessage(
             role: .user,
@@ -66,7 +68,6 @@ actor ASRService {
         )
 
         var response = ""
-
         for try await messageResponse in conversation.generateResponse(message: userMessage) {
             switch messageResponse {
             case .chunk(let delta):
@@ -85,8 +86,19 @@ actor ASRService {
             }
         }
 
-        response = response.trimmingCharacters(in: .whitespacesAndNewlines)
-        print("[ASR] transcription finished, len=\(response.count), preview='\(String(response.prefix(80)))'")
-        return response
+        let cleaned = response.trimmingCharacters(in: .whitespacesAndNewlines)
+        print("[ASR] transcription finished, len=\(cleaned.count), preview='\(String(cleaned.prefix(80)))'")
+        return cleaned
+    }
+}
+
+enum ASRError: LocalizedError {
+    case modelNotLoaded
+
+    var errorDescription: String? {
+        switch self {
+        case .modelNotLoaded:
+            return "ASR model is not loaded"
+        }
     }
 }

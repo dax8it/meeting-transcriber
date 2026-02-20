@@ -134,6 +134,7 @@ final class SessionViewModel: ObservableObject {
     func ask() {
         let q = questionText.trimmingCharacters(in: .whitespacesAndNewlines)
         guard !q.isEmpty else { return }
+        let citationsRequested = QueryIntent.citationsRequested(q)
 
         isBusy = true
         answerText = ""
@@ -174,9 +175,10 @@ final class SessionViewModel: ObservableObject {
                 }
 
                 let result = try await ragService.generateAnswer(question: q, chunks: deduped)
+                let finalAnswer = citationsRequested ? result.answer : QueryIntent.stripCitationMarkers(result.answer)
                 await MainActor.run {
-                    self.answerText = result.answer
-                    self.sources = result.sources
+                    self.answerText = finalAnswer
+                    self.sources = citationsRequested ? result.sources : []
                 }
             } catch {
                 await MainActor.run {

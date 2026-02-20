@@ -67,7 +67,7 @@ struct SettingsView: View {
 
                         Divider().background(AppTheme.divider)
 
-                        Text("Uses Liquid AI LFM models under the LFM Open License v1.0.")
+                        Text("Uses local AI models under open-source licenses.")
                             .font(.subheadline)
                             .foregroundColor(AppTheme.ink)
                     }

@@ -69,6 +69,10 @@ actor RAGService {
 
         let sources = buildSourcesBlock(chunks: retrievedChunks, maxSources: 12)
         print("[RAG] Evidence block created, loading model...")
+        // Keep memory footprint bounded during Q8 voice flows.
+        await leapManager.unloadASR()
+        await leapManager.unloadTTS()
+        await leapManager.unloadTranscript()
         
         let model: any ModelRunner
         do {
@@ -80,7 +84,7 @@ actor RAGService {
             throw error
         }
         
-        let systemPrompt = "Answer ONLY using SOURCES. Cite every sentence like [S1], [S2]. If not answerable, reply exactly: Not enough evidence in sources."
+        let systemPrompt = "Answer ONLY using SOURCES. Use a natural conversational tone (avoid numbered lists unless asked). Keep it concise (2-4 sentences). Add citations only where helpful, typically at sentence endings like [S1]. If not answerable, reply exactly: Not enough evidence in sources."
         
         // Debug logging
         let trimmedPrompt = systemPrompt.trimmingCharacters(in: .whitespacesAndNewlines)
@@ -104,7 +108,9 @@ actor RAGService {
 
         Instructions:
         - Answer ONLY using SOURCES.
-        - Cite every sentence like [S1], [S2].
+        - Use conversational prose, not a rigid report format.
+        - Keep it concise unless the user asks for detail.
+        - Add citations only where needed.
         - If not answerable, say "Not enough evidence in sources." and nothing else.
         """
         
@@ -152,6 +158,10 @@ actor RAGService {
         let sources = buildSourcesBlock(chunks: chunks, maxSources: 12)
 
         print("[RAG] Sources block created from meeting chunks, loading model...")
+        // Keep memory footprint bounded during Q8 voice flows.
+        await leapManager.unloadASR()
+        await leapManager.unloadTTS()
+        await leapManager.unloadTranscript()
         
         let model: any ModelRunner
         do {
@@ -162,7 +172,7 @@ actor RAGService {
             throw error
         }
         
-        let systemPrompt = "Answer ONLY using SOURCES. Cite every sentence like [S1], [S2]. If not answerable, reply exactly: Not enough evidence in sources."
+        let systemPrompt = "Answer ONLY using SOURCES. Use a natural conversational tone (avoid numbered lists unless asked). Keep it concise (2-4 sentences). Add citations only where helpful, typically at sentence endings like [S1]. If not answerable, reply exactly: Not enough evidence in sources."
         
         print("[RAG] Creating conversation. Runner type: \(String(describing: type(of: model)))")
         let conversation = model.createConversation(systemPrompt: systemPrompt)
@@ -176,7 +186,9 @@ actor RAGService {
 
         Instructions:
         - Answer ONLY using SOURCES.
-        - Cite every sentence like [S1], [S2].
+        - Use conversational prose, not a rigid report format.
+        - Keep it concise unless the user asks for detail.
+        - Add citations only where needed.
         - If not answerable, say "Not enough evidence in sources." and nothing else.
         """
         

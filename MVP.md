@@ -1,5 +1,13 @@
 # Meeting Transcriber iOS — MVP
 
+> **Status (2026-02-19): historical MVP reference.**
+>
+> The current runtime source-of-truth for model IDs and loading behavior is:
+> - `MeetingPrompterIOS/Core/AI/ModelIDs.swift`
+> - `MeetingPrompterIOS/Core/AI/LeapModelManager.swift`
+>
+> Some model filename examples below reflect older MVP snapshots and should not override current in-code IDs.
+
 This repo implements an offline-first, fully on-device iOS MVP with two explicit actions:
 
 1) Record Meeting (ASR) -> produces a transcript and stores/indexes it locally as the **current meeting**

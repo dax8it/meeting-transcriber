@@ -8,22 +8,26 @@ actor LiveTranscriptionService {
     private let sampleRate: Int = 16_000
     private let chunkSeconds: Double = 2.0
     private let overlapSeconds: Double = 0.5
+    private let asrChunkTimeoutNanoseconds: UInt64 = 8_000_000_000
 
     private var buffer: [Float] = []
     private var transcript: String = ""
+    private var isTranscribing = false
+    private var isPaused = false
 
-    private var inFlight: Task<Void, Never>?
+    private var currentASRTask: Task<Void, Never>?
     private var onUpdate: (@MainActor @Sendable (String) -> Void)?
 
     private init() {}
 
     func reset(onUpdate: (@MainActor @Sendable (String) -> Void)? = nil) {
+        currentASRTask?.cancel()
+        currentASRTask = nil
+        isTranscribing = false
+        isPaused = false
         buffer.removeAll(keepingCapacity: true)
         transcript = ""
-        inFlight?.cancel()
-        inFlight = nil
         self.onUpdate = onUpdate
-        print("[DEBUG LiveTranscription] reset called, onUpdate=\(onUpdate != nil)")
     }
 
     func setOnUpdate(_ onUpdate: (@MainActor @Sendable (String) -> Void)?) {
@@ -31,113 +35,174 @@ actor LiveTranscriptionService {
     }
 
     func append(samples: [Float]) {
-        guard !samples.isEmpty else { return }
-        print("[DEBUG LiveTranscription] append: \(samples.count) samples, buffer.count=\(buffer.count)")
+        guard !samples.isEmpty, !isPaused else { return }
 
         buffer.append(contentsOf: samples)
 
         let chunkSize = Int(chunkSeconds * Double(sampleRate))
-        let overlap = Int(overlapSeconds * Double(sampleRate))
-        let step = max(1, chunkSize - overlap)
+        let overlapSize = Int(overlapSeconds * Double(sampleRate))
 
-        // Backpressure (MVP): if we are already transcribing, avoid queue growth.
-        if inFlight != nil {
-            if buffer.count > chunkSize {
-                buffer = Array(buffer.suffix(chunkSize))
-            }
-            return
-        }
-
-        guard buffer.count >= chunkSize else { return }
+        guard buffer.count >= chunkSize && !isTranscribing else { return }
 
         let chunk = Array(buffer.prefix(chunkSize))
-        buffer.removeFirst(min(step, buffer.count))
-
-        inFlight = Task { [weak self] in
-            guard let self else { return }
-            let chunkText = await self.asrService.transcribeChunk(samples: chunk)
-
-            await self.handleChunkResult(chunkText)
+        let removeCount = max(1, chunkSize - overlapSize)
+        if removeCount >= buffer.count {
+            buffer.removeAll(keepingCapacity: true)
+        } else {
+            buffer.removeFirst(removeCount)
         }
+
+        isTranscribing = true
+
+        let updateCallback = onUpdate
+
+        currentASRTask = Task.detached { [weak self] in
+            guard let self else { return }
+            let text = await self.transcribeChunkWithTimeout(chunk)
+
+            guard !Task.isCancelled else {
+                await self.markTranscriptionComplete()
+                return
+            }
+
+            await self.handleResult(text, callback: updateCallback)
+        }
+    }
+
+    private func waitForTaskCompletion(_ task: Task<Void, Never>, timeoutNanoseconds: UInt64) async -> Bool {
+        await withTaskGroup(of: Bool.self) { group in
+            group.addTask {
+                _ = await task.result
+                return true
+            }
+            group.addTask {
+                try? await Task.sleep(nanoseconds: timeoutNanoseconds)
+                return false
+            }
+
+            let result = await group.next() ?? false
+            group.cancelAll()
+            return result
+        }
+    }
+
+    private func shouldDropRepeatedLowInformationChunk(_ text: String) -> Bool {
+        let nextWords = normalizedWords(from: text)
+        guard nextWords.count == 1, let token = nextWords.first, token.count >= 2 else {
+            return false
+        }
+
+        let priorWords = normalizedWords(from: transcript)
+        guard priorWords.count >= 2 else { return false }
+        let tail = priorWords.suffix(2)
+        return tail.allSatisfy { $0 == token }
+    }
+
+    private func normalizedWords(from text: String) -> [String] {
+        text
+            .split(whereSeparator: { $0.isWhitespace })
+            .map { token in
+                token
+                    .lowercased()
+                    .trimmingCharacters(in: .punctuationCharacters)
+            }
+            .filter { !$0.isEmpty }
+    }
+
+    func stop() {
+        currentASRTask?.cancel()
+        currentASRTask = nil
+        isTranscribing = false
+        isPaused = false
+        buffer.removeAll(keepingCapacity: true)
+    }
+
+    func pause() {
+        isPaused = true
+    }
+
+    func resume() {
+        isPaused = false
     }
 
     func finalize() async -> String {
-        // Wait for any in-flight chunk.
-        if let task = inFlight {
-            _ = await task.result
-            inFlight = nil
+        if let task = currentASRTask {
+            let didFinish = await waitForTaskCompletion(task, timeoutNanoseconds: 8_000_000_000)
+            if !didFinish {
+                task.cancel()
+            }
+            currentASRTask = nil
         }
 
-        // Flush remaining audio (best-effort).
         let remaining = buffer
         buffer.removeAll(keepingCapacity: true)
+        isTranscribing = false
+        isPaused = false
 
-        let trimmedTranscript = transcript.trimmingCharacters(in: .whitespacesAndNewlines)
-        guard !remaining.isEmpty else {
-            return trimmedTranscript
-        }
+        let trimmed = transcript.trimmingCharacters(in: .whitespacesAndNewlines)
+        guard !remaining.isEmpty else { return trimmed }
 
-        let maxSize = Int(chunkSeconds * Double(sampleRate))
-        let chunk = remaining.count > maxSize ? Array(remaining.suffix(maxSize)) : remaining
-        let chunkText = await asrService.transcribeChunk(samples: chunk)
-        handleChunkResult(chunkText)
-
-        return transcript.trimmingCharacters(in: .whitespacesAndNewlines)
+        let text = await transcribeChunkWithTimeout(remaining)
+        return (transcript + " " + text).trimmingCharacters(in: .whitespacesAndNewlines)
     }
 
-    private func handleChunkResult(_ chunkText: String) {
-        let cleaned = chunkText.trimmingCharacters(in: .whitespacesAndNewlines)
-        print("[DEBUG ASR] handleChunkResult: cleaned.length=\(cleaned.count), text='\(cleaned)'")
-        guard !cleaned.isEmpty else {
-            inFlight = nil
+    private func transcribeChunkWithTimeout(_ samples: [Float]) async -> String {
+        guard !samples.isEmpty else { return "" }
+
+        return await withTaskGroup(of: String?.self) { group in
+            group.addTask {
+                await self.asrService.transcribeChunk(samples: samples)
+            }
+            group.addTask {
+                try? await Task.sleep(nanoseconds: self.asrChunkTimeoutNanoseconds)
+                return nil
+            }
+
+            let result = await group.next() ?? nil
+            group.cancelAll()
+            if result == nil {
+                print("[LiveTranscription] ASR chunk timed out")
+            }
+            return result ?? ""
+        }
+    }
+
+    private func markTranscriptionComplete() {
+        isTranscribing = false
+    }
+
+    private func handleResult(_ text: String, callback: (@MainActor @Sendable (String) -> Void)?) {
+        isTranscribing = false
+        let cleaned = text.trimmingCharacters(in: .whitespacesAndNewlines)
+        guard !cleaned.isEmpty else { return }
+
+        if shouldDropRepeatedLowInformationChunk(cleaned) {
+            print("[LiveTranscription] Dropping repeated low-information chunk: '\(cleaned)'")
             return
         }
 
-        transcript = mergeTranscript(previous: transcript, next: cleaned)
-        inFlight = nil
-        print("[DEBUG ASR] merged transcript: length=\(transcript.count), last50='\(String(transcript.prefix(50)).suffix(50))'")
+        transcript = merge(previous: transcript, next: cleaned)
 
-        if let onUpdate {
-            let text = transcript
-            print("[DEBUG ASR] Calling onUpdate with \(text.count) chars")
-            Task { @MainActor in
-                onUpdate(text)
-            }
+        if let callback {
+            let currentTranscript = transcript
+            Task { @MainActor in callback(currentTranscript) }
         }
     }
 
-    private func mergeTranscript(previous: String, next: String) -> String {
-        let prevWords = splitWords(previous)
-        let nextWords = splitWords(next)
+    private func merge(previous: String, next: String) -> String {
+        let prev = previous.split(whereSeparator: { $0.isWhitespace }).map(String.init)
+        let nxt = next.split(whereSeparator: { $0.isWhitespace }).map(String.init)
+        guard !prev.isEmpty, !nxt.isEmpty else { return prev.isEmpty ? next : previous }
 
-        guard !prevWords.isEmpty else { return next }
-        guard !nextWords.isEmpty else { return previous }
-
-        let maxOverlap = min(20, prevWords.count, nextWords.count)
+        let maxOverlap = min(20, prev.count, nxt.count)
         var overlap = 0
-
-        if maxOverlap > 0 {
-            for k in stride(from: maxOverlap, through: 1, by: -1) {
-                let a = prevWords.suffix(k).map(normalizeWord)
-                let b = nextWords.prefix(k).map(normalizeWord)
-                if a == b {
-                    overlap = k
-                    break
-                }
+        for k in stride(from: maxOverlap, through: 1, by: -1) {
+            if prev.suffix(k).map({ $0.lowercased().trimmingCharacters(in: .punctuationCharacters) }) ==
+               nxt.prefix(k).map({ $0.lowercased().trimmingCharacters(in: .punctuationCharacters) }) {
+                overlap = k
+                break
             }
         }
-
-        let mergedWords = prevWords + nextWords.dropFirst(overlap)
-        return mergedWords.joined(separator: " ")
-    }
-
-    private func splitWords(_ text: String) -> [String] {
-        text.split(whereSeparator: { $0.isWhitespace }).map(String.init)
-    }
-
-    private func normalizeWord(_ word: String) -> String {
-        word
-            .lowercased()
-            .trimmingCharacters(in: .punctuationCharacters)
+        return (prev + nxt.dropFirst(overlap)).joined(separator: " ")
     }
 }

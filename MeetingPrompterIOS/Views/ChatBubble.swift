@@ -2,6 +2,7 @@ import SwiftUI
 
 struct ChatBubble: View {
     let message: ChatMessage
+    let audioShareURL: URL?
 
     var body: some View {
         VStack(alignment: message.role == .user ? .trailing : .leading, spacing: 6) {
@@ -25,6 +26,17 @@ struct ChatBubble: View {
                 .font(.caption2)
                 .foregroundColor(AppTheme.mutedInk)
                 .frame(maxWidth: .infinity, alignment: message.role == .user ? .trailing : .leading)
+
+            if message.role == .assistant,
+               let audioShareURL {
+                ShareLink(item: audioShareURL) {
+                    Label("Share audio", systemImage: "square.and.arrow.up")
+                        .font(.caption.weight(.semibold))
+                        .foregroundColor(AppTheme.accent)
+                }
+                .buttonStyle(.plain)
+                .frame(maxWidth: .infinity, alignment: .leading)
+            }
 
             if message.role == .assistant, let sources = message.sources, !sources.isEmpty {
                 DisclosureGroup("Sources") {

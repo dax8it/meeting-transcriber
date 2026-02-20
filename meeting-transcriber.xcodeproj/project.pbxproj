@@ -12,7 +12,15 @@
 		87FA4EE1B0D23D9BDE43954E /* SummarizationService.swift in Sources */ = {isa = PBXBuildFile; fileRef = 04C618A4AA8EE0B3F1B6C8DD /* SummarizationService.swift */; };
 		8E2530B614773D8B35BDE7B9 /* AudioFileRecorder.swift in Sources */ = {isa = PBXBuildFile; fileRef = 773052F8ECC9718BF14A1B29 /* AudioFileRecorder.swift */; };
 		95CE375CC6FB4FB0562F3964 /* ShareSheet.swift in Sources */ = {isa = PBXBuildFile; fileRef = EEFB51CA4261AC0E8A0C7E5B /* ShareSheet.swift */; };
-		A0B1C2D3E4F5A6B7C8D9E0F2 /* models in Resources */ = {isa = PBXBuildFile; fileRef = A0B1C2D3E4F5A6B7C8D9E0F1 /* models */; };
+		A0B1C2D3E4F5A6B7C8D9E110 /* models/text/LFM2-1.2B-RAG-Q5_K_M.gguf in Resources */ = {isa = PBXBuildFile; fileRef = A0B1C2D3E4F5A6B7C8D9E120 /* models/text/LFM2-1.2B-RAG-Q5_K_M.gguf */; };
+		A0B1C2D3E4F5A6B7C8D9E111 /* models/text/LFM2-2.6B-Transcript-Q4_K_M.gguf in Resources */ = {isa = PBXBuildFile; fileRef = A0B1C2D3E4F5A6B7C8D9E121 /* models/text/LFM2-2.6B-Transcript-Q4_K_M.gguf */; };
+		A0B1C2D3E4F5A6B7C8D9E112 /* models/text/Q4_K_M.json in Resources */ = {isa = PBXBuildFile; fileRef = A0B1C2D3E4F5A6B7C8D9E122 /* models/text/Q4_K_M.json */; };
+		A0B1C2D3E4F5A6B7C8D9E115 /* models/audio/LFM2.5-Audio-1.5B-Q8_0.gguf in Resources */ = {isa = PBXBuildFile; fileRef = A0B1C2D3E4F5A6B7C8D9E125 /* models/audio/LFM2.5-Audio-1.5B-Q8_0.gguf */; };
+		A0B1C2D3E4F5A6B7C8D9E116 /* models/audio/mmproj-LFM2.5-Audio-1.5B-Q8_0.gguf in Resources */ = {isa = PBXBuildFile; fileRef = A0B1C2D3E4F5A6B7C8D9E126 /* models/audio/mmproj-LFM2.5-Audio-1.5B-Q8_0.gguf */; };
+		A0B1C2D3E4F5A6B7C8D9E117 /* models/audio/tokenizer-LFM2.5-Audio-1.5B-Q8_0.gguf in Resources */ = {isa = PBXBuildFile; fileRef = A0B1C2D3E4F5A6B7C8D9E127 /* models/audio/tokenizer-LFM2.5-Audio-1.5B-Q8_0.gguf */; };
+		A0B1C2D3E4F5A6B7C8D9E118 /* models/audio/vocoder-LFM2.5-Audio-1.5B-Q8_0.gguf in Resources */ = {isa = PBXBuildFile; fileRef = A0B1C2D3E4F5A6B7C8D9E128 /* models/audio/vocoder-LFM2.5-Audio-1.5B-Q8_0.gguf */; };
+		A0B1C2D3E4F5A6B7C8D9E113 /* models/tts/kokoro-v1_0.safetensors in Resources */ = {isa = PBXBuildFile; fileRef = A0B1C2D3E4F5A6B7C8D9E123 /* models/tts/kokoro-v1_0.safetensors */; };
+		A0B1C2D3E4F5A6B7C8D9E114 /* models/tts/voices.npz in Resources */ = {isa = PBXBuildFile; fileRef = A0B1C2D3E4F5A6B7C8D9E124 /* models/tts/voices.npz */; };
 		A11B22C33D44E55F6677889A /* Settings/SettingsView.swift in Sources */ = {isa = PBXBuildFile; fileRef = A11B22C33D44E55F66778899 /* Settings/SettingsView.swift */; };
 		A1BC3F44C8FAF969EE7C1641 /* SessionView.swift in Sources */ = {isa = PBXBuildFile; fileRef = A73CCF9381359872DAE35A55 /* SessionView.swift */; };
 		A20C37849C11588B6D4B4344 /* SessionViewModel.swift in Sources */ = {isa = PBXBuildFile; fileRef = E1BDBC98292B272B79D54F91 /* SessionViewModel.swift */; };
@@ -41,6 +49,11 @@
 		F3E4ACE12F136C09004D18BD /* GRDB in Frameworks */ = {isa = PBXBuildFile; productRef = F3E4ACE02F136C09004D18BD /* GRDB */; };
 		F3E4AD032F1374E8004D18BD /* AppState.swift in Sources */ = {isa = PBXBuildFile; fileRef = F3E4ACF42F1374E8004D18BD /* AppState.swift */; };
 		F3E4AD042F1374E8004D18BD /* AudioCaptureService.swift in Sources */ = {isa = PBXBuildFile; fileRef = F3E4ACEE2F1374E8004D18BD /* AudioCaptureService.swift */; };
+		F4A1B2C32F200001004D18BD /* TTSService.swift in Sources */ = {isa = PBXBuildFile; fileRef = F4A1B2C42F200001004D18BD /* TTSService.swift */; };
+		F4A1B2C52F200002004D18BE /* ModelTTSService.swift in Sources */ = {isa = PBXBuildFile; fileRef = F4A1B2C62F200002004D18BE /* ModelTTSService.swift */; };
+		AAF100001122334455667701 /* KokoroSwift in Frameworks */ = {isa = PBXBuildFile; productRef = AAF100001122334455667730 /* KokoroSwift */; };
+		AAF100001122334455667702 /* MLXUtilsLibrary in Frameworks */ = {isa = PBXBuildFile; productRef = AAF100001122334455667731 /* MLXUtilsLibrary */; };
+		AAF100001122334455667703 /* KokoroSwift in Embed Frameworks */ = {isa = PBXBuildFile; productRef = AAF100001122334455667730 /* KokoroSwift */; settings = {ATTRIBUTES = (CodeSignOnCopy, RemoveHeadersOnCopy, ); }; };
 		F3E4AD052F1374E8004D18BD /* ASRService.swift in Sources */ = {isa = PBXBuildFile; fileRef = F3E4ACE92F1374E8004D18BD /* ASRService.swift */; };
 		F3E4AD062F1374E8004D18BD /* AnswerView.swift in Sources */ = {isa = PBXBuildFile; fileRef = F3E4ACFF2F1374E8004D18BD /* AnswerView.swift */; };
 		F3E4AD072F1374E8004D18BD /* SourcesView.swift in Sources */ = {isa = PBXBuildFile; fileRef = F3E4AD002F1374E8004D18BD /* SourcesView.swift */; };
@@ -61,12 +74,34 @@
 		F3E4AD162F138A10004D18BD /* Resources/docpack.json in Resources */ = {isa = PBXBuildFile; fileRef = F3E4AD172F138A10004D18BD /* Resources/docpack.json */; };
 /* End PBXBuildFile section */
 
+/* Begin PBXCopyFilesBuildPhase section */
+		AAF100001122334455667710 /* Embed Frameworks */ = {
+			isa = PBXCopyFilesBuildPhase;
+			buildActionMask = 2147483647;
+			dstPath = "";
+			dstSubfolderSpec = 10;
+			files = (
+				AAF100001122334455667703 /* KokoroSwift in Embed Frameworks */,
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+/* End PBXCopyFilesBuildPhase section */
+
 /* Begin PBXFileReference section */
 		04C618A4AA8EE0B3F1B6C8DD /* SummarizationService.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SummarizationService.swift; sourceTree = "<group>"; };
 		6BA19F0705B8E9640F5E78D4 /* RecordView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = RecordView.swift; sourceTree = "<group>"; };
 		773052F8ECC9718BF14A1B29 /* AudioFileRecorder.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AudioFileRecorder.swift; sourceTree = "<group>"; };
 		8FEBC2BEBF23959E4AB0F195 /* LiveTranscriptionService.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = LiveTranscriptionService.swift; sourceTree = "<group>"; };
 		A0B1C2D3E4F5A6B7C8D9E0F1 /* models */ = {isa = PBXFileReference; lastKnownFileType = folder; path = models; sourceTree = "<group>"; };
+		A0B1C2D3E4F5A6B7C8D9E120 /* models/text/LFM2-1.2B-RAG-Q5_K_M.gguf */ = {isa = PBXFileReference; lastKnownFileType = file; path = MeetingPrompterIOS/models/text/LFM2-1.2B-RAG-Q5_K_M.gguf; sourceTree = "<group>"; };
+		A0B1C2D3E4F5A6B7C8D9E121 /* models/text/LFM2-2.6B-Transcript-Q4_K_M.gguf */ = {isa = PBXFileReference; lastKnownFileType = file; path = MeetingPrompterIOS/models/text/LFM2-2.6B-Transcript-Q4_K_M.gguf; sourceTree = "<group>"; };
+		A0B1C2D3E4F5A6B7C8D9E122 /* models/text/Q4_K_M.json */ = {isa = PBXFileReference; lastKnownFileType = text.json; path = MeetingPrompterIOS/models/text/Q4_K_M.json; sourceTree = "<group>"; };
+		A0B1C2D3E4F5A6B7C8D9E123 /* models/tts/kokoro-v1_0.safetensors */ = {isa = PBXFileReference; lastKnownFileType = file; path = MeetingPrompterIOS/models/tts/kokoro-v1_0.safetensors; sourceTree = "<group>"; };
+		A0B1C2D3E4F5A6B7C8D9E124 /* models/tts/voices.npz */ = {isa = PBXFileReference; lastKnownFileType = file; path = MeetingPrompterIOS/models/tts/voices.npz; sourceTree = "<group>"; };
+		A0B1C2D3E4F5A6B7C8D9E125 /* models/audio/LFM2.5-Audio-1.5B-Q8_0.gguf */ = {isa = PBXFileReference; lastKnownFileType = file; path = MeetingPrompterIOS/models/audio/LFM2.5-Audio-1.5B-Q8_0.gguf; sourceTree = "<group>"; };
+		A0B1C2D3E4F5A6B7C8D9E126 /* models/audio/mmproj-LFM2.5-Audio-1.5B-Q8_0.gguf */ = {isa = PBXFileReference; lastKnownFileType = file; path = MeetingPrompterIOS/models/audio/mmproj-LFM2.5-Audio-1.5B-Q8_0.gguf; sourceTree = "<group>"; };
+		A0B1C2D3E4F5A6B7C8D9E127 /* models/audio/tokenizer-LFM2.5-Audio-1.5B-Q8_0.gguf */ = {isa = PBXFileReference; lastKnownFileType = file; path = MeetingPrompterIOS/models/audio/tokenizer-LFM2.5-Audio-1.5B-Q8_0.gguf; sourceTree = "<group>"; };
+		A0B1C2D3E4F5A6B7C8D9E128 /* models/audio/vocoder-LFM2.5-Audio-1.5B-Q8_0.gguf */ = {isa = PBXFileReference; lastKnownFileType = file; path = MeetingPrompterIOS/models/audio/vocoder-LFM2.5-Audio-1.5B-Q8_0.gguf; sourceTree = "<group>"; };
 		A11B22C33D44E55F66778899 /* Settings/SettingsView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Settings/SettingsView.swift; sourceTree = "<group>"; };
 		A73CCF9381359872DAE35A55 /* SessionView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SessionView.swift; sourceTree = "<group>"; };
 		A8A77661EEBBA5F56E644AD0 /* MeetingSession.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = MeetingSession.swift; sourceTree = "<group>"; };
@@ -99,6 +134,8 @@
 		F3E4ACEB2F1374E8004D18BD /* ModelIDs.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ModelIDs.swift; sourceTree = "<group>"; };
 		F3E4ACEC2F1374E8004D18BD /* RAGService.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = RAGService.swift; sourceTree = "<group>"; };
 		F3E4ACEE2F1374E8004D18BD /* AudioCaptureService.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AudioCaptureService.swift; sourceTree = "<group>"; };
+		F4A1B2C42F200001004D18BD /* TTSService.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = TTSService.swift; sourceTree = "<group>"; };
+		F4A1B2C62F200002004D18BE /* ModelTTSService.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ModelTTSService.swift; sourceTree = "<group>"; };
 		F3E4ACEF2F1374E8004D18BD /* PushToTalkController.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = PushToTalkController.swift; sourceTree = "<group>"; };
 		F3E4ACF02F1374E8004D18BD /* VADGate.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = VADGate.swift; sourceTree = "<group>"; };
 		F3E4ACF22F1374E8004D18BD /* QuestionDetector.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = QuestionDetector.swift; sourceTree = "<group>"; };
@@ -122,6 +159,8 @@
 			files = (
 				F3E4ACE12F136C09004D18BD /* GRDB in Frameworks */,
 				F3CCB34E2F25E6B000FF3738 /* LeapSDK in Frameworks */,
+				AAF100001122334455667701 /* KokoroSwift in Frameworks */,
+				AAF100001122334455667702 /* MLXUtilsLibrary in Frameworks */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -221,6 +260,8 @@
 				F3E4ACEE2F1374E8004D18BD /* AudioCaptureService.swift */,
 				773052F8ECC9718BF14A1B29 /* AudioFileRecorder.swift */,
 				F3E4ACEF2F1374E8004D18BD /* PushToTalkController.swift */,
+				F4A1B2C42F200001004D18BD /* TTSService.swift */,
+				F4A1B2C62F200002004D18BE /* ModelTTSService.swift */,
 				F3E4ACF02F1374E8004D18BD /* VADGate.swift */,
 			);
 			path = Audio;
@@ -306,6 +347,7 @@
 			buildPhases = (
 				F3E4ACA52F1353B5004D18BD /* Sources */,
 				F3E4ACA62F1353B5004D18BD /* Frameworks */,
+				AAF100001122334455667710 /* Embed Frameworks */,
 				F3E4ACA72F1353B5004D18BD /* Resources */,
 			);
 			buildRules = (
@@ -316,6 +358,8 @@
 			packageProductDependencies = (
 				F3E4ACE02F136C09004D18BD /* GRDB */,
 				F3CCB34D2F25E6B000FF3738 /* LeapSDK */,
+				AAF100001122334455667730 /* KokoroSwift */,
+				AAF100001122334455667731 /* MLXUtilsLibrary */,
 			);
 			productName = "meeting-transcriber";
 			productReference = F3E4ACA92F1353B5004D18BD /* meeting-transcriber.app */;
@@ -348,6 +392,8 @@
 			packageReferences = (
 				F3E4ACDF2F136C09004D18BD /* XCRemoteSwiftPackageReference "GRDB.swift" */,
 				F3CCB3492F25E64C00FF3738 /* XCLocalSwiftPackageReference "../../ios_models/leap-ios-main" */,
+				AAF100001122334455667720 /* XCLocalSwiftPackageReference "../../ios_models/kokoro-ios-main" */,
+				AAF100001122334455667721 /* XCRemoteSwiftPackageReference "MLXUtilsLibrary" */,
 			);
 			preferredProjectObjectVersion = 77;
 			productRefGroup = F3E4ACAA2F1353B5004D18BD /* Products */;
@@ -364,7 +410,15 @@
 			isa = PBXResourcesBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
-				A0B1C2D3E4F5A6B7C8D9E0F2 /* models in Resources */,
+				A0B1C2D3E4F5A6B7C8D9E115 /* models/audio/LFM2.5-Audio-1.5B-Q8_0.gguf in Resources */,
+				A0B1C2D3E4F5A6B7C8D9E116 /* models/audio/mmproj-LFM2.5-Audio-1.5B-Q8_0.gguf in Resources */,
+				A0B1C2D3E4F5A6B7C8D9E117 /* models/audio/tokenizer-LFM2.5-Audio-1.5B-Q8_0.gguf in Resources */,
+				A0B1C2D3E4F5A6B7C8D9E118 /* models/audio/vocoder-LFM2.5-Audio-1.5B-Q8_0.gguf in Resources */,
+				A0B1C2D3E4F5A6B7C8D9E110 /* models/text/LFM2-1.2B-RAG-Q5_K_M.gguf in Resources */,
+				A0B1C2D3E4F5A6B7C8D9E111 /* models/text/LFM2-2.6B-Transcript-Q4_K_M.gguf in Resources */,
+				A0B1C2D3E4F5A6B7C8D9E112 /* models/text/Q4_K_M.json in Resources */,
+				A0B1C2D3E4F5A6B7C8D9E113 /* models/tts/kokoro-v1_0.safetensors in Resources */,
+				A0B1C2D3E4F5A6B7C8D9E114 /* models/tts/voices.npz in Resources */,
 				F3E4ACD12F136364004D18BD /* Assets.xcassets in Resources */,
 				F3E4AD162F138A10004D18BD /* Resources/docpack.json in Resources */,
 				D11B22C33D44E55F6677889A /* Resources/Legal/EULA.md in Resources */,
@@ -383,6 +437,8 @@
 				F3E4AD032F1374E8004D18BD /* AppState.swift in Sources */,
 				F3E4AD042F1374E8004D18BD /* AudioCaptureService.swift in Sources */,
 				8E2530B614773D8B35BDE7B9 /* AudioFileRecorder.swift in Sources */,
+				F4A1B2C32F200001004D18BD /* TTSService.swift in Sources */,
+				F4A1B2C52F200002004D18BE /* ModelTTSService.swift in Sources */,
 				F3E4AD052F1374E8004D18BD /* ASRService.swift in Sources */,
 				C0D6457B1EFC0EC72A9378CD /* LiveTranscriptionService.swift in Sources */,
 				87FA4EE1B0D23D9BDE43954E /* SummarizationService.swift in Sources */,
@@ -565,6 +621,7 @@
 				GENERATE_INFOPLIST_FILE = YES;
 				INFOPLIST_KEY_CFBundleDisplayName = "Meet Puppet";
 				INFOPLIST_KEY_NSMicrophoneUsageDescription = "Meeting Prompter needs microphone access to record your questions for transcription.";
+				INFOPLIST_KEY_NSSpeechRecognitionUsageDescription = "Meeting Prompter uses on-device speech recognition to transcribe recordings privately.";
 				INFOPLIST_KEY_UIApplicationSceneManifest_Generation = YES;
 				INFOPLIST_KEY_UIApplicationSupportsIndirectInputEvents = YES;
 				INFOPLIST_KEY_UILaunchScreen_Generation = YES;
@@ -599,6 +656,7 @@
 				GENERATE_INFOPLIST_FILE = YES;
 				INFOPLIST_KEY_CFBundleDisplayName = "Meet Puppet";
 				INFOPLIST_KEY_NSMicrophoneUsageDescription = "Meeting Prompter needs microphone access to record your questions for transcription.";
+				INFOPLIST_KEY_NSSpeechRecognitionUsageDescription = "Meeting Prompter uses on-device speech recognition to transcribe recordings privately.";
 				INFOPLIST_KEY_UIApplicationSceneManifest_Generation = YES;
 				INFOPLIST_KEY_UIApplicationSupportsIndirectInputEvents = YES;
 				INFOPLIST_KEY_UILaunchScreen_Generation = YES;
@@ -645,6 +703,10 @@
 /* End XCConfigurationList section */
 
 /* Begin XCLocalSwiftPackageReference section */
+		AAF100001122334455667720 /* XCLocalSwiftPackageReference "../../ios_models/kokoro-ios-main" */ = {
+			isa = XCLocalSwiftPackageReference;
+			relativePath = "../../ios_models/kokoro-ios-main";
+		};
 		F3CCB3492F25E64C00FF3738 /* XCLocalSwiftPackageReference "../../ios_models/leap-ios-main" */ = {
 			isa = XCLocalSwiftPackageReference;
 			relativePath = "../../ios_models/leap-ios-main";
@@ -652,6 +714,14 @@
 /* End XCLocalSwiftPackageReference section */
 
 /* Begin XCRemoteSwiftPackageReference section */
+		AAF100001122334455667721 /* XCRemoteSwiftPackageReference "MLXUtilsLibrary" */ = {
+			isa = XCRemoteSwiftPackageReference;
+			repositoryURL = "https://github.com/mlalma/MLXUtilsLibrary.git";
+			requirement = {
+				kind = upToNextMajorVersion;
+				minimumVersion = 0.0.6;
+			};
+		};
 		F3E4ACDF2F136C09004D18BD /* XCRemoteSwiftPackageReference "GRDB.swift" */ = {
 			isa = XCRemoteSwiftPackageReference;
 			repositoryURL = "https://github.com/groue/GRDB.swift.git";
@@ -663,6 +733,16 @@
 /* End XCRemoteSwiftPackageReference section */
 
 /* Begin XCSwiftPackageProductDependency section */
+		AAF100001122334455667730 /* KokoroSwift */ = {
+			isa = XCSwiftPackageProductDependency;
+			package = AAF100001122334455667720 /* XCLocalSwiftPackageReference "../../ios_models/kokoro-ios-main" */;
+			productName = KokoroSwift;
+		};
+		AAF100001122334455667731 /* MLXUtilsLibrary */ = {
+			isa = XCSwiftPackageProductDependency;
+			package = AAF100001122334455667721 /* XCRemoteSwiftPackageReference "MLXUtilsLibrary" */;
+			productName = MLXUtilsLibrary;
+		};
 		F3CCB34D2F25E6B000FF3738 /* LeapSDK */ = {
 			isa = XCSwiftPackageProductDependency;
 			package = F3CCB3492F25E64C00FF3738 /* XCLocalSwiftPackageReference "../../ios_models/leap-ios-main" */;

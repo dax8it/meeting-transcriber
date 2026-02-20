@@ -43,9 +43,9 @@ class MainViewModel: ObservableObject {
             var asrURL: URL?
             var ragURL: URL?
             
-            if let url = Bundle.main.url(forResource: "LFM2.5-Audio-1.5B-Q4_0", withExtension: "gguf", subdirectory: "models/audio") {
+            if let url = Bundle.main.url(forResource: "LFM2.5-Audio-1.5B-Q8_0", withExtension: "gguf", subdirectory: "models/audio") {
                 asrURL = url
-            } else if let url = Bundle.main.url(forResource: "LFM2.5-Audio-1.5B-Q4_0", withExtension: "gguf") {
+            } else if let url = Bundle.main.url(forResource: "LFM2.5-Audio-1.5B-Q8_0", withExtension: "gguf") {
                 print("[SimpleApp] ASR model found in bundle root fallback")
                 asrURL = url
             }

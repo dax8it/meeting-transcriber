@@ -48,5 +48,7 @@
 	</array>
 	<key>NSMicrophoneUsageDescription</key>
 	<string>Meeting Prompter needs microphone access to record your questions for transcription.</string>
+	<key>NSSpeechRecognitionUsageDescription</key>
+	<string>Meeting Prompter uses on-device speech recognition to transcribe recordings privately.</string>
 </dict>
 </plist>

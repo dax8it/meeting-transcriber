@@ -85,21 +85,9 @@ struct HomeView: View {
                     } label: {
                         HomeActionCard(
                             title: "Summaries",
-                            subtitle: "Review, share, or delete past sessions",
+                            subtitle: "Review, share, ask follow-up questions, or delete",
                             systemImage: "books.vertical",
                             tint: Color(red: 0.78, green: 0.50, blue: 0.20)
-                        )
-                        .frame(minHeight: 78)
-                    }
-
-                    NavigationLink {
-                        QandAEntryView()
-                    } label: {
-                        HomeActionCard(
-                            title: "Q&A",
-                            subtitle: "Ask questions with citations",
-                            systemImage: "sparkle.magnifyingglass",
-                            tint: Color(red: 0.70, green: 0.28, blue: 0.40)
                         )
                         .frame(minHeight: 78)
                     }

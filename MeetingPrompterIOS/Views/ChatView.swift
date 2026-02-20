@@ -2,6 +2,10 @@ import SwiftUI
 
 struct ChatView: View {
     @StateObject private var viewModel: ChatViewModel
+    @ObservedObject private var mainViewModel = MainViewModel.shared
+    @AppStorage("speakAnswersEnabled") private var speakAnswersEnabled: Bool = true
+    @State private var isHoldingPTT = false
+    @State private var pttAutoStopTask: Task<Void, Never>? = nil
 
     init(session: MeetingSession) {
         _viewModel = StateObject(wrappedValue: ChatViewModel(session: session))
@@ -13,7 +17,10 @@ struct ChatView: View {
                 ScrollView {
                     LazyVStack(alignment: .leading, spacing: 14) {
                         ForEach(viewModel.messages) { message in
-                            ChatBubble(message: message)
+                            ChatBubble(
+                                message: message,
+                                audioShareURL: viewModel.audioShareURL(for: message)
+                            )
                                 .id(message.id)
                         }
                     }
@@ -53,6 +60,16 @@ struct ChatView: View {
         .navigationBarTitleDisplayMode(.inline)
         .toolbarBackground(AppTheme.background, for: .navigationBar)
         .toolbarBackground(.visible, for: .navigationBar)
+        .onAppear {
+            viewModel.speakRepliesEnabled = speakAnswersEnabled
+        }
+        .onChange(of: speakAnswersEnabled) { _, newValue in
+            viewModel.speakRepliesEnabled = newValue
+        }
+        .onDisappear {
+            pttAutoStopTask?.cancel()
+            pttAutoStopTask = nil
+        }
     }
 
     private var inputBar: some View {
@@ -65,33 +82,7 @@ struct ChatView: View {
                     .disabled(viewModel.isBusy)
                     .onSubmit { viewModel.send() }
 
-                Button {
-                    if viewModel.voiceState.isRecording {
-                        viewModel.stopRecordingAndTranscribe()
-                    } else {
-                        viewModel.startRecording()
-                    }
-                } label: {
-                    Group {
-                        if viewModel.voiceState.isTranscribing {
-                            ProgressView()
-                        } else {
-                            Image(systemName: viewModel.voiceState.isRecording ? "stop.circle.fill" : "mic.fill")
-                                .font(.system(size: 18, weight: .semibold))
-                        }
-                    }
-                    .foregroundColor(AppTheme.ink)
-                    .frame(width: 40, height: 40)
-                    .background(AppTheme.surface)
-                    .clipShape(RoundedRectangle(cornerRadius: 14, style: .continuous))
-                    .overlay(
-                        RoundedRectangle(cornerRadius: 14, style: .continuous)
-                            .stroke(AppTheme.hairline, lineWidth: 1)
-                    )
-                }
-                .buttonStyle(.plain)
-                .disabled(viewModel.isBusy || viewModel.voiceState.isTranscribing)
-                .accessibilityLabel(viewModel.voiceState.isRecording ? "Stop recording" : "Start recording")
+                pttButton
 
                 Button {
                     viewModel.send()
@@ -115,9 +106,8 @@ struct ChatView: View {
 
                 Spacer(minLength: 0)
 
-                Toggle("Speak replies (coming soon)", isOn: $viewModel.speakRepliesEnabled)
+                Toggle("Speak answers", isOn: $speakAnswersEnabled)
                     .font(.caption)
-                    .disabled(true)
             }
         }
         .padding(.horizontal, 14)
@@ -132,28 +122,107 @@ struct ChatView: View {
     }
 
     private var voiceStatusText: String {
+        if mainViewModel.appState.isRecording {
+            return "Voice Q&A unavailable while recording"
+        }
+
         switch viewModel.voiceState {
         case .idle:
             return "Voice: Idle"
-        case .recording:
-            return "Voice: Recording"
+        case .listening:
+            return "Voice: Listening"
         case .transcribing:
             return "Voice: Transcribing"
+        case .thinking:
+            return "Voice: Thinking"
+        case .speaking:
+            return "Voice: Speaking"
         case .error(let message):
             return "Voice error: \(message)"
         }
     }
 
     private var voiceStatusColor: Color {
+        if mainViewModel.appState.isRecording {
+            return AppTheme.mutedInk
+        }
+
         switch viewModel.voiceState {
         case .idle:
             return AppTheme.mutedInk
-        case .recording:
+        case .listening:
             return AppTheme.ink
-        case .transcribing:
+        case .transcribing, .thinking, .speaking:
             return AppTheme.mutedInk
         case .error:
             return .red
         }
+    }
+
+    private var pttButton: some View {
+        let meetingRecordingActive = mainViewModel.appState.isRecording
+        let disabled = viewModel.isBusy
+            || viewModel.voiceState.isTranscribing
+            || viewModel.voiceState.isThinking
+            || viewModel.voiceState.isSpeaking
+            || meetingRecordingActive
+
+        return Button(action: {}) {
+            Group {
+                if viewModel.voiceState.isTranscribing {
+                    ProgressView()
+                } else {
+                    Image(systemName: viewModel.voiceState.isListening ? "waveform.circle.fill" : "mic.fill")
+                        .font(.system(size: 20, weight: .bold))
+                }
+            }
+            .foregroundColor(.white)
+            .frame(width: 52, height: 52)
+            .background(
+                viewModel.voiceState.isListening
+                    ? Color.red
+                    : AppTheme.accent
+            )
+            .clipShape(RoundedRectangle(cornerRadius: 14, style: .continuous))
+            .overlay(
+                RoundedRectangle(cornerRadius: 14, style: .continuous)
+                    .stroke((viewModel.voiceState.isListening ? Color.red : AppTheme.accent).opacity(0.4), lineWidth: 1.5)
+            )
+        }
+        .buttonStyle(.plain)
+        .disabled(disabled)
+        .accessibilityLabel("Push to talk")
+        .accessibilityHint("Press and hold to record a voice question")
+        .simultaneousGesture(
+            DragGesture(minimumDistance: 0)
+                .onChanged { _ in
+                    guard !isHoldingPTT else { return }
+                    isHoldingPTT = true
+                    startPTT()
+                }
+                .onEnded { _ in
+                    isHoldingPTT = false
+                    stopPTT()
+                }
+        )
+    }
+
+    private func startPTT() {
+        pttAutoStopTask?.cancel()
+        viewModel.startRecording(isMeetingRecording: mainViewModel.appState.isRecording)
+        pttAutoStopTask = Task {
+            try? await Task.sleep(nanoseconds: 20_000_000_000)
+            await MainActor.run {
+                if viewModel.voiceState.isListening {
+                    stopPTT()
+                }
+            }
+        }
+    }
+
+    private func stopPTT() {
+        pttAutoStopTask?.cancel()
+        pttAutoStopTask = nil
+        viewModel.stopRecordingAndTranscribe()
     }
 }

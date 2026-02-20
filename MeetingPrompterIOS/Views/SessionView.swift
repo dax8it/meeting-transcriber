@@ -57,9 +57,9 @@ struct SessionView: View {
                     ChatView(session: viewModel.session)
                 } label: {
                     HomeActionCard(
-                        title: "Chat about this meeting",
-                        subtitle: "Ask follow-ups with citations",
-                        systemImage: "bubble.left.and.bubble.right.fill",
+                        title: "Voice Q&A",
+                        subtitle: "Push-to-talk questions with spoken answers",
+                        systemImage: "mic.circle.fill",
                         tint: AppTheme.accent
                     )
                 }
