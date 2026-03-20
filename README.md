@@ -397,6 +397,39 @@ See also:
 
 ---
 
+## License and model assets
+
+### Code license
+The source code in this repository is licensed under the **MIT License**.
+See [`LICENSE`](LICENSE).
+
+### Third-party model/license note
+The app depends on third-party model assets and libraries that are **not** covered by the MIT license for this repo.
+In particular, Liquid AI / LFM model usage remains subject to the applicable upstream license terms.
+
+See also:
+- `MeetingPrompterIOS/Resources/Legal/THIRD_PARTY_NOTICES.md`
+- `MeetingPrompterIOS/Resources/Legal/EULA.md`
+
+### Where to get the required models
+This repo intentionally does **not** ship large model binaries in git.
+To run the app, you will need to obtain the required model assets separately and add them to the Xcode target / app bundle.
+
+Current in-code model IDs are defined in:
+- `MeetingPrompterIOS/Core/AI/ModelIDs.swift`
+
+Model families used by the app:
+- **Liquid AI / LFM models** for ASR, summarization, grounded Q&A, and audio reply generation
+
+Useful upstream links:
+- Liquid AI: <https://www.liquid.ai/>
+- Liquid Foundation Models on Hugging Face: <https://huggingface.co/LiquidAI>
+- Leap iOS SDK: <https://github.com/Liquid4All/leap-ios>
+
+Before bundling or redistributing any model assets, check the upstream terms for the exact model you are using.
+
+---
+
 ## Related docs
 
 - `QUICKSTART.md` — shortest path to getting it running
