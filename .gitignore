@@ -1,18 +1,25 @@
+# Xcode / SwiftPM / local build products
 .build/
+build/
 DerivedData/
-xcuserdata/
+.deriveddata/
 *.xcuserstate
 *.xcscmblueprint
+xcuserdata/
+*.xcodeproj/xcuserdata/
+*.xcworkspace/xcuserdata/
 meeting-transcriber.xcodeproj/project.xcworkspace/xcshareddata/
+
+# Local model artifacts
 **/*.gguf
 **/*.bin
 **/*.bundle
-build/
-build/
 
-*.xcodeproj/xcuserdata/
-*.xcworkspace/xcuserdata/
+# Local tooling / editor state
 .claude/
+.DS_Store
+
+# Internal/private notes kept outside the public repo
 findings.md
 progress.md
 task_plan.md

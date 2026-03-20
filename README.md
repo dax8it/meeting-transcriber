@@ -1,322 +1,417 @@
-# Meeting Prompter iOS
+# Puppet for iOS
+
+Local-first iPhone app for:
+- meeting transcription
+- smart summaries
+- grounded Q&A over saved meetings
+- push-to-talk voice Q&A
+
+This repo is a **working prototype / evolving MVP** for an on-device meeting assistant. It is not a polished App Store release.
+
+If you care about:
+- local-first AI product design
+- privacy-preserving UX
+- multi-model mobile inference
+- grounded Q&A over user-created artifacts
+- SwiftUI apps that do real model work on-device
+
+…this repo should be interesting.
+
+---
+
+## Current status
+
+**Working, but still under active iteration.**
+
+Current baseline includes:
+- live meeting transcription
+- saved session history
+- smart summaries
+- typed Q&A over a saved meeting
+- push-to-talk Voice Q&A
+- spoken answers
+- summary sharing
+- local session deletion
+
+Still in flux:
+- UX polish
+- audio performance
+- some model/runtime choices
+- tuning and latency work
+
+Important practical caveat:
+- **audio is currently lagging in parts of the experience**
+- the app works best on **newer iPhones**
+- current known test baseline: **tested on iPhone 14 Pro**
+- audio/runtime optimization is still unfinished and may be revisited later
+
+---
+
+## What the app does
+
+Puppet is built around **saved meeting sessions**.
+
+High-level flow:
+1. record a meeting
+2. generate a transcript
+3. persist a local session
+4. generate a summary
+5. reopen the session later
+6. ask typed or voice follow-up questions against the saved artifacts
+
+The core workflow is intended to stay on-device:
+- audio capture
+- transcription
+- summary generation
+- retrieval / grounding
+- spoken-answer generation
+
+Artifacts stay local unless the user explicitly exports/shares them.
+
+---
+
+## Screens
+
+### Home
+Launch point for the app:
+- start a new transcription
+- open saved summaries
+- reopen recent sessions
+- access settings
 
-> **Status (2026-02-19):** Current stable baseline is the in-repo on-device voice pipeline (ASR + RAG + summary + Leap model TTS + WAV share).
->
-> Source-of-truth for active model IDs and load options is code, not historical docs:
-> - `MeetingPrompterIOS/Core/AI/ModelIDs.swift`
-> - `MeetingPrompterIOS/Core/AI/LeapModelManager.swift`
->
-> Recommendation while stable: avoid broad architecture migrations; apply only minimal, scoped fixes for user-visible regressions.
+![Home screen](docs/screenshots/home.jpg)
+
+### Transcribe
+Live recording + transcript screen:
+- record meeting audio
+- show live transcript updates
+- pause / resume capture
+- stop to save session + trigger summary generation
 
-An iOS app that provides real-time meeting assistance with local AI processing. The app uses push-to-talk audio capture, live transcription, and hybrid RAG (Retrieval-Augmented Generation) to answer questions based on local documents - all completely offline.
+![Transcribe screen](docs/screenshots/transcribe.jpg)
 
-## Features
+### Summaries
+Saved session library:
+- browse sessions
+- reopen a meeting
+- delete a meeting from local storage
+
+![Summaries list](docs/screenshots/summaries-list.jpg)
 
-- **Push-to-Talk Recording**: Hold the microphone button to speak your question
-- **Live Transcription**: Real-time transcription during recording with rate limiting
-- **Local Document Search**: BM25 ranking over SQLite FTS5 index
-- **RAG Answers**: Retrieves relevant documents, extracts evidence, and generates answers using LFM2-1.2B-RAG
-- **100% Offline**: All processing happens on-device, works in Airplane Mode
-- **Privacy-First**: No data sent to external servers
+### Session / Smart Summary
+Main session review screen:
+- read the generated summary
+- share summary text
+- ask typed follow-up questions
+- jump into voice Q&A
 
-## Requirements
+![Session summary](docs/screenshots/session-summary.jpg)
 
-- iOS 15.0+
-- Xcode 15.0+
-- Physical iOS device (simulator may have performance limitations)
+### Voice Q&A / Chat
+Meeting-specific chat view:
+- type a question
+- or hold to record a voice question
+- retrieve meeting evidence
+- return a grounded answer
+- optionally speak the answer back
 
-## Installation
+Current state of Voice Q&A:
+- voice input works: you can press, ask a question, and get an answer back
+- the **text answer path is currently more responsive than the spoken-answer path**
+- spoken voice response is **not fully optimized yet** and can lag behind the text response
+- in practice, Voice Q&A is usable now, but the audio reply experience still needs performance work
 
-### 1. Add Swift Package Dependencies
+#### Voice Q&A pipeline
+Current voice flow is:
+1. push-to-talk audio capture
+2. ASR with `LFM2.5-Audio-1.5B-Q8_0`
+3. retrieval from the saved meeting session (transcript + summary chunks)
+4. grounded answer generation with `LFM2-1.2B-RAG-Q5_K_M`
+5. optional spoken reply using `LFM2.5-Audio-1.5B-Q8_0`
 
-Open your Xcode project and add the required packages:
+Short version:
+- **voice in:** `LFM2.5-Audio-1.5B-Q8_0`
+- **answer generation:** `LFM2-1.2B-RAG-Q5_K_M`
+- **voice out:** `LFM2.5-Audio-1.5B-Q8_0`
 
-**Leap SDK (LEAP Edge SDK)**:
-```
-File -> Add Package Dependencies
-URL: https://github.com/Liquid4All/leap-ios.git
-Version: 0.7.0 or newer
-Add "LeapSDK" product to your app target
-```
-
-**GRDB (SQLite wrapper)**:
-```
-File -> Add Package Dependencies
-URL: https://github.com/groue/GRDB.swift.git
-Version: 7.0 or newer
-Add "GRDB" product to your app target
-```
-
-### 2. Add Model Files
-
-Download the required Liquid AI models and add them to your app bundle:
-
-1. Download these model files in .gguf format:
-   - `LFM2-Audio-1.5B.gguf` - for speech recognition (ASR)
-   - `LFM2-1.2B-RAG.gguf` - for answer generation
-
-2. In Xcode, drag the `.gguf` files into your project
-3. In the "Choose options for adding these files" dialog:
-   - ✅ Copy items if needed
-   - ✅ Create groups
-   - ✅ Add to targets: [Your App Target]
-
-4. Verify the .gguf files appear in Xcode's file navigator under your project
-
-### 3. Add Document Pack
-
-The app includes a bundled `docpack.json` file with sample documents. To add your own:
-
-1. Create a JSON file named `docpack.json` with this structure:
-
-```json
-{
-  "version": "1.0.0",
-  "chunks": [
-    {
-      "id": "unique-id-1",
-      "title": "Document Title",
-      "sectionPath": "Section > Subsection",
-      "text": "The content of your document chunk...",
-      "metadata": {
-        "category": "guide",
-        "updated": "2026-01-10"
-      }
-    }
-  ]
-}
-```
-
-2. Add `docpack.json` to your app bundle (same as model bundles)
-
-### 4. Configure Build Settings
-
-Ensure these build settings are configured:
-
-- **Minimum Deployment Target**: iOS 15.0
-- **Swift Language Version**: Swift 5.9+
-- **Other Linker Flags**: Add `-ObjC` (if experiencing issues with SDK)
-
-### 5. Request Permissions
-
-Add these to your `Info.plist`:
-
-```xml
-<key>NSMicrophoneUsageDescription</key>
-<string>Meeting Prompter needs microphone access to record your questions for transcription.</string>
-```
-
-## Running on Device
-
-### Physical Device (Recommended)
-
-1. Connect your iOS device via USB
-2. Select your device from the scheme selector
-3. Click Product → Run (⌘+R)
-4. Grant microphone permissions when prompted
-
-### Simulator
-
-The app can run on simulator, but:
-- Model inference may be slow
-- Microphone simulation is limited
-- Physical device testing is recommended
-
-## Project Structure
-
-```
-MeetingPrompteriOS/
-├── MeetingPrompteriOSApp.swift      # App entry point
-├── ContentView.swift                 # Main UI
-├── Core/
-│   ├── AppState.swift                # App state management
-│   ├── Audio/
-│   │   ├── AudioCaptureService.swift # AVAudioEngine capture
-│   │   ├── VADGate.swift             # Voice activity detection
-│   │   └── PushToTalkController.swift # PTT logic
-│   ├── AI/
-│   │   ├── LeapModelManager.swift    # Model loading/lifecycle
-│   │   ├── ASRService.swift          # Speech recognition
-│   │   └── RAGService.swift          # RAG orchestration
-│   └── Utils/
-│       ├── TaskQueue.swift           # Task management
-│       └── Logger.swift              # Logging utility
-├── Retrieval/
-│   ├── DocumentChunk.swift           # Data model
-│   ├── DocPackLoader.swift           # Load bundled docs
-│   └── SearchIndex.swift             # SQLite FTS5 + BM25
-├── Grounding/
-│   └── SentenceSelector.swift        # Evidence extraction
-├── Views/
-│   ├── TranscriptView.swift          # Live transcript UI
-│   ├── AnswerView.swift              # Answer display
-│   └── SourcesView.swift             # Source citations
-└── Resources/
-    └── docpack.json                  # Bundled documents
-```
-
-## Performance Tips
-
-1. **Close other apps** when running Meeting Prompter for better performance
-2. **Use newer devices** for faster inference (iPhone 13+ recommended)
-3. **First launch** will be slower as it indexes documents
-4. **Reduce doc pack size** if experiencing slow search
-5. **Monitor battery** - AI inference is computationally intensive
-
-## Testing
-
-### Manual Test Checklist
-
-#### Initial Setup
-- [ ] App launches successfully
-- [ ] Models load without errors
-- [ ] Document pack indexes successfully
-- [ ] Status shows "Ready" after initialization
-
-#### Push-to-Talk Recording
-- [ ] Microphone button changes color when pressed
-- [ ] Recording starts immediately on press
-- [ ] Recording stops when released
-- [ ] Audio permissions are requested properly
-
-#### Live Transcription
-- [ ] Transcript area shows "(live)" indicator while recording
-- [ ] Partial transcript updates every ~1.5 seconds
-- [ ] Transcript is cleared after stop (non-question)
-- [ ] Transcript persists after stop (question)
-
-#### Question Detection
-- [ ] Questions with "what/when/where/who/why/how" trigger RAG
-- [ ] Questions with question marks trigger RAG
-- [ ] Statements without question words don't trigger RAG
-- [ ] Non-question transcripts stop without showing answer
-
-#### Document Retrieval
-- [ ] Search returns relevant document chunks
-- [ ] Sources display with titles and section paths
-- [ ] Search is deterministic (same query = same results)
-
-#### RAG Answers
-- [ ] Answer appears after question recording
-- [ ] Sources are listed below answer
-- [ ] Answer references document content
-- [ ] Status indicator shows "Answering…" during generation
-
-#### Offline Operation
-- [ ] App works in Airplane Mode
-- [ ] No network errors appear
-- [ ] All features function offline
-
-### Unit Tests
-
-Run the test suite:
-```
-⌘+U (Product → Test)
-```
-
-Test coverage:
-- `QuestionDetectorTests`: Question keyword and punctuation detection
-- `SentenceSelectorTests`: Evidence extraction and scoring
-- `RetrievalTests`: Search index functionality and determinism
-
-## Troubleshooting
-
-### Models Not Found
-
-**Error**: "ASR model .gguf file not found in app bundle" or "RAG model .gguf file not found in app bundle"
-
-**Solution**:
-1. Verify `.gguf` files are in your app target
-2. Check filenames match exactly: `LFM2-Audio-1.5B.gguf`, `LFM2-1.2B-RAG.gguf`
-3. Clean build folder (⌘+Shift+K) and rebuild
-
-### Microphone Permission Denied
-
-**Error**: App doesn't record audio
-
-**Solution**:
-1. Check `Info.plist` has `NSMicrophoneUsageDescription`
-2. In Settings → Privacy → Microphone, enable Meeting Prompter
-3. Delete and reinstall app if needed
-
-### Slow Performance
-
-**Symptoms**: Long transcription/answer times
-
-**Solutions**:
-1. Close other apps
-2. Reduce document pack size
-3. Test on newer device
-4. Check available device storage
-
-### Build Errors
-
-**Error**: "No such module 'LeapSDK'"
-
-**Solution**:
-1. Verify Leap SDK package is added via SPM
-2. Check "LeapSDK" is added to your app target
-3. Clean build folder and rebuild
-
-**Error**: "No such module 'GRDB'"
-
-**Solution**:
-1. Verify GRDB package is added via SPM
-2. Check "GRDB" is added to your app target
-3. Clean build folder and rebuild
-
-### Runtime Crashes
-
-**Symptoms**: App crashes during recording or processing
-
-**Solutions**:
-1. Check console logs in Xcode
-2. Verify sufficient device memory
-3. Test on physical device (not simulator)
-4. Check model .gguf file integrity
-
-## Architecture Overview
-
-### Audio Pipeline
-1. `AudioCaptureService` captures PCM audio at 16kHz
-2. `VADGate` filters silence using RMS threshold
-3. `PushToTalkController` manages recording state
-
-### ASR Pipeline
-1. Rolling buffer stores last 12 seconds of audio
-2. Partial transcription runs every 1.5s (rate limited)
-3. Final transcription runs on stop
-4. Uses LFM2-Audio-1.5B model
-
-### RAG Pipeline
-1. **Question Detection**: Keywords + punctuation analysis
-2. **Retrieval**: BM25 search over SQLite FTS5 (top 3 chunks)
-3. **Grounding**: Sentence selector extracts best 8 sentences
-4. **Generation**: LFM2-1.2B-RAG generates answer from evidence
-5. **Sources**: Display chunk titles and section paths
-
-### Data Flow
-```
-User Input (PTT) → Audio Capture → ASR → Transcript → Question Detection
-                                                      ↓
-                                              RAG Pipeline
-                                                      ↓
-                                          Answer + Sources
+![Voice Q&A chat](docs/screenshots/voice-qa-chat.jpg)
+
+---
+
+## Technical architecture
+
+The app is intentionally **multi-model**.
+It does not try to force one model to do everything.
+
+Different tasks have different constraints:
+- audio transcription
+- text summarization
+- grounded answer generation
+- spoken answer synthesis
+
+Separating those concerns makes the app easier to reason about and improves runtime control on-device.
+
+### Model roles
+
+#### ASR / speech recognition
+- `LFM2.5-Audio-1.5B-Q8_0`
+
+Used for:
+- live meeting transcription
+- voice question transcription
+
+#### Summarization
+Primary:
+- `LFM2-2.6B-Transcript-Q_4_k_m`
+
+Fallback:
+- `LFM2-2.6B-Transcript-Q4_K_M`
+
+Used for:
+- meeting summary generation
+
+#### Grounded Q&A / RAG
+- `LFM2-1.2B-RAG-Q5_K_M`
+
+Used for:
+- typed Q&A
+- answer generation in Voice Q&A
+
+#### Spoken answers / TTS
+Primary model path:
+- `LFM2.5-Audio-1.5B-Q8_0`
+
+Fallback path:
+- Apple speech synthesis
+
+Used for:
+- spoken reply playback
+
+### Why the split matters
+
+This split helps with:
+- task-specific quality
+- clearer orchestration
+- memory pressure management
+- isolating audio vs text model behavior
+- making future experiments more targeted
+
+---
+
+## Runtime design notes
+
+A few implementation choices matter a lot in this repo:
+
+### 1) Meeting sessions are first-class
+The app is not just a transient recorder.
+A meeting becomes a persisted session with reusable artifacts.
+
+That enables:
+- summary review later
+- follow-up Q&A later
+- local retrieval over transcript + summary
+- session-scoped storage and cleanup
+
+### 2) Retrieval is session-scoped
+Q&A is grounded against saved meeting artifacts, not a generic global knowledge base.
+
+That keeps the product behavior closer to:
+- “answer from this meeting”
+not
+- “hallucinate from whatever the model thinks.”
+
+### 3) Models are actively managed
+The runtime unloads/swaps models to keep device memory sane.
+
+This matters because on-device inference on phones is constrained enough that:
+- model isolation matters
+- staging/resource resolution matters
+- audio and text paths should not accidentally bleed into each other
+
+### 4) Bundle/resource resolution needs care
+iOS/Xcode resource handling can be messy, especially for local model assets.
+
+The code is written to tolerate bundle path variation and resource flattening, rather than assuming one perfect folder layout at runtime.
+
+---
+
+## Main flows
+
+### Record → Save → Summarize
+1. Start a transcription.
+2. Capture audio locally.
+3. Show live transcript updates.
+4. Stop recording.
+5. Persist a new meeting session.
+6. Write placeholder summary artifacts.
+7. Generate summary.
+8. Re-index the meeting for later Q&A.
+
+### Reopen → Ask
+1. Open a saved session.
+2. Load summary/transcript artifacts.
+3. Retrieve relevant meeting evidence.
+4. Generate a grounded answer.
+5. Optionally speak the answer.
+
+### Voice Q&A
+1. Enter the Chat screen for a specific session.
+2. Hold to record a question.
+3. Transcribe voice input locally.
+4. Retrieve meeting evidence.
+5. Generate answer.
+6. Speak it back if enabled.
+
+---
+
+## Repo layout
+
+```text
+meeting-transcriber/
+├── MeetingPrompterIOS/
+│   ├── App/
+│   │   └── ViewModels/
+│   ├── Core/
+│   │   ├── AI/
+│   │   ├── Audio/
+│   │   └── Storage/
+│   ├── Retrieval/
+│   ├── Views/
+│   └── Resources/
+├── docs/
+│   ├── screenshots/
+│   └── app-spec-current.md
+├── README.md
+├── QUICKSTART.md
+├── SETUP.md
+└── MVP.md
 ```
 
-## License
+---
 
-This project is proprietary. All rights reserved.
+## Where to look in code
 
-## Support
+If you are trying to understand or extend the app, these are the best entry points.
 
-For issues or questions:
-1. Check this README's troubleshooting section
-2. Review console logs in Xcode
-3. Verify model bundles and doc pack are properly configured
+### UI / screen flow
+- `MeetingPrompterIOS/Views/HomeView.swift`
+- `MeetingPrompterIOS/Views/RecordView.swift`
+- `MeetingPrompterIOS/Views/SessionsListView.swift`
+- `MeetingPrompterIOS/Views/SessionView.swift`
+- `MeetingPrompterIOS/Views/ChatView.swift`
+- `MeetingPrompterIOS/Views/Settings/SettingsView.swift`
 
-## Acknowledgments
+### View models / app behavior
+- `MeetingPrompterIOS/App/ViewModels/MainViewModel.swift`
+- `MeetingPrompterIOS/App/ViewModels/SessionViewModel.swift`
+- `MeetingPrompterIOS/App/ViewModels/ChatViewModel.swift`
 
-- LEAP Edge SDK by Liquid AI
-- GRDB for SQLite integration
-- NaturalLanguage framework for sentence tokenization
+### Model loading / orchestration
+- `MeetingPrompterIOS/Core/AI/ModelIDs.swift`
+- `MeetingPrompterIOS/Core/AI/LeapModelManager.swift`
+- `MeetingPrompterIOS/Core/AI/ASRService.swift`
+- `MeetingPrompterIOS/Core/AI/SummarizationService.swift`
+- `MeetingPrompterIOS/Core/AI/RAGService.swift`
+- `MeetingPrompterIOS/Core/Audio/ModelTTSService.swift`
+
+### Storage / retrieval
+- `MeetingPrompterIOS/Core/Storage/FileStore.swift`
+- `MeetingPrompterIOS/Core/Storage/MeetingSession.swift`
+- `MeetingPrompterIOS/Retrieval/SearchIndex.swift`
+
+### Supporting logic
+- `MeetingPrompterIOS/Core/RAG/QuestionDetector.swift`
+- `MeetingPrompterIOS/Views/Markdown/MarkdownRenderer.swift`
+
+---
+
+## Contributor notes
+
+### If you update docs
+Prefer this order:
+1. inspect current code
+2. inspect current model IDs
+3. inspect current screen flow
+4. then update docs
+
+Do not trust older notes over runtime behavior.
+
+### If you touch model config
+Check these first:
+- `ModelIDs.swift`
+- `LeapModelManager.swift`
+
+Be careful about:
+- asset names
+- bundle/resource paths
+- audio companion files
+- assumptions carried over from older experiments
+
+### If you work on Voice Q&A
+Pay attention to:
+- capture path isolation
+- ASR latency
+- model load/unload behavior
+- interaction with ongoing meeting recording state
+- speech fallback behavior
+
+### If you work on performance
+Most promising areas are probably:
+- audio latency
+- model warmup/loading behavior
+- staged resource handling
+- reducing avoidable model churn
+- device-specific tuning on newer vs older iPhones
+
+---
+
+## Privacy / local-first behavior
+
+The project is built around keeping meeting artifacts on-device.
+
+Artifacts can include:
+- recorded audio
+- transcript text
+- summary text / Markdown
+- local retrieval/index data
+- generated answer-audio artifacts
+
+Normal use does **not** require cloud inference.
+
+Data only leaves the device when the user explicitly exports/shares something.
+
+See also:
+- `MeetingPrompterIOS/Resources/Legal/PRIVACY.md`
+- `MeetingPrompterIOS/Resources/Legal/EULA.md`
+- `MeetingPrompterIOS/Resources/Legal/THIRD_PARTY_NOTICES.md`
+
+---
+
+## Tech stack
+
+- **SwiftUI**
+- **LeapSDK**
+- **AVFoundation**
+- **SQLite / GRDB / FTS**
+- Markdown rendering for summaries
+
+---
+
+## Related docs
+
+- `QUICKSTART.md` — shortest path to getting it running
+- `SETUP.md` — setup details
+- `MVP.md` — current baseline summary
+- `docs/app-spec-current.md` — readable behavior/spec snapshot
+
+---
+
+## Source of truth
+
+When docs, notes, or old history disagree, trust the current code first:
+- `MeetingPrompterIOS/Core/AI/ModelIDs.swift`
+- `MeetingPrompterIOS/Core/AI/LeapModelManager.swift`
+- `MeetingPrompterIOS/App/ViewModels/`
+- `MeetingPrompterIOS/Views/`
+
+Then update the docs.

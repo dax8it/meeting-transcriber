@@ -1,24 +1,43 @@
-# Audio / TTS Notes (Current Locked Baseline)
+# Audio / TTS Notes
 
-## Working baseline (2026-02-19)
-- Voice Q&A pipeline is working end-to-end on device for multi-turn responses.
-- `ModelTTSService` uses Leap audio generation with conservative chunking + buffered playback.
-- Assistant reply WAV export and user share flow are working in observed runs.
+This note captures the current public-facing baseline for the audio reply path.
 
-## Warning triage from latest device tails
-- `NSOSStatusErrorDomain Code=-50` during primary playback session setup:
-  - Currently recoverable in-app (conservative session fallback succeeds).
-  - Treat as monitor-only unless playback starts failing.
-- Share/LaunchServices warnings (`-10814`, `NSCocoaErrorDomain 256`, `canmaplsdatabase`):
-  - Observed alongside successful sharing.
-  - Treat as platform/service noise unless user-visible share failure returns.
-- `RBSServiceErrorDomain client not entitled`, `IOSurface creation failed`, `CFMessagePort/PPT`:
-  - Not currently correlated with transcription/TTS pipeline failures.
+It is intentionally short and focused on what contributors should know right now.
 
-## Lock-down guidance
-- Do not refactor TTS/share architecture while current path remains stable.
-- Only allow minimal, scoped edits for clear user-visible regressions:
-  - no audio playback,
-  - share action fails for users,
-  - crash/deadlock,
-  - repeated fallback loops.
+## Current baseline
+
+At the current baseline:
+- Voice Q&A works end-to-end on device
+- `ModelTTSService` handles spoken replies
+- reply audio can be exported/shared when the path succeeds
+
+## Current caveats
+
+Contributors should assume the following until improved by measurement:
+- audio reply performance is still not fully optimized
+- spoken replies can lag behind the text answer path
+- newer iPhones provide a better experience than older devices
+- known test baseline includes **iPhone 14 Pro**
+
+## Guidance
+
+For now:
+- avoid broad audio/TTS rewrites unless there is a clear user-visible failure
+- prefer minimal, scoped fixes
+- treat latency and reliability work as bounded experiments, not open-ended churn
+
+## What counts as a meaningful regression
+
+Prioritize investigation if any of these become user-visible:
+- no spoken audio playback
+- broken share/export flow for generated reply audio
+- repeated fallback/failure loops
+- crashes or deadlocks in the voice reply path
+
+## Source of truth
+
+For actual current implementation details, check:
+- `MeetingPrompterIOS/Core/Audio/ModelTTSService.swift`
+- `MeetingPrompterIOS/App/ViewModels/ChatViewModel.swift`
+- `MeetingPrompterIOS/Core/AI/ASRService.swift`
+- `MeetingPrompterIOS/Core/AI/RAGService.swift`

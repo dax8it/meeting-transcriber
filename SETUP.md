@@ -1,225 +1,166 @@
-# Meeting Prompter iOS - Setup Guide
+# Puppet iOS — Setup Guide
 
-This guide walks you through completing the Xcode project setup to get the Meeting Prompter iOS app building and running.
+This setup guide reflects the **current working local app baseline**.
+
+If you are checking model filenames or runtime loading behavior, confirm against:
+- `MeetingPrompterIOS/Core/AI/ModelIDs.swift`
+- `MeetingPrompterIOS/Core/AI/LeapModelManager.swift`
 
 ## Prerequisites
 
-- Xcode 15.0 or newer
-- iOS 15.0+ deployment target
-- Physical iOS device (recommended) or iOS Simulator
+- Xcode 15+
+- iOS 15+
+- physical iPhone recommended
+- local model assets available for bundling
 
-## Step-by-Step Setup Instructions
+## 1) Open the project
 
-### Step 1: Open the Project in Xcode
+Open:
+- `meeting-transcriber.xcodeproj`
 
-1. Navigate to your project directory
-2. Open `MeetingPrompteriOS.xcodeproj`
+## 2) Add Swift package dependencies
 
-### Step 2: Add Swift Package Dependencies
+The app depends on:
+- **LeapSDK**
+- **GRDB**
 
-You need to add two Swift Package dependencies: **LeapSDK** and **GRDB**.
+Add them in Xcode using **File → Add Package Dependencies...**
 
-#### Add LEAP Edge SDK
+## 3) Add model assets to the app target
 
-1. In Xcode: **File → Add Package Dependencies...**
-2. Enter this URL: `https://github.com/Liquid4All/leap-ios.git`
-3. Click "Search" or press Enter
-4. Select version `0.7.0` or newer
-5. Click "Add Package"
-6. In the "Add Package" dialog, select `LeapSDK` product
-7. Ensure `MeetingPrompteriOS` target is checked
-8. Click "Add Package"
+The app uses **multiple local models**, not one model for everything.
 
-#### Add GRDB (SQLite)
+### Audio / ASR / model TTS
+Current audio model ID:
+- `LFM2.5-Audio-1.5B-Q8_0`
 
-1. In Xcode: **File → Add Package Dependencies...**
-2. Enter this URL: `https://github.com/groue/GRDB.swift.git`
-3. Click "Search" or press Enter
-4. Select version `7.0.0` or newer
-5. Click "Add Package"
-6. In the "Add Package" dialog, select `GRDB` product
-7. Ensure `MeetingPrompteriOS` target is checked
-8. Click "Add Package"
+Expected usage:
+- live transcription
+- voice question transcription
+- spoken answer generation
 
-### Step 3: Add Microphone Permission to Info.plist
+Important:
+- the audio model may require companion files next to it in the bundle
+- companion files can include:
+  - tokenizer
+  - mmproj
+  - decoder / vocoder artifact
 
-1. Select your project in the Project Navigator
-2. Select the `MeetingPrompteriOS` target
-3. Go to the **Info** tab
-4. Add a new key:
-   - Key: `NSMicrophoneUsageDescription`
-   - Value: `Meeting Prompter needs microphone access to record your questions for transcription.`
+### Summarization
+Primary model ID:
+- `LFM2-2.6B-Transcript-Q_4_k_m`
 
-Or, if you have the `Info.plist` file:
-1. Right-click on `Info.plist` → Open As → Source Code
-2. Add this inside the `<dict>` tag:
-```xml
-<key>NSMicrophoneUsageDescription</key>
-<string>Meeting Prompter needs microphone access to record your questions for transcription.</string>
-```
+Fallback:
+- `LFM2-2.6B-Transcript-Q4_K_M`
 
-### Step 4: Add Model Files to Project
+### Grounded Q&A
+Model ID:
+- `LFM2-1.2B-RAG-Q5_K_M`
 
-You need to add the Liquid AI model .gguf files to your project.
+## 4) Target membership and bundle verification
 
-#### Model Files Required
+For every required model file:
+1. verify the file is present in the Xcode project
+2. verify the app target is checked under **Target Membership**
+3. verify the file appears in **Build Phases → Copy Bundle Resources**
 
-1. Ensure you have these model files in `.gguf` format:
-   - `LFM2-Audio-1.5B.gguf` (ASR model for speech recognition)
-   - `LFM2-1.2B-RAG.gguf` (RAG generation model for answering)
+This matters especially for:
+- audio model
+- tokenizer
+- mmproj
+- decoder/vocoder
+- transcript model
+- RAG model
 
-   *Note: .gguf files are quantized model files that work with LEAP SDK.*
+## 5) Resource path behavior on iOS
 
-#### Add Model Files to Project
+The app is built to tolerate iOS/Xcode resource flattening.
 
-1. In Xcode, select your project in the Project Navigator
-2. Create a folder: Right-click on `MeetingPrompteriOS` → New Group → Name it `Models`
-3. Drag both `.gguf` files into the `Models` folder in Xcode
-4. In the "Choose options for adding these files" dialog:
-   - ✅ **Copy items if needed** (if files are outside project)
-   - ✅ **Create groups**
-   - ✅ **Add to targets**: [MeetingPrompteriOS]
-5. Click "Finish"
+That means model lookup may succeed from either:
+- an expected subdirectory like `models/audio` or `models/text`
+- the bundle root fallback if Xcode flattened resources
 
-6. Verify .gguf files appear in your project navigator under `Models/`
+Do not hardcode assumptions from older docs without checking current code.
 
-7. Ensure files are added to target:
-   - Select `MeetingPrompteriOS` target
-   - Go to **Build Phases** tab
-   - Find **Copy Bundle Resources**
-   - Verify `LFM2-Audio-1.5B.gguf` and `LFM2-1.2B-RAG.gguf` are listed
+## 6) Microphone permission
 
-### Step 5: Verify Doc Pack is in Bundle
+Confirm the target includes a microphone usage description.
 
-1. Ensure `docpack.json` is in your project (should be in `MeetingPrompteriOS/Resources/`)
-2. Select `docpack.json` in Project Navigator
-3. In the **File Inspector** (right panel), ensure:
-   - Target Membership: `MeetingPrompteriOS` is checked
+Typical purpose string:
+- the app needs microphone access to record meetings and voice questions
 
-### Step 6: Verify Build Settings
+## 7) Build and run
 
-1. Select your project → `MeetingPrompteriOS` target
-2. Go to **Build Settings** tab
-3. Verify these settings:
-   - **iOS Deployment Target**: `iOS 15.0` or higher
-   - **Swift Language Version**: `Swift 5.9` or higher
+Recommended:
+1. select a physical iPhone
+2. clean build folder if needed
+3. run the app
+4. grant microphone permission
 
-### Step 7: Build and Run
+## 8) First-run validation
 
-1. Select a physical iOS device from the scheme selector (recommended)
-2. Click **Product → Run** (⌘+R)
-3. The app should build and launch on your device
-4. Grant microphone permission when prompted
+### Home
+- app launches cleanly
+- Home screen appears
+- recent sessions load or show empty state
 
-### Step 8: First Launch
+### Recording
+- New Transcription opens
+- mic starts recording
+- transcript updates while speaking
+- pause/resume works
+- stop finalizes the session
 
-On first launch:
-1. App will initialize and load models (may take 10-30 seconds)
-2. Document pack will be indexed
-3. Status should show "Ready"
-4. Test push-to-talk by holding the microphone button
+### Summary generation
+- new session appears in Summaries
+- summary placeholder is replaced by a real summary
+- Session page renders Markdown summary
 
-## Troubleshooting
+### Typed Q&A
+- typed follow-up question returns an answer
+- answer is grounded in meeting material
 
-### Build Errors
+### Voice Q&A
+- push-to-talk captures a short voice question
+- voice status changes through listening/transcribing/thinking/speaking
+- spoken-answer toggle works
 
-**Error: "No such module 'LeapSDK'"**
-- Solution: Make sure Leap SDK package is added (Step 2.1)
-- Clean build folder: **Product → Clean Build Folder** (⌘+Shift+K)
-- Build again
+## 9) Troubleshooting notes
 
-**Error: "No such module 'GRDB'"**
-- Solution: Make sure GRDB package is added (Step 2.2)
-- Clean build folder and rebuild
+### Models not found
+Common cause:
+- missing target membership or missing copy-bundle step
 
-**Error: "ASR model .gguf file not found in app bundle"**
-- Solution: Verify model .gguf files are added to project target (Step 4)
-- Check filenames match exactly: `LFM2-Audio-1.5B.gguf`, `LFM2-1.2B-RAG.gguf`
-- Ensure they're in **Copy Bundle Resources** in Build Phases
+Check:
+- current IDs in `ModelIDs.swift`
+- resource resolution behavior in `LeapModelManager.swift`
 
-**Error: "Microphone permission denied"**
-- Solution: Check `NSMicrophoneUsageDescription` in Info.plist (Step 3)
-- In device Settings: Privacy → Microphone → Enable Meeting Prompter
+### Audio model errors
+Common causes:
+- missing tokenizer
+- missing mmproj
+- missing decoder/vocoder for TTS path
+- incompatible companion file names
 
-### Runtime Issues
+### RAG loads incorrectly
+Common cause:
+- stale or mismatched model bundle contents
 
-**App crashes on launch**
-- Check console logs in Xcode
-- Verify model bundles are valid and complete
-- Test on physical device (simulator may have issues)
+Check:
+- current primary/fallback RAG IDs
+- text-model staging logic in `LeapModelManager.swift`
 
-**Slow performance**
-- Close other apps
-- Use newer device (iPhone 13+ recommended)
-- Reduce document pack size if needed
+### Summary generation fails
+Common cause:
+- transcript model missing or mismatched
 
-**No transcription appears**
-- Verify microphone permission
-- Check device audio input
-- Review console logs for errors
+Check:
+- current transcript model IDs
+- transcript-model load path in `LeapModelManager.swift`
 
-## Project Structure
+## 10) Documentation reminder
 
-```
-MeetingPrompteriOS/
-├── MeetingPrompteriOSApp.swift      # App entry point
-├── ContentView.swift                 # Main UI
-├── Info.plist                      # Permissions and config
-├── Models/                        # Model .gguf files
-│   ├── LFM2-Audio-1.5B.gguf
-│   └── LFM2-1.2B-RAG.gguf
-├── Resources/
-│   └── docpack.json               # Sample documents
-├── App/
-│   └── ViewModels/
-│       └── MainViewModel.swift     # State management
-├── Core/
-│   ├── Audio/
-│   │   ├── AudioCaptureService.swift
-│   │   ├── VADGate.swift
-│   │   └── PushToTalkController.swift
-│   ├── AI/
-│   │   ├── LeapModelManager.swift
-│   │   ├── ASRService.swift
-│   │   ├── RAGService.swift
-│   │   └── ModelIDs.swift
-│   ├── Retrieval/
-│   │   ├── DocumentChunk.swift
-│   │   ├── DocPackLoader.swift
-│   │   └── SearchIndex.swift
-│   ├── RAG/
-│   │   └── QuestionDetector.swift
-│   ├── Grounding/
-│   │   └── SentenceSelector.swift
-│   └── Utils/
-│       ├── TaskQueue.swift
-│       └── Logger.swift
-└── Views/
-    ├── TranscriptView.swift
-    ├── AnswerView.swift
-    └── SourcesView.swift
-```
-
-## Next Steps
-
-After setup is complete:
-
-1. **Test the app**: Use push-to-talk to ask questions about the bundled documents
-2. **Customize documents**: Replace `docpack.json` with your own documents
-3. **Run unit tests**: Press ⌘+U to run the test suite
-4. **Iterate**: Adjust parameters based on your use case
-
-See **README.md** for:
-- Feature descriptions
-- Manual test checklist
-- Performance tips
-- Additional troubleshooting
-
-## Support
-
-For issues:
-1. Check this setup guide's troubleshooting section
-2. Review console logs in Xcode
-3. Verify all steps above were completed correctly
-
-Happy meeting prompting!
+This project is still evolving. When updating setup docs:
+- prefer current model IDs over old examples
+- explicitly mention fallbacks
+- note that the app is a working prototype / work in progress

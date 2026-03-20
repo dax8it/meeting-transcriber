@@ -1,83 +1,80 @@
-# Quick Start Reference
+# Puppet iOS — Quick Start
 
-## Immediate Next Steps (Must Do in Xcode)
+This is the short setup path for the **current working app**.
 
-1. **Add Swift Package Dependencies**
-   - File → Add Package Dependencies
-   - Leap SDK: `https://github.com/Liquid4All/leap-ios.git` (v0.7.0+)
-   - GRDB: `https://github.com/groue/GRDB.swift.git` (v7.0.0+)
+For the fuller setup and behavior notes, also see:
+- `README.md`
+- `SETUP.md`
+- `docs/app-spec-current.md`
 
-2. **Add Model Files**
-   - Download `LFM2-Audio-1.5B.gguf` and `LFM2-1.2B-RAG.gguf`
-   - Drag into Xcode project (create Models folder)
-   - Add to Copy Bundle Resources
+## What this app does
 
-3. **Add Microphone Permission**
-   - Edit Info.plist
-   - Add: `NSMicrophoneUsageDescription` = "Meeting Prompter needs microphone access to record your questions for transcription."
+Puppet is an on-device iOS app for:
+- meeting transcription
+- meeting summaries
+- grounded Q&A over saved meetings
+- push-to-talk voice Q&A with spoken answers
 
-4. **Build & Run**
-   - Select physical device (⌘+R)
-   - Grant microphone permission
-   - Test push-to-talk
+## Current model roles
 
-## Project Summary
+The app uses different local models for different jobs:
+- **ASR:** `LFM2.5-Audio-1.5B-Q8_0`
+- **Summary:** `LFM2-2.6B-Transcript-Q_4_k_m` (fallback `LFM2-2.6B-Transcript-Q4_K_M`)
+- **Q&A / RAG:** `LFM2-1.2B-RAG-Q5_K_M`
+- **Spoken answers / TTS:** `LFM2.5-Audio-1.5B-Q8_0` with Apple speech fallback
 
-**Completed Features:**
-- ✅ Push-to-talk audio capture with AVAudioEngine
-- ✅ Voice activity detection (RMS threshold + hangover)
-- ✅ Rate-limited partial ASR transcription
-- ✅ SQLite FTS5 BM25 retrieval
-- ✅ Document chunking and indexing
-- ✅ Deterministic question detection
-- ✅ Sentence-based evidence extraction
-- ✅ RAG pipeline (retrieval → grounding → generation)
-- ✅ SwiftUI UI with live transcript
-- ✅ Answer + sources display
-- ✅ Unit tests (QuestionDetector, SentenceSelector, Retrieval)
-- ✅ Comprehensive README and SETUP guide
+## Fast setup checklist
 
-**Architecture:**
-- MainViewModel for centralized state management
-- Clean separation of concerns (Audio, AI, Retrieval, Grounding, UI)
-- Actor-based services for thread safety
-- Task queue for cancellation
+### 1) Open the project
+Open:
+- `meeting-transcriber.xcodeproj`
 
-**Offline-First:**
-- All processing on-device
-- Works in Airplane Mode
-- No cloud inference
-- No remote APIs
+### 2) Add package dependencies
+Required packages:
+- Leap SDK
+- GRDB
 
-## Files Created
+### 3) Bundle the local models
+Make sure your app target includes the current model assets and required audio companion files.
 
-**Core (33 files):**
-- App: MeetingPrompteriOSApp.swift, ContentView.swift
-- ViewModels: MainViewModel.swift
-- Audio: AudioCaptureService, VADGate, PushToTalkController
-- AI: LeapModelManager, ASRService, RAGService, ModelIDs
-- Retrieval: DocumentChunk, DocPackLoader, SearchIndex
-- RAG: QuestionDetector
-- Grounding: SentenceSelector
-- Utils: TaskQueue, Logger
-- Views: TranscriptView, AnswerView, SourcesView
+At minimum, verify:
+- ASR/audio model file
+- audio tokenizer
+- mmproj
+- decoder/vocoder artifact for model TTS when using spoken answers
+- transcript/summarization model
+- RAG model
 
-**Tests (3 files):**
-- QuestionDetectorTests.swift
-- SentenceSelectorTests.swift
-- RetrievalTests.swift
+### 4) Confirm microphone permission
+Verify `NSMicrophoneUsageDescription` is present in the target Info settings.
 
-**Resources:**
-- docpack.json (10 sample document chunks)
-- Info.plist (microphone permission)
-- README.md (comprehensive documentation)
-- SETUP.md (detailed Xcode setup guide)
-- Package.swift (SPM reference)
+### 5) Build on a physical device
+Recommended flow:
+- select iPhone target
+- build and run
+- grant microphone access
 
-## What's Left for You
+## First manual smoke test
 
-1. **Add Dependencies in Xcode** (manual action)
-2. **Add Model Bundles** (manual action)
-3. **Build & Test** (manual action)
+1. Launch the app.
+2. Confirm Home loads.
+3. Start **New Transcription**.
+4. Record a short meeting sample.
+5. Stop and wait for session creation.
+6. Open the saved session in **Summaries**.
+7. Confirm the summary appears.
+8. Ask a typed question.
+9. Open **Voice Q&A** and test push-to-talk.
+10. Toggle spoken answers and verify reply playback.
 
-That's it! The app code is complete and ready to compile once dependencies are added.
+## Expected current screens
+- Home
+- Transcribe
+- Summaries
+- Session
+- Chat / Voice Q&A
+- Settings
+
+## Important note
+
+This app is **working but still in progress**. If docs and runtime behavior disagree, trust the code and then update the docs.
