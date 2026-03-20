@@ -8,6 +8,7 @@ actor LiveTranscriptionService {
     private let sampleRate: Int = 16_000
     private let chunkSeconds: Double = 2.0
     private let overlapSeconds: Double = 0.5
+    private let maxBufferedSeconds: Double = 20.0
     private let asrChunkTimeoutNanoseconds: UInt64 = 8_000_000_000
 
     private var buffer: [Float] = []
@@ -38,6 +39,7 @@ actor LiveTranscriptionService {
         guard !samples.isEmpty, !isPaused else { return }
 
         buffer.append(contentsOf: samples)
+        trimBufferIfNeeded()
 
         let chunkSize = Int(chunkSeconds * Double(sampleRate))
         let overlapSize = Int(overlapSeconds * Double(sampleRate))
@@ -67,6 +69,15 @@ actor LiveTranscriptionService {
 
             await self.handleResult(text, callback: updateCallback)
         }
+    }
+
+    private func trimBufferIfNeeded() {
+        let maxBufferSize = Int(maxBufferedSeconds * Double(sampleRate))
+        guard maxBufferSize > 0, buffer.count > maxBufferSize else { return }
+
+        let removeCount = buffer.count - maxBufferSize
+        buffer.removeFirst(removeCount)
+        Logger.log("[LiveTranscription] Capped queued audio buffer by dropping \(removeCount) samples", level: .warning, category: "asr")
     }
 
     private func waitForTaskCompletion(_ task: Task<Void, Never>, timeoutNanoseconds: UInt64) async -> Bool {
@@ -161,7 +172,7 @@ actor LiveTranscriptionService {
             let result = await group.next() ?? nil
             group.cancelAll()
             if result == nil {
-                print("[LiveTranscription] ASR chunk timed out")
+                Logger.log("[LiveTranscription] ASR chunk timed out", level: .warning, category: "asr")
             }
             return result ?? ""
         }
@@ -177,7 +188,7 @@ actor LiveTranscriptionService {
         guard !cleaned.isEmpty else { return }
 
         if shouldDropRepeatedLowInformationChunk(cleaned) {
-            print("[LiveTranscription] Dropping repeated low-information chunk: '\(cleaned)'")
+            Logger.log("[LiveTranscription] Dropping repeated low-information chunk", level: .debug, category: "asr")
             return
         }
 

@@ -1,9 +1,6 @@
 import AVFoundation
 import Foundation
 import LeapSDK
-import KokoroSwift
-import MLX
-import MLXUtilsLibrary
 
 actor ModelTTSService {
     static let shared = ModelTTSService()
@@ -36,21 +33,15 @@ actor ModelTTSService {
 
     private let leapManager = LeapModelManager.shared
 
-    private let preferredVoiceID = "af_alloy"
     private let maxTTSInputCharacters = 960
     private let chunkCharacterLimit = 90
     private let speakTimeoutNanoseconds: UInt64 = 120_000_000_000
     private let minPlaybackDrainTimeoutSeconds: TimeInterval = 20
     private let playbackDrainGraceSeconds: TimeInterval = 8
 
-    private let kokoroModelRepoURL = "https://huggingface.co/mlx-community/Kokoro-82M-4bit"
-    private let kokoroVoicesRepoURL = "https://github.com/mlalma/KokoroTestApp"
     private let ttsPipelineVersion = "leap-audio-pipeline-v1"
     private let ttsSystemPrompt = "Perform TTS. Use the US female voice."
 
-    private var kokoroTTS: KokoroTTS?
-    private var voices: [String: MLXArray] = [:]
-    private var selectedVoiceKey: String?
 
     private var audioEngine: AVAudioEngine?
     private var playerNode: AVAudioPlayerNode?
@@ -351,204 +342,6 @@ actor ModelTTSService {
             combined[start + i] = (combined[start + i] * (1 - t)) + (chunk[i] * t)
         }
         combined.append(contentsOf: chunk.dropFirst(crossfadeSamples))
-    }
-
-    private func speakWithKokoro(_ text: String) async throws {
-        // Keep resident memory stable by unloading inference models before Kokoro generation.
-        await leapManager.unloadASR()
-        await leapManager.unloadRAG()
-        await leapManager.unloadTranscript()
-        await leapManager.unloadTTS()
-
-        let utterance = sanitizeForSpeech(text)
-        guard !utterance.isEmpty else {
-            throw ModelTTSError.noAudioSamples
-        }
-        let chunks = splitIntoSpeechChunks(utterance, maxCharacters: chunkCharacterLimit)
-        guard !chunks.isEmpty else {
-            throw ModelTTSError.noAudioSamples
-        }
-
-        try ensureKokoroLoaded()
-        guard let kokoroTTS else {
-            throw ModelTTSError.modelNotLoaded
-        }
-        guard let voiceEmbedding = resolveVoiceEmbedding() else {
-            throw ModelTTSError.voiceNotFound("No voice embedding available")
-        }
-
-        let language: Language = (selectedVoiceKey?.hasPrefix("a") ?? true) ? .enUS : .enGB
-        let sampleRate = Double(KokoroTTS.Constants.samplingRate)
-        try setupEngineIfNeeded(sampleRate: sampleRate)
-
-        var totalSamples = 0
-        for (idx, chunk) in chunks.enumerated() {
-            print("[KokoroTTS] Speaking chunk \(idx + 1)/\(chunks.count), chars=\(chunk.count), voice=\(selectedVoiceKey ?? "<unknown>")")
-
-            let (audio, _) = try kokoroTTS.generateAudio(
-                voice: voiceEmbedding,
-                language: language,
-                text: chunk,
-                speed: 1.0
-            )
-
-            let cleaned = sanitizeGeneratedAudio(audio)
-            guard !cleaned.isEmpty else { continue }
-
-            totalSamples += cleaned.count
-            try await enqueueAndWait(samples: cleaned, sampleRate: sampleRate)
-        }
-
-        guard totalSamples > 0 else {
-            throw ModelTTSError.noAudioSamples
-        }
-
-        let seconds = Double(totalSamples) / sampleRate
-        print("[KokoroTTS] Audio output queued: \(totalSamples) samples @ \(Int(sampleRate))Hz (~\(String(format: "%.2f", seconds))s)")
-    }
-
-    private func ensureKokoroLoaded() throws {
-        if kokoroTTS != nil, !voices.isEmpty {
-            return
-        }
-
-        // Mirror KokoroTestApp defaults for stable GPU utilization.
-        Memory.cacheLimit = 50 * 1024 * 1024
-        Memory.memoryLimit = 900 * 1024 * 1024
-
-        let modelURL = try resolveKokoroModelURL()
-        let voicesURL = try resolveKokoroVoicesURL()
-        try verifyKokoroModelCompatibility(at: modelURL)
-
-        print("[KokoroTTS] Loading model: \(modelURL.path)")
-        kokoroTTS = KokoroTTS(modelPath: modelURL, g2p: .misaki)
-
-        guard let loadedVoices = NpyzReader.read(fileFromPath: voicesURL), !loadedVoices.isEmpty else {
-            throw ModelTTSError.voiceNotFound(
-                "Could not read voices from \(voicesURL.lastPathComponent). Include a valid voices.npz in models/tts."
-            )
-        }
-
-        voices = loadedVoices
-        selectedVoiceKey = preferredVoiceKey(from: loadedVoices, preferred: preferredVoiceID)
-        print("[KokoroTTS] Loaded voices: \(loadedVoices.count), selected=\(selectedVoiceKey ?? "<none>")")
-    }
-
-    private func verifyKokoroModelCompatibility(at modelURL: URL) throws {
-        let handle = try FileHandle(forReadingFrom: modelURL)
-        defer { try? handle.close() }
-
-        guard let lengthData = try handle.read(upToCount: 8), lengthData.count == 8 else {
-            throw ModelTTSError.modelAssetsMissing("Kokoro model header is unreadable: \(modelURL.lastPathComponent)")
-        }
-
-        var rawLength: UInt64 = 0
-        _ = withUnsafeMutableBytes(of: &rawLength) { dst in
-            lengthData.copyBytes(to: dst)
-        }
-        let headerLength = UInt64(littleEndian: rawLength)
-
-        // Safetensors headers are small JSON blobs; this guards against corrupted files.
-        guard headerLength > 0, headerLength < 32 * 1024 * 1024 else {
-            throw ModelTTSError.incompatibleModelAssets(
-                "Kokoro model header size looks invalid (\(headerLength) bytes): \(modelURL.lastPathComponent)"
-            )
-        }
-
-        guard let headerData = try handle.read(upToCount: Int(headerLength)), headerData.count == Int(headerLength) else {
-            throw ModelTTSError.modelAssetsMissing("Kokoro model header could not be fully read: \(modelURL.lastPathComponent)")
-        }
-
-        guard let json = try JSONSerialization.jsonObject(with: headerData) as? [String: Any] else {
-            throw ModelTTSError.incompatibleModelAssets(
-                "Kokoro model header is not valid JSON. Use the kokoro-v1_0 model format expected by kokoro-ios."
-            )
-        }
-
-        let keys = Set(json.keys.filter { $0 != "__metadata__" })
-        let requiredKeys = [
-            "predictor.text_encoder.lstms.0.weight_ih_l0",
-            "predictor.shared.weight_ih_l0",
-            "text_encoder.lstm.weight_ih_l0",
-            "text_encoder.cnn.0.1.gamma",
-            "decoder.generator.noise_convs.0.weight",
-        ]
-        let missing = requiredKeys.filter { !keys.contains($0) }
-        guard missing.isEmpty else {
-            throw ModelTTSError.incompatibleModelAssets(
-                """
-                Incompatible Kokoro model file: \(modelURL.lastPathComponent).
-                Missing required tensors: \(missing.joined(separator: ", ")).
-                Use the kokoro-v1_0.safetensors artifact compatible with kokoro-ios.
-                """
-            )
-        }
-    }
-
-    private func resolveKokoroModelURL() throws -> URL {
-        if let bundled = Bundle.main.url(forResource: "kokoro-v1_0", withExtension: "safetensors", subdirectory: "models/tts") {
-            return bundled
-        }
-        if let bundledRoot = Bundle.main.url(forResource: "kokoro-v1_0", withExtension: "safetensors") {
-            return bundledRoot
-        }
-
-        let staged = try appSupportKokoroDirectory().appendingPathComponent("kokoro-v1_0.safetensors", isDirectory: false)
-        if FileManager.default.fileExists(atPath: staged.path) {
-            return staged
-        }
-
-        throw ModelTTSError.modelAssetsMissing(
-            "Kokoro model not found. Add kokoro-v1_0.safetensors to models/tts (or stage it at \(staged.path)). Source: \(kokoroModelRepoURL)"
-        )
-    }
-
-    private func resolveKokoroVoicesURL() throws -> URL {
-        if let bundled = Bundle.main.url(forResource: "voices", withExtension: "npz", subdirectory: "models/tts") {
-            return bundled
-        }
-        if let bundledRoot = Bundle.main.url(forResource: "voices", withExtension: "npz") {
-            return bundledRoot
-        }
-
-        let staged = try appSupportKokoroDirectory().appendingPathComponent("voices.npz", isDirectory: false)
-        if FileManager.default.fileExists(atPath: staged.path) {
-            return staged
-        }
-
-        throw ModelTTSError.modelAssetsMissing(
-            "Kokoro voices not found. Add voices.npz to models/tts (or stage it at \(staged.path)). Example source: \(kokoroVoicesRepoURL)"
-        )
-    }
-
-    private func appSupportKokoroDirectory() throws -> URL {
-        let base = try FileManager.default.url(
-            for: .applicationSupportDirectory,
-            in: .userDomainMask,
-            appropriateFor: nil,
-            create: true
-        )
-        let dir = base
-            .appendingPathComponent("MeetingPrompterModels", isDirectory: true)
-            .appendingPathComponent("kokoro", isDirectory: true)
-        try FileManager.default.createDirectory(at: dir, withIntermediateDirectories: true)
-        return dir
-    }
-
-    private func preferredVoiceKey(from allVoices: [String: MLXArray], preferred: String) -> String? {
-        let preferredWithSuffix = preferred + ".npy"
-        if allVoices[preferredWithSuffix] != nil {
-            return preferredWithSuffix
-        }
-        if allVoices[preferred] != nil {
-            return preferred
-        }
-        return allVoices.keys.sorted().first
-    }
-
-    private func resolveVoiceEmbedding() -> MLXArray? {
-        guard let key = selectedVoiceKey else { return nil }
-        return voices[key]
     }
 
     private func enqueueAndWait(samples: [Float], sampleRate: Double) async throws {
@@ -929,9 +722,6 @@ enum ModelTTSError: LocalizedError {
     case noAudioSamples
     case playbackDrainTimeout
     case modelNotLoaded
-    case modelAssetsMissing(String)
-    case incompatibleModelAssets(String)
-    case voiceNotFound(String)
     case audioEngineNotReady
     case audioSessionConfigurationFailed(String)
 
@@ -943,12 +733,6 @@ enum ModelTTSError: LocalizedError {
             return "Timed out while waiting for audio playback to drain"
         case .modelNotLoaded:
             return "Model TTS was not loaded"
-        case .modelAssetsMissing(let message):
-            return message
-        case .incompatibleModelAssets(let message):
-            return message
-        case .voiceNotFound(let message):
-            return message
         case .audioEngineNotReady:
             return "Audio engine is not ready"
         case .audioSessionConfigurationFailed(let message):

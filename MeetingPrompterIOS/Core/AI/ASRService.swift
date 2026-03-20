@@ -16,34 +16,28 @@ actor ASRService {
             _ = try await leapManager.getASRModel()
             return true
         } catch {
-            print("[ASR] prepare failed: \(error)")
+            Logger.log("[ASR] prepare failed: \(error.localizedDescription)", level: .error, category: "asr")
             return false
         }
     }
 
     func transcribe(samples: [Float]) async -> String {
-        guard !samples.isEmpty else {
-            print("[ASR] Empty samples, returning empty string")
-            return ""
-        }
+        guard !samples.isEmpty else { return "" }
 
-        print("[ASR] Transcribing \(samples.count) samples...")
+        Logger.log("[ASR] Transcribing \(samples.count) samples", level: .debug, category: "asr")
         do {
             let model = try await leapManager.getASRModel()
             let result = try await performASRTranscription(model: model, audio: samples)
             return result.trimmingCharacters(in: .whitespacesAndNewlines)
         } catch {
-            print("ASR error: \(error)")
+            Logger.log("[ASR] Transcription failed: \(error.localizedDescription)", level: .error, category: "asr")
             return ""
         }
     }
 
     // MVP: used by LiveTranscriptionService for chunked transcription.
     func transcribeChunk(samples: [Float]) async -> String {
-        print("[DEBUG ASRService] transcribeChunk: \(samples.count) samples")
-        let result = await transcribe(samples: samples)
-        print("[DEBUG ASRService] transcribeChunk result: '\(String(result.prefix(100)))'")
-        return result
+        await transcribe(samples: samples)
     }
     
     func transcribePartial(samples: [Float]) async -> String {
@@ -87,7 +81,7 @@ actor ASRService {
         }
 
         let cleaned = response.trimmingCharacters(in: .whitespacesAndNewlines)
-        print("[ASR] transcription finished, len=\(cleaned.count), preview='\(String(cleaned.prefix(80)))'")
+        Logger.log("[ASR] transcription finished, len=\(cleaned.count)", level: .debug, category: "asr")
         return cleaned
     }
 }

@@ -5,7 +5,7 @@ actor AudioCaptureService {
     
     private var audioEngine: AVAudioEngine?
     private var audioBuffer: [Float] = []
-    private let bufferSizeInSeconds: Double = 12.0
+    private let bufferSizeInSeconds: Double = 24.0
     private let sampleRate: Double = 16000.0
     private var isCapturing = false
     

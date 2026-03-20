@@ -46,20 +46,20 @@ actor RAGService {
     }
     
     func generateAnswer(question: String) async throws -> RAGAnswer {
-        print("[RAG] generateAnswer called with question: \(question)")
+        Logger.log("[RAG] generateAnswer called; questionLen=\(question.count)", level: .debug, category: "rag")
         
-        print("[RAG] Searching for chunks...")
+        Logger.log("[RAG] Searching for chunks", level: .debug, category: "rag")
         let retrievedChunks: [DocumentChunk]
         do {
             retrievedChunks = try await searchIndex.search(query: question, topK: 8)
-            print("[RAG] Found \(retrievedChunks.count) chunks")
+            Logger.log("[RAG] Found \(retrievedChunks.count) chunks", level: .debug, category: "rag")
         } catch {
-            print("[RAG] Search failed: \(error)")
+            Logger.log("[RAG] Search failed: \(error.localizedDescription)", level: .error, category: "rag")
             throw error
         }
         
         guard !retrievedChunks.isEmpty else {
-            print("[RAG] No chunks found, returning default answer")
+            Logger.log("[RAG] No chunks found; returning default answer", level: .debug, category: "rag")
             return RAGAnswer(
                 question: question,
                 answer: "Not enough evidence in sources.",
@@ -68,7 +68,7 @@ actor RAGService {
         }
 
         let sources = buildSourcesBlock(chunks: retrievedChunks, maxSources: 12)
-        print("[RAG] Evidence block created, loading model...")
+        Logger.log("[RAG] Evidence block created; loading model", level: .debug, category: "rag")
         // Keep memory footprint bounded during Q8 voice flows.
         await leapManager.unloadASR()
         await leapManager.unloadTTS()
@@ -77,27 +77,15 @@ actor RAGService {
         let model: any ModelRunner
         do {
             model = try await leapManager.getRAGModel()
-            print("[RAG] Creating conversation. Runner type: \(String(describing: type(of: model)))")
-            print("[RAG] RAG model type: \(type(of: model))")
+            Logger.log("[RAG] Model loaded (runner=\(String(describing: type(of: model))))", level: .debug, category: "rag")
         } catch {
-            print("[RAG] Model loading failed: \(error)")
+            Logger.log("[RAG] Model loading failed: \(error.localizedDescription)", level: .error, category: "rag")
             throw error
         }
         
         let systemPrompt = "Answer ONLY using SOURCES. Use a natural conversational tone (avoid numbered lists unless asked). Keep it concise (2-4 sentences). Add citations only where helpful, typically at sentence endings like [S1]. If not answerable, reply exactly: Not enough evidence in sources."
         
-        // Debug logging
-        let trimmedPrompt = systemPrompt.trimmingCharacters(in: .whitespacesAndNewlines)
-        print("[RAG] System prompt - Length: \(trimmedPrompt.count), Preview: \"\(String(trimmedPrompt.prefix(120)))\"")
-        print("[RAG] Creating conversation. Runner type: \(String(describing: type(of: model)))")
-        print("[RAG] RAG conversation system prompt: \"\(systemPrompt)\"")
-
         let conversation = model.createConversation(systemPrompt: systemPrompt)
-        
-        // CRITICAL: Verify we're not accidentally using audio engine
-        print("[RAG] CONVERSATION CREATED - about to start generation")
-        print("[RAG] System prompt accepted without 'Perform ASR' error - indicates text engine")
-        print("[RAG] If audio engine was loaded, we would see 'Invalid system prompt' by now")
         
         let userPrompt = """
         SOURCES:
@@ -114,11 +102,11 @@ actor RAGService {
         - If not answerable, say "Not enough evidence in sources." and nothing else.
         """
         
-        print("[RAG] User prompt length: \(userPrompt.count)")
+        Logger.log("[RAG] User prompt built; promptLen=\(userPrompt.count)", level: .debug, category: "rag")
         let userMessage = LeapSDK.ChatMessage(role: .user, content: [.text(userPrompt)])
         var response = ""
 
-        print("[RAG] Starting generation with RAG model...")
+        Logger.log("[RAG] Starting generation with RAG model", level: .debug, category: "rag")
         for try await messageResponse in conversation.generateResponse(message: userMessage) {
             switch messageResponse {
             case .chunk(let delta):
@@ -148,16 +136,16 @@ actor RAGService {
     
     // MVP Option 1: Generate answer using provided chunks (current meeting transcript)
     func generateAnswer(question: String, chunks: [DocumentChunk]) async throws -> (answer: String, sources: [DocumentChunk]) {
-        print("[RAG] generateAnswer(question:chunks:) questionLen=\(question.count), chunks=\(chunks.count)")
+        Logger.log("[RAG] generateAnswer(question:chunks:) questionLen=\(question.count), chunks=\(chunks.count)", level: .debug, category: "rag")
         
         guard !chunks.isEmpty else {
-            print("[RAG] No current meeting chunks provided")
+            Logger.log("[RAG] No current meeting chunks provided", level: .debug, category: "rag")
             return (answer: "I don't have current meeting transcript to answer from.", sources: [])
         }
         
         let sources = buildSourcesBlock(chunks: chunks, maxSources: 12)
 
-        print("[RAG] Sources block created from meeting chunks, loading model...")
+        Logger.log("[RAG] Sources block created from meeting chunks; loading model", level: .debug, category: "rag")
         // Keep memory footprint bounded during Q8 voice flows.
         await leapManager.unloadASR()
         await leapManager.unloadTTS()
@@ -166,15 +154,14 @@ actor RAGService {
         let model: any ModelRunner
         do {
             model = try await leapManager.getRAGModel()
-            print("[RAG] Model loaded. Runner type: \(String(describing: type(of: model)))")
+            Logger.log("[RAG] Model loaded (runner=\(String(describing: type(of: model))))", level: .debug, category: "rag")
         } catch {
-            print("[RAG] Model loading failed: \(error)")
+            Logger.log("[RAG] Model loading failed: \(error.localizedDescription)", level: .error, category: "rag")
             throw error
         }
         
         let systemPrompt = "Answer ONLY using SOURCES. Use a natural conversational tone (avoid numbered lists unless asked). Keep it concise (2-4 sentences). Add citations only where helpful, typically at sentence endings like [S1]. If not answerable, reply exactly: Not enough evidence in sources."
         
-        print("[RAG] Creating conversation. Runner type: \(String(describing: type(of: model)))")
         let conversation = model.createConversation(systemPrompt: systemPrompt)
         
         let userPrompt = """
@@ -195,7 +182,7 @@ actor RAGService {
         let userMessage = LeapSDK.ChatMessage(role: .user, content: [.text(userPrompt)])
         var response = ""
 
-        print("[RAG] Starting generation with current meeting evidence...")
+        Logger.log("[RAG] Starting generation with current meeting evidence", level: .debug, category: "rag")
         for try await messageResponse in conversation.generateResponse(message: userMessage) {
             switch messageResponse {
             case .chunk(let delta):
