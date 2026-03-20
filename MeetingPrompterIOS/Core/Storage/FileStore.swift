@@ -15,17 +15,53 @@ actor FileStore {
         return base
     }
 
-    func createSession(createdAt: Date = Date()) throws -> MeetingSession {
-        let base = try meetingsBaseDirectory()
-
+    private func sessionTimestamp(createdAt: Date) -> String {
         let formatter = DateFormatter()
         formatter.locale = Locale(identifier: "en_US_POSIX")
         formatter.timeZone = TimeZone(secondsFromGMT: 0)
-        formatter.dateFormat = "yyyyMMdd_HHmmss"
-        let stamp = formatter.string(from: createdAt)
+        formatter.dateFormat = "yyyyMMdd_HHmmss_SSS"
+        return formatter.string(from: createdAt)
+    }
 
-        let folderName = "meeting_\(stamp)"
-        let folderURL = base.appendingPathComponent(folderName, isDirectory: true)
+    private func createdAtFromSessionName(_ name: String, fallback: Date) -> Date {
+        let payload = String(name.dropFirst("meeting_".count))
+
+        let withMillis = DateFormatter()
+        withMillis.locale = Locale(identifier: "en_US_POSIX")
+        withMillis.timeZone = TimeZone(secondsFromGMT: 0)
+        withMillis.dateFormat = "yyyyMMdd_HHmmss_SSS"
+
+        let withoutMillis = DateFormatter()
+        withoutMillis.locale = Locale(identifier: "en_US_POSIX")
+        withoutMillis.timeZone = TimeZone(secondsFromGMT: 0)
+        withoutMillis.dateFormat = "yyyyMMdd_HHmmss"
+
+        if payload.count >= 19 {
+            let stampWithMillis = String(payload.prefix(19))
+            if let parsed = withMillis.date(from: stampWithMillis) {
+                return parsed
+            }
+        }
+
+        if payload.count >= 15 {
+            let stampNoMillis = String(payload.prefix(15))
+            if let parsed = withoutMillis.date(from: stampNoMillis) {
+                return parsed
+            }
+        }
+
+        return fallback
+    }
+
+    func createSession(createdAt: Date = Date()) throws -> MeetingSession {
+        let base = try meetingsBaseDirectory()
+        let stamp = sessionTimestamp(createdAt: createdAt)
+        var folderName = "meeting_\(stamp)_\(String(UUID().uuidString.prefix(8)).lowercased())"
+        var folderURL = base.appendingPathComponent(folderName, isDirectory: true)
+        while FileManager.default.fileExists(atPath: folderURL.path) {
+            folderName = "meeting_\(stamp)_\(String(UUID().uuidString.prefix(8)).lowercased())"
+            folderURL = base.appendingPathComponent(folderName, isDirectory: true)
+        }
         try FileManager.default.createDirectory(at: folderURL, withIntermediateDirectories: true)
 
         let audioURL = folderURL.appendingPathComponent("\(folderName).m4a", isDirectory: false)
@@ -52,11 +88,6 @@ actor FileStore {
         let keys: Set<URLResourceKey> = [.isDirectoryKey, .creationDateKey]
         let urls = try fm.contentsOfDirectory(at: base, includingPropertiesForKeys: Array(keys), options: [.skipsHiddenFiles])
 
-        let formatter = DateFormatter()
-        formatter.locale = Locale(identifier: "en_US_POSIX")
-        formatter.timeZone = TimeZone(secondsFromGMT: 0)
-        formatter.dateFormat = "yyyyMMdd_HHmmss"
-
         var sessions: [MeetingSession] = []
         sessions.reserveCapacity(urls.count)
 
@@ -67,8 +98,8 @@ actor FileStore {
             let values = try? url.resourceValues(forKeys: keys)
             guard values?.isDirectory == true else { continue }
 
-            let stamp = String(name.dropFirst("meeting_".count))
-            let createdAt = formatter.date(from: stamp) ?? values?.creationDate ?? Date()
+            let fallbackDate = values?.creationDate ?? Date()
+            let createdAt = createdAtFromSessionName(name, fallback: fallbackDate)
 
             let audioURL = url.appendingPathComponent("\(name).m4a", isDirectory: false)
             let transcriptURL = url.appendingPathComponent("\(name)_transcript.txt", isDirectory: false)

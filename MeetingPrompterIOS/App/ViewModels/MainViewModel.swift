@@ -124,8 +124,6 @@ class MainViewModel: ObservableObject {
     private var recordingTimerTask: Task<Void, Never>?
 
     private init() {}
-    
-
 
     func initialize() async {
         guard case .idle = appState else { return }
@@ -208,23 +206,20 @@ class MainViewModel: ObservableObject {
         await leapManager.unloadRAG()
 
         await liveTranscription.reset(onUpdate: { [weak self] text in
-            print("[DEBUG UI] transcriptLive updated: length=\(text.count), last50='\(String(text.prefix(50)).suffix(50))'")
             self?.transcriptLive = text
         })
 
         do {
             try await audioCapture.startCapture { [weak self] samples in
                 guard let self else { return }
-                print("[DEBUG AudioCapture] Received \(samples.count) samples")
                 Task {
-                    print("[DEBUG AudioCapture] Calling liveTranscription.append with \(samples.count) samples")
                     await self.liveTranscription.append(samples: samples)
-                    print("[DEBUG AudioCapture] append completed")
                 }
             }
         } catch {
             stopRecordingTimer()
             await audioFileRecorder.stopRecording()
+            cleanupTempRecording(removeFile: true)
             appState = .error(error)
         }
     }
@@ -263,6 +258,7 @@ class MainViewModel: ObservableObject {
 
             let trimmed = fullTranscript.trimmingCharacters(in: .whitespacesAndNewlines)
             guard !trimmed.isEmpty else {
+                cleanupTempRecording(removeFile: true)
                 await MainActor.run { self.appState = .idle }
                 return
             }
@@ -291,8 +287,7 @@ class MainViewModel: ObservableObject {
                 if let tmpURL = tempAudioURL, FileManager.default.fileExists(atPath: tmpURL.path) {
                     try await fileStore.moveItem(from: tmpURL, to: session.audioURL)
                 }
-                tempAudioURL = nil
-                recordingStartDate = nil
+                cleanupTempRecording()
 
                 await MainActor.run { self.appState = .idle }
                 await MainActor.run { self.activeSession = session }
@@ -337,9 +332,20 @@ class MainViewModel: ObservableObject {
                     )
                 }
             } catch {
+                cleanupTempRecording(removeFile: true)
                 await MainActor.run { self.appState = .error(error) }
             }
         }
+    }
+
+    private func cleanupTempRecording(removeFile: Bool = false) {
+        if removeFile,
+           let tmpURL = tempAudioURL,
+           FileManager.default.fileExists(atPath: tmpURL.path) {
+            try? FileManager.default.removeItem(at: tmpURL)
+        }
+        tempAudioURL = nil
+        recordingStartDate = nil
     }
 
     private func makeTempAudioURL(createdAt: Date) throws -> URL {
@@ -350,10 +356,11 @@ class MainViewModel: ObservableObject {
         let formatter = DateFormatter()
         formatter.locale = Locale(identifier: "en_US_POSIX")
         formatter.timeZone = TimeZone(secondsFromGMT: 0)
-        formatter.dateFormat = "yyyyMMdd_HHmmss"
+        formatter.dateFormat = "yyyyMMdd_HHmmss_SSS"
         let stamp = formatter.string(from: createdAt)
+        let nonce = String(UUID().uuidString.prefix(8)).lowercased()
 
-        return tmpDir.appendingPathComponent("recording_\(stamp).m4a", isDirectory: false)
+        return tmpDir.appendingPathComponent("recording_\(stamp)_\(nonce).m4a", isDirectory: false)
     }
 
     // MVP Option 1: Called from UI when user taps Ask.
