@@ -1,0 +1,297 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>{{ app_title }}</title>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="/static/styles.css" />
+</head>
+<body>
+  <div class="app-shell">
+    <aside class="sidebar">
+      <div class="brand-block">
+        <div class="brand-mark">H</div>
+        <div>
+          <p class="eyebrow">Hermes meeting studio</p>
+          <h1>Meeting Prompter</h1>
+          <p class="subdued sidebar-copy">A dedicated app-test workspace for live transcription, summary, and multi-turn voice conversation.</p>
+        </div>
+      </div>
+
+      <button id="new-meeting-button" class="primary-button full-width">New meeting session</button>
+
+      <section class="sidebar-section session-list-section">
+        <div class="section-head">
+          <h2>Sessions</h2>
+          <span id="meeting-count" class="pill">0</span>
+        </div>
+        <div id="meeting-list" class="meeting-list"></div>
+      </section>
+
+      <section class="sidebar-section compact">
+        <div class="section-head">
+          <h2>Local model stack</h2>
+        </div>
+        <dl id="model-status" class="status-grid mini"></dl>
+      </section>
+    </aside>
+
+    <main class="workspace">
+      <header class="workspace-header">
+        <div>
+          <p class="eyebrow">Phone-first local workflow</p>
+          <h2 id="workspace-title">Create a meeting to begin</h2>
+          <p id="workspace-subtitle" class="subdued">{{ tailscale_hint }}</p>
+        </div>
+        <div class="header-badges">
+          <span class="pill accent">Tabbed operator view</span>
+          <span id="recording-state" class="pill subtle">Idle</span>
+          <div id="secure-context-badge" class="connection-badge">Checking browser security…</div>
+        </div>
+      </header>
+
+      <nav class="tabs-bar" aria-label="Workspace tabs">
+        <button class="tab-button active" data-tab="overview">Overview</button>
+        <button class="tab-button" data-tab="capture">Capture</button>
+        <button class="tab-button" data-tab="transcript">Transcript</button>
+        <button class="tab-button" data-tab="summary">Summary</button>
+        <button class="tab-button" data-tab="talk">Talk</button>
+        <button class="tab-button" data-tab="artifacts">Artifacts</button>
+      </nav>
+
+      <section id="tab-overview" class="tab-panel active">
+        <div class="hero-grid">
+          <section class="hero-card">
+            <div class="card-head">
+              <div>
+                <p class="eyebrow">Workflow</p>
+                <h3>Record, watch transcript stream, then keep talking</h3>
+              </div>
+              <span class="pill accent">Local-first</span>
+            </div>
+            <ol class="flow-list">
+              <li><span>1</span>Record from Safari on iPhone or desktop.</li>
+              <li><span>2</span>See the transcript preview update while recording.</li>
+              <li><span>3</span>Review clean transcript and summary in dedicated tabs.</li>
+              <li><span>4</span>Use the Talk tab for multi-turn text or voice follow-ups.</li>
+              <li><span>5</span>Watch reactive audio while Kokoro speaks the reply.</li>
+            </ol>
+          </section>
+
+          <section class="hero-card metrics-card">
+            <div class="card-head">
+              <div>
+                <p class="eyebrow">Session state</p>
+                <h3>Everything visible, nothing hidden</h3>
+              </div>
+            </div>
+            <div id="meeting-status" class="status-grid"></div>
+          </section>
+        </div>
+
+        <div class="panel-grid lower">
+          <section class="panel wide-panel">
+            <div class="card-head">
+              <div>
+                <p class="eyebrow">Quick glance</p>
+                <h3>Live preview, summary, and latest answer</h3>
+              </div>
+            </div>
+            <div class="overview-grid">
+              <div class="overview-card">
+                <p class="eyebrow">Live preview</p>
+                <div id="overview-live-preview" class="overview-body">No live transcription yet.</div>
+              </div>
+              <div class="overview-card">
+                <p class="eyebrow">Summary snapshot</p>
+                <div id="overview-summary" class="overview-body">No summary yet.</div>
+              </div>
+              <div class="overview-card">
+                <p class="eyebrow">Latest answer</p>
+                <div id="overview-answer" class="overview-body">No answers yet.</div>
+              </div>
+            </div>
+          </section>
+        </div>
+      </section>
+
+      <section id="tab-capture" class="tab-panel hidden-pane">
+        <div class="panel-grid lower capture-layout">
+          <section class="panel capture-panel">
+            <div class="card-head">
+              <div>
+                <p class="eyebrow">Capture controls</p>
+                <h3>Record a meeting clip</h3>
+              </div>
+              <div class="inline-badges">
+                <span id="capture-timer" class="pill subtle">00:00</span>
+                <span class="pill accent">Streaming preview</span>
+              </div>
+            </div>
+            <p class="panel-copy">While recording, the browser uploads rolling audio snapshots so the transcript preview stays visible instead of landing all at once after stop.</p>
+            <div class="button-row">
+              <button id="record-toggle" class="primary-button" disabled>Start meeting recording</button>
+              <button id="summarize-button" class="secondary-button" disabled>Regenerate summary</button>
+            </div>
+            <p id="capture-feedback" class="feedback">Create a meeting first.</p>
+          </section>
+
+          <section class="panel live-preview-panel">
+            <div class="card-head">
+              <div>
+                <p class="eyebrow">Live transcript preview</p>
+                <h3>Streaming text during capture</h3>
+              </div>
+              <span class="pill subtle">Near real time</span>
+            </div>
+            <textarea id="live-preview-box" class="artifact-box live-box" placeholder="Live transcription preview appears here while recording." readonly></textarea>
+          </section>
+        </div>
+      </section>
+
+      <section id="tab-transcript" class="tab-panel hidden-pane">
+        <div class="panel-grid transcript-grid">
+          <section class="panel">
+            <div class="card-head">
+              <div>
+                <p class="eyebrow">Clean transcript</p>
+                <h3>Readable working transcript</h3>
+              </div>
+              <span class="pill subtle">Meeting scoped</span>
+            </div>
+            <textarea id="transcript-box" class="artifact-box transcript-box" placeholder="Transcript will appear here after processing." readonly></textarea>
+          </section>
+
+          <section class="panel">
+            <div class="card-head">
+              <div>
+                <p class="eyebrow">Raw transcript</p>
+                <h3>Recognizer output</h3>
+              </div>
+              <span class="pill subtle">Debuggable</span>
+            </div>
+            <textarea id="raw-transcript-box" class="artifact-box transcript-box" placeholder="Raw transcript appears here." readonly></textarea>
+          </section>
+        </div>
+      </section>
+
+      <section id="tab-summary" class="tab-panel hidden-pane">
+        <div class="panel-grid lower">
+          <section class="panel wide-panel">
+            <div class="card-head">
+              <div>
+                <p class="eyebrow">Meeting summary</p>
+                <h3>Readable brief with decisions and actions</h3>
+              </div>
+              <span class="pill accent">Gemma ready</span>
+            </div>
+            <textarea id="summary-box" class="artifact-box summary-box" placeholder="Summary markdown appears here automatically after transcription." readonly></textarea>
+          </section>
+        </div>
+      </section>
+
+      <section id="tab-talk" class="tab-panel hidden-pane">
+        <div class="panel-grid talk-grid">
+          <section class="panel conversation-panel">
+            <div class="card-head">
+              <div>
+                <p class="eyebrow">Conversation</p>
+                <h3>Multi-turn audio + text Q&A</h3>
+              </div>
+              <div class="toggle-stack">
+                <label class="toggle-row">
+                  <input id="speak-toggle" type="checkbox" />
+                  <span>Speak replies</span>
+                </label>
+                <label class="toggle-row">
+                  <input id="handsfree-toggle" type="checkbox" />
+                  <span>Hands-free auto-stop</span>
+                </label>
+              </div>
+            </div>
+
+            <div id="conversation-thread" class="conversation-thread"></div>
+
+            <div class="qa-controls sticky-controls">
+              <textarea id="question-input" class="question-input" placeholder="Ask a follow-up about this meeting…"></textarea>
+              <div class="button-row">
+                <button id="ask-button" class="primary-button" disabled>Send question</button>
+                <button id="voice-question-button" class="voice-button" disabled>Hold to talk</button>
+              </div>
+              <p id="qa-feedback" class="feedback">Create or select a meeting first.</p>
+            </div>
+          </section>
+
+          <section class="panel answer-stage-panel">
+            <div class="card-head">
+              <div>
+                <p class="eyebrow">Answer stage</p>
+                <h3>Spoken reply with reactive audio</h3>
+              </div>
+              <span class="pill subtle">Kokoro output</span>
+            </div>
+
+            <div class="answer-card spotlight">
+              <p class="eyebrow">Latest answer</p>
+              <div id="answer-text" class="answer-text">No answer yet.</div>
+              <div id="answer-meta" class="answer-meta">Grounding and provider details will appear here.</div>
+              <div class="audio-reactive-shell">
+                <div id="audio-reactive-bars" class="audio-reactive-bars" aria-hidden="true"></div>
+                <audio id="answer-audio" controls class="answer-audio hidden"></audio>
+              </div>
+            </div>
+
+            <div class="sources-card">
+              <p class="eyebrow">Grounding sources</p>
+              <div id="sources-list" class="sources-list"></div>
+            </div>
+          </section>
+        </div>
+      </section>
+
+      <section id="tab-artifacts" class="tab-panel hidden-pane">
+        <div class="panel-grid artifacts-grid">
+          <section class="panel">
+            <div class="card-head">
+              <div>
+                <p class="eyebrow">Artifact links</p>
+                <h3>Saved files for this meeting</h3>
+              </div>
+            </div>
+            <div id="artifact-links" class="artifact-links"></div>
+          </section>
+
+          <section class="panel">
+            <div class="card-head">
+              <div>
+                <p class="eyebrow">Pipeline log</p>
+                <h3>Creation events on screen</h3>
+              </div>
+            </div>
+            <div id="artifact-log" class="artifact-log"></div>
+          </section>
+        </div>
+      </section>
+    </main>
+  </div>
+
+  <template id="meeting-item-template">
+    <button class="meeting-item">
+      <span class="meeting-title"></span>
+      <span class="meeting-preview"></span>
+      <span class="meeting-meta"></span>
+    </button>
+  </template>
+
+  <template id="conversation-item-template">
+    <article class="conversation-item">
+      <div class="conversation-question"></div>
+      <div class="conversation-answer"></div>
+      <div class="conversation-meta"></div>
+    </article>
+  </template>
+
+  <script src="/static/app.js" defer></script>
+</body>
+</html>
